@@ -262,7 +262,7 @@ Eigen::Matrix3d skew(const Eigen::Vector3d vec)
 
 
 // vector from skew symmetric matrix
-Eigen::Vector3d skew(const Eigen::Matrix3d mat)
+Eigen::Vector3d vex(const Eigen::Matrix3d mat)
 {
   Eigen::Vector3d v(mat(2,1), mat(0,2), mat(1,0));
   return v;
