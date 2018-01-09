@@ -114,19 +114,25 @@ void Quaternion::normalize()
 // conversion from quaternion to roll angle
 double Quaternion::phi()
 {
-  return atan2(2*w*x + 2*y*z, w*w + z*z - x*x - y*y);
+  return atan2(2*(w*x + y*z), 1 - 2*(x*x + y*y));
 }
 
 // conversion from quaternion to pitch angle
 double Quaternion::theta()
 {
-  return asin(2*w*y - 2*x*z);
+  double val = 2*(w*y - x*z);
+
+  // hold at 90 degrees if invalid
+  if (fabs(val) > 1)
+    return copysign(1, val)*M_PI/2;
+  else
+    return asin(val);
 }
 
 // conversion from quaternion to yaw angle
 double Quaternion::psi()
 {
-  return atan2(2*w*z + 2*x*y, w*w + x*x - y*y - z*z);
+  return atan2(2*(w*z + x*y), 1 - 2*(y*y + z*z));
 }
 
 // convert Quaternion to Eigen vector

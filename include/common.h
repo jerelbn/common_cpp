@@ -8,7 +8,9 @@
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Dense>
 #include <iostream>
+#include <cmath>
 
+#define _USE_MATH_DEFINES
 #define GRAVITY 9.80665
 
 namespace common
