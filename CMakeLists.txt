@@ -5,7 +5,10 @@ project( common_cpp )
 # set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_BUILD_TYPE Release)
 
-# Use C++11 Standard
+# use C++11 standard
+set(CMAKE_CXX_STANDARD 11)
+
+# enable multi-threading for Eigen
 set(CMAKE_CXX_FLAGS "-std=c++0x -fopenmp -O3")
 
 find_package( OpenCV REQUIRED )
