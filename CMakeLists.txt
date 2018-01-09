@@ -9,7 +9,7 @@ set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_STANDARD 11)
 
 # enable multi-threading for Eigen
-set(CMAKE_CXX_FLAGS "-std=c++0x -fopenmp -O3")
+set(CMAKE_CXX_FLAGS "-fopenmp")
 
 find_package( OpenCV REQUIRED )
 find_package( Eigen3 REQUIRED )
