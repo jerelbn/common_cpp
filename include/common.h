@@ -22,14 +22,14 @@ public:
 
   Quaternion();
   ~Quaternion();
-  Quaternion(double w, double x, double y, double z);
+  Quaternion(double _w, double _x, double _y, double _z);
   Quaternion(double roll, double pitch, double yaw);
   Quaternion(Eigen::Vector3d fz);
 
-  double x_;
-  double y_;
-  double z_;
-  double w_;
+  double x;
+  double y;
+  double z;
+  double w;
 
   Quaternion operator*(const Quaternion &q2);
   friend std::ostream& operator<<(std::ostream &os, const Quaternion &q);
@@ -51,6 +51,7 @@ public:
 Eigen::VectorXd rk5(Eigen::VectorXd state, Eigen::VectorXd input, std::function<Eigen::VectorXd(Eigen::VectorXd, Eigen::VectorXd)> ode, double h);
 Quaternion exp_q(const Eigen::Vector3d delta);
 Eigen::Vector3d log_q(const Quaternion q);
+Eigen::Vector3d vex(const Eigen::Matrix3d mat);
 Eigen::Matrix3d skew(const Eigen::Vector3d vec);
 Eigen::Matrix3d R_v2_to_b(double phi);
 Eigen::Matrix3d R_v1_to_v2(double theta);

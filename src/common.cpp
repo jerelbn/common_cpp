@@ -13,28 +13,28 @@ namespace common
 
 Quaternion::Quaternion() 
 {
-  w_ = 1;
-  x_ = 0;
-  y_ = 0;
-  z_ = 0;
+  w = 1;
+  x = 0;
+  y = 0;
+  z = 0;
 }
 
 Quaternion::~Quaternion() {}
 
-Quaternion::Quaternion(double w, double x, double y, double z)
+Quaternion::Quaternion(double _w, double _x, double _y, double _z)
 {
-  w_ = w;
-  x_ = x;
-  y_ = y;
-  z_ = z;
+  w = _w;
+  x = _x;
+  y = _y;
+  z = _z;
 }
 
 Quaternion::Quaternion(double roll, double pitch, double yaw)
 {
-  w_ = cos(roll/2)*cos(pitch/2)*cos(yaw/2) + sin(roll/2)*sin(pitch/2)*sin(yaw/2);
-  x_ = sin(roll/2)*cos(pitch/2)*cos(yaw/2) - cos(roll/2)*sin(pitch/2)*sin(yaw/2);
-  y_ = cos(roll/2)*sin(pitch/2)*cos(yaw/2) + sin(roll/2)*cos(pitch/2)*sin(yaw/2);
-  z_ = cos(roll/2)*cos(pitch/2)*sin(yaw/2) - sin(roll/2)*sin(pitch/2)*cos(yaw/2);
+  w = cos(roll/2)*cos(pitch/2)*cos(yaw/2) + sin(roll/2)*sin(pitch/2)*sin(yaw/2);
+  x = sin(roll/2)*cos(pitch/2)*cos(yaw/2) - cos(roll/2)*sin(pitch/2)*sin(yaw/2);
+  y = cos(roll/2)*sin(pitch/2)*cos(yaw/2) + sin(roll/2)*cos(pitch/2)*sin(yaw/2);
+  z = cos(roll/2)*cos(pitch/2)*sin(yaw/2) - sin(roll/2)*sin(pitch/2)*cos(yaw/2);
 }
 
 Quaternion::Quaternion(Eigen::Vector3d fz)
@@ -45,33 +45,33 @@ Quaternion::Quaternion(Eigen::Vector3d fz)
 
   if (theta < 1e-8)
   {
-    w_ = 1;
-    x_ = 0;
-    y_ = 0;
-    z_ = 0;
+    w = 1;
+    x = 0;
+    y = 0;
+    z = 0;
   }
   else
   {
-    Eigen::Vector3d fz_cross_ez = fz.cross(ez);
-    Eigen::Vector3d iaa = fz_cross_ez/(fz_cross_ez.norm());
+    Eigen::Vector3d fzcross_ez = fz.cross(ez);
+    Eigen::Vector3d iaa = fzcross_ez/(fzcross_ez.norm());
 
     // get complex portion of quaternion
     Eigen::Vector3d qv = iaa * sin(theta/2);
 
-    w_ = cos(theta/2);
-    x_ = qv(0);
-    y_ = qv(1);
-    z_ = qv(2);
+    w = cos(theta/2);
+    x = qv(0);
+    y = qv(1);
+    z = qv(2);
   }
 }
 
 // overload multiply operator for simple quaternion multiplication
 Quaternion Quaternion::operator*(const Quaternion &q2)
 {
-  double qw = w_*q2.w_ - x_*q2.x_ - y_*q2.y_ - z_*q2.z_;
-  double qx = w_*q2.x_ + x_*q2.w_ + y_*q2.z_ - z_*q2.y_;
-  double qy = w_*q2.y_ - x_*q2.z_ + y_*q2.w_ + z_*q2.x_;
-  double qz = w_*q2.z_ + x_*q2.y_ - y_*q2.x_ + z_*q2.w_;
+  double qw = w*q2.w - x*q2.x - y*q2.y - z*q2.z;
+  double qx = w*q2.x + x*q2.w + y*q2.z - z*q2.y;
+  double qy = w*q2.y - x*q2.z + y*q2.w + z*q2.x;
+  double qz = w*q2.z + x*q2.y - y*q2.x + z*q2.w;
   
   return Quaternion(qw, qx, qy, qz);
 }
@@ -79,7 +79,7 @@ Quaternion Quaternion::operator*(const Quaternion &q2)
 // overload stream operator for simple quaternion displaying
 std::ostream& operator<<(std::ostream &os, const Quaternion &q)
 {
-  os << q.w_ << ", " << q.x_ << ", " << q.y_ << ", " << q.z_;
+  os << q.w << ", " << q.x << ", " << q.y << ", " << q.z;
   return os;
 }
 
@@ -87,10 +87,10 @@ std::ostream& operator<<(std::ostream &os, const Quaternion &q)
 Quaternion Quaternion::inv()
 {
   Quaternion q;
-  q.w_ = w_;
-  q.x_ = -x_;
-  q.y_ = -y_;
-  q.z_ = -z_;
+  q.w = w;
+  q.x = -x;
+  q.y = -y;
+  q.z = -z;
 
   return q;
 }
@@ -98,72 +98,70 @@ Quaternion Quaternion::inv()
 // quaternion norm
 double Quaternion::mag()
 {
-  return sqrt(w_*w_ + x_*x_ + y_*y_ + z_*z_);
+  return sqrt(w*w + x*x + y*y + z*z);
 }
 
 // quaternion normalization
 void Quaternion::normalize()
 {
   double mag = this->mag();
-  w_ /= mag;
-  x_ /= mag;
-  y_ /= mag;
-  z_ /= mag;
+  w /= mag;
+  x /= mag;
+  y /= mag;
+  z /= mag;
 }
 
 // conversion from quaternion to roll angle
 double Quaternion::phi()
 {
-  return atan2(2*w_*x_ + 2*y_*z_, w_*w_ + z_*z_ - x_*x_ - y_*y_);
+  return atan2(2*w*x + 2*y*z, w*w + z*z - x*x - y*y);
 }
 
 // conversion from quaternion to pitch angle
 double Quaternion::theta()
 {
-  return asin(2*w_*y_ - 2*x_*z_);
+  return asin(2*w*y - 2*x*z);
 }
 
 // conversion from quaternion to yaw angle
 double Quaternion::psi()
 {
-  return atan2(2*w_*z_ + 2*x_*y_, w_*w_ + x_*x_ - y_*y_ - z_*z_);
+  return atan2(2*w*z + 2*x*y, w*w + x*x - y*y - z*z);
 }
 
 // convert Quaternion to Eigen vector
 Eigen::Vector4d Quaternion::convertToEigen()
 {
   Eigen::Vector4d v;
-  v << w_, x_, y_, z_;
+  v << w, x, y, z;
   return v;
 }
 
 // convert Eigen Vector to Quaternion
 void Quaternion::convertFromEigen(Eigen::Vector4d q)
 {
-  w_ = q(0);
-  x_ = q(1);
-  y_ = q(2);
-  z_ = q(3);
+  w = q(0);
+  x = q(1);
+  y = q(2);
+  z = q(3);
 }
 
-// rotation matrix
-// e.g. if the quaternion is defined as the rotation to the body w.r.t. the
-// vehicle frame, this is the 3x3 rotation from the vehicle to the body
+// create rotation matrix from quaternion
 Eigen::Matrix3d Quaternion::rot()
 {
   Eigen::Matrix3d R;
-  R <<  2*w_*w_ + 2*x_*x_ - 1,      2*w_*z_ + 2*x_*y_,     -2*w_*y_ + 2*x_*z_,
-           -2*w_*z_ + 2*x_*y_,  2*w_*w_ + 2*y_*y_ - 1,      2*w_*x_ + 2*y_*z_,
-            2*w_*y_ + 2*x_*z_,     -2*w_*x_ + 2*y_*z_,  2*w_*w_ + 2*z_*z_ - 1;
+  R <<  2*w*w + 2*x*x - 1,      2*w*z + 2*x*y,     -2*w*y + 2*x*z,
+           -2*w*z + 2*x*y,  2*w*w + 2*y*y - 1,      2*w*x + 2*y*z,
+            2*w*y + 2*x*z,     -2*w*x + 2*y*z,  2*w*w + 2*z*z - 1;
   return R;
 }
 
-// rotate a vector directly
+// rotate a 3-vector directly
 Eigen::Vector3d Quaternion::rotateVector(Eigen::Vector3d v)
 {
   Quaternion qv = Quaternion(0, v(0), v(1), v(2));
   Quaternion qv_new = this->inv() * qv * *this;
-  return Eigen::Vector3d(qv_new.x_, qv_new.y_, qv_new.z_);
+  return Eigen::Vector3d(qv_new.x, qv_new.y, qv_new.z);
 }
 
 // compute the unit vector in the camera frame given its quaternion
@@ -212,18 +210,18 @@ Quaternion exp_q(const Eigen::Vector3d delta)
   Quaternion q;
   if (delta_norm < 1e-8) // avoid numerical error with approximation
   {
-    q.w_ = 1;
-    q.x_ = delta(0)/2;
-    q.y_ = delta(1)/2;
-    q.z_ = delta(2)/2;
+    q.w = 1;
+    q.x = delta(0)/2;
+    q.y = delta(1)/2;
+    q.z = delta(2)/2;
   }
   else
   {
     double sn = sin(delta_norm/2)/delta_norm;
-    q.w_ = cos(delta_norm/2);
-    q.x_ = sn*delta(0);
-    q.y_ = sn*delta(1);
-    q.z_ = sn*delta(2);
+    q.w = cos(delta_norm/2);
+    q.x = sn*delta(0);
+    q.y = sn*delta(1);
+    q.z = sn*delta(2);
   }
 
   return q;
@@ -234,18 +232,18 @@ Quaternion exp_q(const Eigen::Vector3d delta)
 Eigen::Vector3d log_q(const Quaternion q)
 {
   // get magnitude of complex portion
-  Eigen::Vector3d qbar(q.x_, q.y_, q.z_);
+  Eigen::Vector3d qbar(q.x, q.y, q.z);
   double qbar_mag = qbar.norm();
 
   // avoid numerical error with approximation
   Eigen::Vector3d delta;
   if (qbar_mag < 1e-8)
   {
-    q.w_ >= 0 ? delta = qbar : delta = -qbar;
+    q.w >= 0 ? delta = qbar : delta = -qbar;
   }
   else
   {
-    delta = 2. * atan2(qbar_mag,q.w_) * qbar / qbar_mag;
+    delta = 2. * atan2(qbar_mag,q.w) * qbar / qbar_mag;
   }
 
   return delta;
@@ -260,6 +258,14 @@ Eigen::Matrix3d skew(const Eigen::Vector3d vec)
       vec(2),       0, -vec(0),
      -vec(1),  vec(0),       0;
   return A;
+}
+
+
+// vector from skew symmetric matrix
+Eigen::Vector3d skew(const Eigen::Matrix3d mat)
+{
+  Eigen::Vector3d v(mat(2,1), mat(0,2), mat(1,0));
+  return v;
 }
 
 
