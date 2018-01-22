@@ -5,12 +5,10 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#include <eigen3/Eigen/Core>
-#include <eigen3/Eigen/Dense>
-#include <iostream>
-#include <cmath>
 
-#define _USE_MATH_DEFINES
+#include <iostream>
+#include <eigen3/Eigen/Eigen>
+
 #define GRAVITY 9.80665
 
 namespace common
