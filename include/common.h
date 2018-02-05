@@ -36,9 +36,9 @@ public:
   Quaternion inv();
   double mag();
   void normalize();
-  double phi();
-  double theta();
-  double psi();
+  double roll();
+  double pitch();
+  double yaw();
   void convertFromEigen(Eigen::Vector4d q);
   Eigen::Vector4d convertToEigen();
   Eigen::Matrix3d rot();

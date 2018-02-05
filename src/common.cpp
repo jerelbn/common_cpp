@@ -112,13 +112,13 @@ void Quaternion::normalize()
 }
 
 // conversion from quaternion to roll angle
-double Quaternion::phi()
+double Quaternion::roll()
 {
   return atan2(2*(w*x + y*z), 1 - 2*(x*x + y*y));
 }
 
 // conversion from quaternion to pitch angle
-double Quaternion::theta()
+double Quaternion::pitch()
 {
   double val = 2*(w*y - x*z);
 
@@ -130,7 +130,7 @@ double Quaternion::theta()
 }
 
 // conversion from quaternion to yaw angle
-double Quaternion::psi()
+double Quaternion::yaw()
 {
   return atan2(2*(w*z + x*y), 1 - 2*(y*y + z*z));
 }
