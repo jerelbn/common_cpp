@@ -256,6 +256,28 @@ Eigen::Vector3d log_q(const Quaternion q)
 }
 
 
+// convert unit vector to quaternion (relative to fixed frame)
+common::Quaternion vec2quat(const Eigen::Vector3d v)
+{
+  // convert to axis-angle representation
+  static Eigen::Vector3d ix(1, 0, 0);
+  double theta = acos(ix.dot(v));
+  Eigen::Vector3d axis = ix.cross(v);
+
+  // get complex portion of quaternion
+  Eigen::Vector3d qbar = axis * sin(theta/2);
+
+  // populate quaternion components
+  common::Quaternion q;
+  q.w = cos(theta/2);
+  q.x = qbar(0);
+  q.y = qbar(1);
+  q.z = qbar(2);
+
+  return q;
+}
+
+
 // skew symmetric matrix from vector
 Eigen::Matrix3d skew(const Eigen::Vector3d vec)
 {
