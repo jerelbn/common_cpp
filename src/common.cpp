@@ -262,17 +262,31 @@ common::Quaternion vec2quat(const Eigen::Vector3d v)
   // convert to axis-angle representation
   static Eigen::Vector3d ix(1, 0, 0);
   double theta = acos(ix.dot(v));
-  Eigen::Vector3d axis = ix.cross(v);
 
-  // get complex portion of quaternion
-  Eigen::Vector3d qbar = axis * sin(theta/2);
-
-  // populate quaternion components
+  // avoid numerical problems
   common::Quaternion q;
-  q.w = cos(theta/2);
-  q.x = qbar(0);
-  q.y = qbar(1);
-  q.z = qbar(2);
+  if (theta < 1e-6)
+  {
+    q.w = 1;
+    q.x = 0;
+    q.y = 0;
+    q.z = 0;
+  }
+  else
+  {
+    // compute axis of rotation
+    Eigen::Vector3d axis = ix.cross(v);
+    axis /= axis.norm();
+
+    // complex portion of quaternion
+    Eigen::Vector3d qbar = axis * sin(theta/2);
+
+    // populate quaternion components
+    q.w = cos(theta/2);
+    q.x = qbar(0);
+    q.y = qbar(1);
+    q.z = qbar(2);
+  }
 
   return q;
 }
