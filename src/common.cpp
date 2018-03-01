@@ -243,13 +243,29 @@ Eigen::Vector3d log_q(const Quaternion q)
 
   // avoid numerical error with approximation
   Eigen::Vector3d delta;
-  if (qbar_mag < 1e-8)
-  {
+  if (qbar_mag < 1e-6)
     q.w >= 0 ? delta = qbar : delta = -qbar;
-  }
   else
-  {
     delta = 2. * atan2(qbar_mag,q.w) * qbar / qbar_mag;
+
+  return delta;
+}
+
+
+// rotation matrix logarithmic map to vector
+Eigen::Vector3d log_R(const Eigen::Matrix3d R)
+{
+  // rotation magnitude
+  double theta = acos((R.trace()-1)/2.0);
+
+  // avoid numerical error with approximation
+  Eigen::Vector3d delta(0,0,0);
+  if (theta > 1e-6)
+  {
+    Eigen::Vector3d axis(R(2,1) - R(1,2),
+                         R(0,2) - R(2,0),
+                         R(1,0) - R(0,1));
+    delta = theta/(2*sin(theta))*axis;
   }
 
   return delta;
