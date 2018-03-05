@@ -51,6 +51,7 @@ public:
 Eigen::VectorXd rk5(Eigen::VectorXd state, Eigen::VectorXd input, std::function<Eigen::VectorXd(Eigen::VectorXd, Eigen::VectorXd)> ode, double h);
 Quaternion exp_q(const Eigen::Vector3d delta);
 Eigen::Vector3d log_q(const Quaternion q);
+Eigen::Vector3d log_R(const Eigen::Matrix3d R);
 common::Quaternion vec2quat(const Eigen::Vector3d v);
 Eigen::Vector3d vex(const Eigen::Matrix3d mat);
 Eigen::Matrix3d skew(const Eigen::Vector3d vec);
