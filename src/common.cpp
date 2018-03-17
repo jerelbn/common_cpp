@@ -37,6 +37,14 @@ Quaternion::Quaternion(double roll, double pitch, double yaw)
   z = cos(roll/2)*cos(pitch/2)*sin(yaw/2) - sin(roll/2)*sin(pitch/2)*cos(yaw/2);
 }
 
+Quaternion::Quaternion(Eigen::Vector4d v)
+{
+  w = v(0);
+  x = v(1);
+  y = v(2);
+  z = v(3);
+}
+
 Quaternion::Quaternion(Eigen::Vector3d fz)
 {
   // convert to axis-angle representation

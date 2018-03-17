@@ -24,6 +24,7 @@ public:
   ~Quaternion();
   Quaternion(double _w, double _x, double _y, double _z);
   Quaternion(double roll, double pitch, double yaw);
+  Quaternion(Eigen::Vector4d v);
   Quaternion(Eigen::Vector3d fz);
 
   double x;
