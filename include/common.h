@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <eigen3/Eigen/Eigen>
+#include <opencv2/opencv.hpp>
 
 #define GRAVITY 9.80665
 
@@ -61,6 +62,7 @@ Eigen::Matrix3d R_v1_to_v2(double theta);
 Eigen::Matrix3d R_v_to_v1(double psi);
 Eigen::Matrix3d R_v_to_b(double phi, double theta, double psi);
 Eigen::Matrix3d R_cb2c();
+Eigen::MatrixXd cv2eigen(cv::Mat cvmat);
 
 } // namespace common
 
