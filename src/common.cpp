@@ -2,7 +2,7 @@
 // Date: 15 June 2017
 // Desc: Container for common functions.
 
-#include "common.h"
+#include "common_cpp/common.h"
 
 namespace common
 {
@@ -394,6 +394,32 @@ Eigen::MatrixXd cv2eigen(cv::Mat cvmat)
     for (int j = 0; j < cvmat.cols; j++)
       eigmat(i,j) = cvmat.at<double>(i,j);
   return eigmat;
+}
+
+
+void getQuaternionFromTF(std::string frame1, std::string frame2, common::Quaternion& q)
+{
+  // intantiate a ROS tf listener
+  tf::TransformListener tf_listener;
+
+  // lookup the transform (from tf tree) from frame1 to frame2
+  tf::StampedTransform transform;
+  try 
+  {
+    tf_listener.waitForTransform(frame1, frame2, ros::Time(0), ros::Duration(10.0) );
+    tf_listener.lookupTransform(frame1, frame2, ros::Time(0), transform);
+  } 
+  catch (tf::TransformException& ex)
+  {
+    ROS_ERROR("%s",ex.what());
+  }
+
+  // convert transform to my quaternion class object
+  tf::Quaternion _q = transform.getRotation();
+  q.w = _q.w();
+  q.x = _q.x();
+  q.y = _q.y();
+  q.z = _q.z();
 }
 
 
