@@ -61,6 +61,7 @@ Eigen::Matrix3d R_v_to_v1(double psi);
 Eigen::Matrix3d R_v_to_b(double phi, double theta, double psi);
 Eigen::Matrix3d R_cb2c();
 Eigen::MatrixXd cv2eigen(cv::Mat cvmat);
+cv::Mat eigen2cv(Eigen::MatrixXd eigmat);
 
 } // namespace common
 

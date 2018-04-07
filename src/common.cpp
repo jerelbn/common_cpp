@@ -397,6 +397,16 @@ Eigen::MatrixXd cv2eigen(cv::Mat cvmat)
 }
 
 
+cv::Mat eigen2cv(Eigen::MatrixXd eigmat)
+{
+  cv::Mat cvmat = cv::Mat::zeros(eigmat.rows(),eigmat.cols(),CV_64F);
+  for (int i = 0; i < eigmat.rows(); i++)
+    for (int j = 0; j < eigmat.cols(); j++)
+      cvmat.at<double>(i,j) = eigmat(i,j);
+  return cvmat;
+}
+
+
 } // namespace common
 
 
