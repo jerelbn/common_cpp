@@ -14,10 +14,10 @@ set(CMAKE_CXX_FLAGS "-fopenmp")
 
 ## Find libraries
 find_package(Eigen3 REQUIRED)
-find_package(OpenCV 3 REQUIRED)
-message(STATUS "OpenCV Version: ${OpenCV_VERSION} (${OpenCV_DIR})")
+#find_package(OpenCV 3 REQUIRED)
+#message(STATUS "OpenCV Version: ${OpenCV_VERSION} (${OpenCV_DIR})")
 
 ## Specify include directories
 include_directories(include) 
-include_directories(${OpenCV_INCLUDE_DIRS}) 
+#include_directories(${OpenCV_INCLUDE_DIRS})
 include_directories(${EIGEN3_INCLUDE_DIRS}) 
