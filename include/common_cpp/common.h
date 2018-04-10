@@ -60,6 +60,48 @@ Eigen::Matrix3d R_v_to_v1(double psi);
 Eigen::Matrix3d R_v_to_b(double phi, double theta, double psi);
 Eigen::Matrix3d R_cb2c();
 
+// Removes elements from Eigen vectors.
+// idx: index of first element to remove
+// num: number of elements to remove including element located at idx
+template<typename ScalarType>
+void removeElements(Eigen::Matrix<ScalarType,-1,1,0,-1,1>& vector, unsigned idx, unsigned num)
+{
+  unsigned new_elements = vector.size()-num; // number of elements in resulting vector
+  if (idx < new_elements)
+    vector.segment(idx,new_elements-idx) = vector.segment(idx+num,new_elements-idx);
+  else
+    std::cout << "ERROR: cannot remove requested elements in function 'removeElements()'!\n";
+  vector.conservativeResize(new_elements);
+}
+
+// Removes rows from Eigen matrices.
+// idx: index of first row to remove
+// num: number of rows to remove including row located at idx
+template<typename ScalarType>
+void removeRows(Eigen::Matrix<ScalarType,-1,-1,0,-1,-1>& matrix, unsigned idx, unsigned num)
+{
+  unsigned new_rows = matrix.rows()-num; // number of rows in resulting matrix
+  if (idx < new_rows)
+    matrix.block(idx,0,new_rows-idx,matrix.cols()) = matrix.block(idx+num,0,new_rows-idx,matrix.cols());
+  else
+    std::cout << "ERROR: cannot remove requested rows in function 'removeRows()'!\n";
+  matrix.conservativeResize(new_rows,matrix.cols());
+}
+
+// Removes columns from Eigen matrices.
+// idx: index of first column to remove
+// num: number of columns to remove including column located at idx
+template<typename ScalarType>
+void removeCols(Eigen::Matrix<ScalarType,-1,-1,0,-1,-1>& matrix, unsigned idx, unsigned num)
+{
+  unsigned new_cols = matrix.cols()-num; // number of columns in resulting matrix
+  if (idx < new_cols)
+    matrix.block(0,idx,matrix.rows(),new_cols-idx) = matrix.block(0,idx+num,matrix.rows(),new_cols-idx);
+  else
+    std::cout << "ERROR: cannot remove requested columns in function 'removeCols()'!\n";
+  matrix.conservativeResize(matrix.rows(),new_cols);
+}
+
 } // namespace common
 
 #endif // COMMON_H
