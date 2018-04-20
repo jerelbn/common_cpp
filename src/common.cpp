@@ -368,7 +368,7 @@ Eigen::Matrix3d R_v_to_v1(double psi)
 }
 
 
-// rotation from vehicle to body frame
+// rotation from vehicle to body frame (3-2-1 Euler)
 Eigen::Matrix3d R_v_to_b(double phi, double theta, double psi)
 {
   return R_v2_to_b(phi) * R_v1_to_v2(theta) * R_v_to_v1(psi);
