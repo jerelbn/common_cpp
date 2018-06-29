@@ -143,6 +143,14 @@ double Quaternion::yaw()
   return atan2(2*(w*z + x*y), 1 - 2*(y*y + z*z));
 }
 
+// get complex portion of quaternion in Eigen
+Eigen::Vector3d Quaternion::bar()
+{
+  Eigen::Vector3d v;
+  v << x, y, z;
+  return v;
+}
+
 // convert Quaternion to Eigen vector
 Eigen::Vector4d Quaternion::convertToEigen()
 {
@@ -170,12 +178,19 @@ Eigen::Matrix3d Quaternion::rot()
   return R;
 }
 
-// rotate a 3-vector directly
-Eigen::Vector3d Quaternion::rotateVector(Eigen::Vector3d v)
+// rotate a 3-vector directly the original way
+Eigen::Vector3d Quaternion::rotateVectorSlow(Eigen::Vector3d v)
 {
   Quaternion qv = Quaternion(0, v(0), v(1), v(2));
   Quaternion qv_new = this->inv() * qv * *this;
   return Eigen::Vector3d(qv_new.x, qv_new.y, qv_new.z);
+}
+
+// rotate a 3-vector directly the fast way
+Eigen::Vector3d Quaternion::rotateVector(Eigen::Vector3d v)
+{
+  Eigen::Vector3d t = 2 * skew(v) * this->bar();
+  return v + this->w * t + skew(t) * this->bar();
 }
 
 // compute the unit vector in the camera frame given its quaternion

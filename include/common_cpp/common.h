@@ -40,7 +40,9 @@ public:
   double yaw();
   void convertFromEigen(Eigen::Vector4d q);
   Eigen::Vector4d convertToEigen();
+  Eigen::Vector3d bar();
   Eigen::Matrix3d rot();
+  Eigen::Vector3d rotateVectorSlow(Eigen::Vector3d v);
   Eigen::Vector3d rotateVector(Eigen::Vector3d v);
   Eigen::Vector3d unitVector();
   Eigen::MatrixXd projection();
