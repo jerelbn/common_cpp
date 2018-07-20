@@ -18,6 +18,18 @@ namespace common
 template<typename T>
 static const T gravity = 9.80665;
 
+static const Eigen::Matrix3d I_3x3 = [] {
+  Eigen::Matrix3d tmp;
+  tmp << 1, 0, 0, 0, 1, 0, 0, 0, 1;
+  return tmp;
+}();
+
+static const Eigen::Matrix2d I_2x2 = [] {
+  Eigen::Matrix2d tmp;
+  tmp << 1, 0, 0, 1;
+  return tmp;
+}();
+
 class Quaternion
 {
 
@@ -35,12 +47,11 @@ public:
   double y;
   double z;
 
-private:
-
   Quaternion operator*(const Quaternion &q2);
   Quaternion operator+(const Eigen::Vector3d &delta);
-  Eigen::Vector3d operator-(const Quaternion &q2);
+  Eigen::Vector3d operator-(Quaternion &q2);
   friend std::ostream& operator<<(std::ostream &os, const Quaternion &q);
+
   Quaternion inv();
   double mag();
   void normalize();
@@ -61,7 +72,8 @@ private:
 };
 
 Eigen::VectorXd rk5(Eigen::VectorXd state, Eigen::VectorXd input, std::function<Eigen::VectorXd(Eigen::VectorXd, Eigen::VectorXd)> ode, double h);
-Eigen::Vector3d log_R(const Eigen::Matrix3d R);
+Eigen::Matrix3d expR(const Eigen::Matrix3d deltax);
+Eigen::Vector3d logR(const Eigen::Matrix3d R);
 common::Quaternion vec2quat(const Eigen::Vector3d v);
 Eigen::Vector3d vex(const Eigen::Matrix3d mat);
 Eigen::Matrix3d skew(const Eigen::Vector3d vec);

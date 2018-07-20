@@ -16,9 +16,11 @@ find_package(Eigen3 REQUIRED)
 include_directories(include
   ${Eigen3_INCLUDE_DIRS}
   # ${OpenCV_INCLUDE_DIRS}
-) 
+)
+
+add_library(common_cpp src/common.cpp)
 
 add_executable(unit_tests
   src/unit_tests.cpp
 )
-target_link_libraries(unit_tests ${Eigen3_LIBRARIES})
+target_link_libraries(unit_tests common_cpp ${Eigen3_LIBRARIES})

@@ -49,6 +49,7 @@ Quaternion::Quaternion(Eigen::Vector3d fz)
 {
   // convert to axis-angle representation
   Eigen::Vector3d ez(0, 0, 1);
+  fz = fz/fz.norm(); // make sure unit vector
   double theta = acos(fz.dot(ez));
 
   if (theta < 1e-8)
@@ -91,9 +92,9 @@ Quaternion Quaternion::operator+(const Eigen::Vector3d &delta)
 }
 
 // overload minus operator as boxminus for two quaternions
-Eigen::Vector3d Quaternion::operator-(const Quaternion &q2)
+Eigen::Vector3d Quaternion::operator-(Quaternion &q2)
 {
-  return log(Quaternion(w,x,y,z).inv()*q2);
+  return log(q2.inv()*Quaternion(w,x,y,z));
 }
 
 // overload stream operator for simple quaternion displaying
@@ -129,6 +130,10 @@ void Quaternion::normalize()
   x /= mag;
   y /= mag;
   z /= mag;
+
+  // ensure positive scalar portion
+  if (w < 0)
+    w *= -1;
 }
 
 // conversion from quaternion to roll angle
@@ -285,8 +290,20 @@ Eigen::VectorXd rk5(Eigen::VectorXd state, Eigen::VectorXd input, std::function<
 }
 
 
+// matrix exponential given skew symmetric delta
+Eigen::Matrix3d expR(const Eigen::Matrix3d deltax)
+{
+  Eigen::Vector3d axis_angle = vex(deltax);
+  double theta = axis_angle.norm();
+  if (theta > 1e-6)
+    return I_3x3 + sin(theta)/theta*deltax + (1-cos(theta))/theta/theta*deltax*deltax;
+  else
+    return I_3x3;
+}
+
+
 // rotation matrix logarithmic map to vector
-Eigen::Vector3d log_R(const Eigen::Matrix3d R)
+Eigen::Vector3d logR(const Eigen::Matrix3d R)
 {
   // rotation magnitude
   double theta = acos((R.trace()-1)/2.0);
