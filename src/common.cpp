@@ -7,9 +7,6 @@
 namespace common
 {
 
-/*=============================================================*/
-// begin Quaternion class
-/*=============================================================*/
 
 Quaternion::Quaternion() 
 {
@@ -268,25 +265,6 @@ Eigen::Vector3d Quaternion::log(const Quaternion q)
     delta = 2. * atan2(qbar_mag,q.w) * qbar / qbar_mag;
 
   return delta;
-}
-
-/*=============================================================*/
-// end Quaternion class
-/*=============================================================*/
-
-
-// solve for future state vector given associated ordinary differential equations
-Eigen::VectorXd rk5(Eigen::VectorXd state, Eigen::VectorXd input, std::function<Eigen::VectorXd(Eigen::VectorXd, Eigen::VectorXd)> ode, double h)
-{
-  // 5th order Dormand-Prince integration
-  Eigen::VectorXd k1 = ode(state                      , input);
-  Eigen::VectorXd k2 = ode(state + k1 * (h / 5.)      , input);
-  Eigen::VectorXd k3 = ode(state + k2 * (h * 3. / 10.), input);
-  Eigen::VectorXd k4 = ode(state + k3 * (h * 4. / 5.) , input);
-  Eigen::VectorXd k5 = ode(state + k4 * (h * 8. / 9.) , input);
-  Eigen::VectorXd k6 = ode(state + k5 * h             , input);
-
-  return state + (k1 * (35. / 384.) + k3 * (500. / 1113.) + k4 * (125. / 192.) + k5 * (-2187. / 6784.) + k6 * (11. /84.)) * h;
 }
 
 

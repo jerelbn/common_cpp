@@ -100,8 +100,6 @@ private:
 
 };
 
-Eigen::VectorXd rk5(Eigen::VectorXd state, Eigen::VectorXd input, std::function<Eigen::VectorXd(Eigen::VectorXd, Eigen::VectorXd)> ode, double h);
-
 
 // skew symmetric matrix from vector
 template<typename T>
