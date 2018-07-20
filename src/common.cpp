@@ -169,7 +169,7 @@ Eigen::Vector3d Quaternion::bar()
 }
 
 // convert Quaternion to Eigen vector
-Eigen::Vector4d Quaternion::convertToEigen()
+Eigen::Vector4d Quaternion::toEigen()
 {
   Eigen::Vector4d v;
   v << w, x, y, z;
@@ -177,7 +177,7 @@ Eigen::Vector4d Quaternion::convertToEigen()
 }
 
 // convert Eigen Vector to Quaternion
-void Quaternion::convertFromEigen(const Eigen::Vector4d q)
+void Quaternion::fromEigen(const Eigen::Vector4d q)
 {
   w = q(0);
   x = q(1);
@@ -186,7 +186,7 @@ void Quaternion::convertFromEigen(const Eigen::Vector4d q)
 }
 
 // create rotation matrix from quaternion
-Eigen::Matrix3d Quaternion::rot()
+Eigen::Matrix3d Quaternion::R()
 {
   Eigen::Matrix3d R;
   R <<  2*w*w + 2*x*x - 1,      2*w*z + 2*x*y,     -2*w*y + 2*x*z,
@@ -196,7 +196,7 @@ Eigen::Matrix3d Quaternion::rot()
 }
 
 // rotate a 3-vector directly the original way
-Eigen::Vector3d Quaternion::rotateVectorSlow(Eigen::Vector3d v)
+Eigen::Vector3d Quaternion::rotSlow(Eigen::Vector3d v)
 {
   Quaternion qv = Quaternion(0, v(0), v(1), v(2));
   Quaternion qv_new = this->inv() * qv * *this;
@@ -204,28 +204,28 @@ Eigen::Vector3d Quaternion::rotateVectorSlow(Eigen::Vector3d v)
 }
 
 // rotate a 3-vector directly the fast way
-Eigen::Vector3d Quaternion::rotateVector(Eigen::Vector3d v)
+Eigen::Vector3d Quaternion::rot(Eigen::Vector3d v)
 {
   Eigen::Vector3d t = 2 * skew(v) * this->bar();
   return v + this->w * t + skew(t) * this->bar();
 }
 
 // compute the unit vector in the camera frame given its quaternion
-Eigen::Vector3d Quaternion::unitVector()
+Eigen::Vector3d Quaternion::uvec()
 {
   Eigen::Vector3d ez;
   ez << 0, 0, 1;
-  return rot() * ez;
+  return R() * ez;
 }
 
 // projection matrix of unit vector onto its tangent space
-Eigen::MatrixXd Quaternion::projection()
+Eigen::MatrixXd Quaternion::proj()
 {
   Eigen::MatrixXd E(3,2);
   E << 1, 0,
        0, 1,
        0, 0;
-  return rot() * E;
+  return R() * E;
 }
 
 // exponential map to unit quaternion
@@ -319,42 +319,6 @@ Eigen::Vector3d logR(const Eigen::Matrix3d R)
 }
 
 
-// convert unit vector to quaternion (relative to fixed frame)
-common::Quaternion vec2quat(const Eigen::Vector3d v)
-{
-  // convert to axis-angle representation
-  static Eigen::Vector3d ix(1, 0, 0);
-  double theta = acos(ix.dot(v));
-
-  // avoid numerical problems
-  common::Quaternion q;
-  if (theta < 1e-6)
-  {
-    q.w = 1;
-    q.x = 0;
-    q.y = 0;
-    q.z = 0;
-  }
-  else
-  {
-    // compute axis of rotation
-    Eigen::Vector3d axis = ix.cross(v);
-    axis /= axis.norm();
-
-    // complex portion of quaternion
-    Eigen::Vector3d qbar = axis * sin(theta/2);
-
-    // populate quaternion components
-    q.w = cos(theta/2);
-    q.x = qbar(0);
-    q.y = qbar(1);
-    q.z = qbar(2);
-  }
-
-  return q;
-}
-
-
 // skew symmetric matrix from vector
 Eigen::Matrix3d skew(const Eigen::Vector3d vec)
 {
@@ -411,18 +375,6 @@ Eigen::Matrix3d R_v_to_v1(double psi)
 Eigen::Matrix3d R_v_to_b(double phi, double theta, double psi)
 {
   return R_v2_to_b(phi) * R_v1_to_v2(theta) * R_v_to_v1(psi);
-}
-
-
-// rotation from NED style camera body coordinates to camera coordinates
-Eigen::Matrix3d R_cb2c()
-{
-  Eigen::Matrix3d R;
-  R << 0, 1, 0,
-       0, 0, 1,
-       1, 0, 0;
-
-  return R;
 }
 
 

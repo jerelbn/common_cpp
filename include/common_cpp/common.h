@@ -30,6 +30,15 @@ static const Eigen::Matrix2d I_2x2 = [] {
   return tmp;
 }();
 
+// rotation from NED style camera body coordinates to camera coordinates
+static const Eigen::Matrix2d R_cb2c = [] {
+  Eigen::Matrix2d tmp;
+  tmp << 0, 1, 0,
+         0, 0, 1,
+         1, 0, 0;
+  return tmp;
+}();
+
 class Quaternion
 {
 
@@ -42,11 +51,6 @@ public:
   Quaternion(Eigen::Vector4d v);
   Quaternion(Eigen::Vector3d fz);
 
-  double w;
-  double x;
-  double y;
-  double z;
-
   Quaternion operator*(const Quaternion &q2);
   Quaternion operator+(const Eigen::Vector3d &delta);
   Eigen::Vector3d operator-(Quaternion &q2);
@@ -58,30 +62,35 @@ public:
   double roll();
   double pitch();
   double yaw();
-  void convertFromEigen(const Eigen::Vector4d q);
-  Eigen::Vector4d convertToEigen();
+  void fromEigen(const Eigen::Vector4d q);
+  Eigen::Vector4d toEigen();
   Eigen::Vector3d bar();
-  Eigen::Matrix3d rot();
-  Eigen::Vector3d rotateVectorSlow(Eigen::Vector3d v);
-  Eigen::Vector3d rotateVector(Eigen::Vector3d v);
-  Eigen::Vector3d unitVector();
-  Eigen::MatrixXd projection();
+  Eigen::Matrix3d R();
+  Eigen::Vector3d rotSlow(Eigen::Vector3d v);
+  Eigen::Vector3d rot(Eigen::Vector3d v);
+  Eigen::Vector3d uvec();
+  Eigen::MatrixXd proj();
   Quaternion exp(const Eigen::Vector3d delta);
   Eigen::Vector3d log(const Quaternion q);
+
+private:
+
+  double w;
+  double x;
+  double y;
+  double z;
 
 };
 
 Eigen::VectorXd rk5(Eigen::VectorXd state, Eigen::VectorXd input, std::function<Eigen::VectorXd(Eigen::VectorXd, Eigen::VectorXd)> ode, double h);
 Eigen::Matrix3d expR(const Eigen::Matrix3d deltax);
 Eigen::Vector3d logR(const Eigen::Matrix3d R);
-common::Quaternion vec2quat(const Eigen::Vector3d v);
 Eigen::Vector3d vex(const Eigen::Matrix3d mat);
 Eigen::Matrix3d skew(const Eigen::Vector3d vec);
 Eigen::Matrix3d R_v2_to_b(double phi);
 Eigen::Matrix3d R_v1_to_v2(double theta);
 Eigen::Matrix3d R_v_to_v1(double psi);
 Eigen::Matrix3d R_v_to_b(double phi, double theta, double psi);
-Eigen::Matrix3d R_cb2c();
 
 // Loads scalar parameters from a .yaml file
 // Author: James Jackson
