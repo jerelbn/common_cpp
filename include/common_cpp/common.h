@@ -7,6 +7,7 @@
 
 
 #include <iostream>
+#include <yaml-cpp/yaml.h>
 #include <eigen3/Eigen/Eigen>
 
 namespace common
@@ -65,8 +66,8 @@ Eigen::Matrix3d R_cb2c();
 // Removes elements from Eigen vectors.
 // idx: index of first element to remove
 // num: number of elements to remove including element located at idx
-template<typename ScalarType>
-void removeElements(Eigen::Matrix<ScalarType,-1,1,0,-1,1>& vector, unsigned idx, unsigned num)
+template<typename T>
+void removeElements(Eigen::Matrix<T,-1,1,0,-1,1>& vector, unsigned idx, unsigned num)
 {
   unsigned new_elements = vector.size()-num; // number of elements in resulting vector
   if (idx < new_elements)
@@ -79,8 +80,8 @@ void removeElements(Eigen::Matrix<ScalarType,-1,1,0,-1,1>& vector, unsigned idx,
 // Removes rows from Eigen matrices.
 // idx: index of first row to remove
 // num: number of rows to remove including row located at idx
-template<typename ScalarType>
-void removeRows(Eigen::Matrix<ScalarType,-1,-1,0,-1,-1>& matrix, unsigned idx, unsigned num)
+template<typename T>
+void removeRows(Eigen::Matrix<T,-1,-1,0,-1,-1>& matrix, unsigned idx, unsigned num)
 {
   unsigned new_rows = matrix.rows()-num; // number of rows in resulting matrix
   if (idx < new_rows)
@@ -93,8 +94,8 @@ void removeRows(Eigen::Matrix<ScalarType,-1,-1,0,-1,-1>& matrix, unsigned idx, u
 // Removes columns from Eigen matrices.
 // idx: index of first column to remove
 // num: number of columns to remove including column located at idx
-template<typename ScalarType>
-void removeCols(Eigen::Matrix<ScalarType,-1,-1,0,-1,-1>& matrix, unsigned idx, unsigned num)
+template<typename T>
+void removeCols(Eigen::Matrix<T,-1,-1,0,-1,-1>& matrix, unsigned idx, unsigned num)
 {
   unsigned new_cols = matrix.cols()-num; // number of columns in resulting matrix
   if (idx < new_cols)
@@ -102,6 +103,73 @@ void removeCols(Eigen::Matrix<ScalarType,-1,-1,0,-1,-1>& matrix, unsigned idx, u
   else
     std::cout << "ERROR: cannot remove requested columns in function 'removeCols()'!\n";
   matrix.conservativeResize(matrix.rows(),new_cols);
+}
+
+// Loads scalar parameters from a .yaml file
+// Author: James Jackson
+template <typename T>
+bool get_yaml_node(const std::string key, const std::string filename, T& val, bool print_error = true) 
+{
+  YAML::Node node = YAML::LoadFile(filename);
+  if (node[key])
+  {
+    val = node[key].as<T>();
+    return true;
+  }
+  else
+  {
+    if (print_error)
+    {
+      printf("Unable to load \"%s\" from %s\n", key.c_str(), filename.c_str());
+    }
+    return false;
+  }
+}
+
+// Loads array from a .yaml file into an Eigen-type matrix or vector.
+// Author: James Jackson
+template <typename T>
+bool get_yaml_eigen(const std::string key, const std::string filename, Eigen::MatrixBase<T>& val) 
+{
+  YAML::Node node = YAML::LoadFile(filename);
+  std::vector<double> vec;
+  if (node[key])
+  {
+    vec = node[key].as<std::vector<double>>();
+    if (vec.size() == (val.rows() * val.cols()))
+    {
+      int k = 0;
+      for (int i = 0; i < val.rows(); i++)
+      {
+        for (int j = 0; j < val.cols(); j++)
+        {
+          val(i,j) = vec[k++];
+        }
+      }
+      return true;
+    }
+    else
+    {
+      printf("Eigen Matrix Size does not match parameter size for \"%s\" in %s", key.c_str(), filename.c_str());
+      return false;
+    }
+  }
+  else
+  {
+    printf("Unable to load \"%s\" from %s\n", key.c_str(), filename.c_str());
+    return false;
+  }
+}
+
+// Saturates a scalar value.
+template <typename T>
+T saturate(const T val, const T max, const T min)
+{
+  if (val > max)
+    return max;
+  if (val < min)
+    return min;
+  return val;
 }
 
 } // namespace common
