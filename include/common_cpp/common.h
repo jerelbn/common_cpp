@@ -15,8 +15,7 @@ namespace common
 {
 
 
-template<typename T>
-static const T gravity = 9.80665;
+static const double gravity = 9.80665;
 
 static const Eigen::Vector3d e1 = [] {
   Eigen::Vector3d tmp;
