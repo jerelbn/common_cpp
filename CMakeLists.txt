@@ -5,7 +5,7 @@ project(common_cpp)
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif(NOT CMAKE_BUILD_TYPE)
-set(CMAKE_CXX_FLAGS "-std=c++11 -openmp")
+set(CMAKE_CXX_FLAGS "-std=c++14 -openmp")
 
 ## Find libraries
 find_package(Eigen3 REQUIRED)

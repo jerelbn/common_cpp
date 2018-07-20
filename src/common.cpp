@@ -160,7 +160,7 @@ Eigen::Vector4d Quaternion::convertToEigen()
 }
 
 // convert Eigen Vector to Quaternion
-void Quaternion::convertFromEigen(Eigen::Vector4d q)
+void Quaternion::convertFromEigen(const Eigen::Vector4d q)
 {
   w = q(0);
   x = q(1);
@@ -211,28 +211,8 @@ Eigen::MatrixXd Quaternion::projection()
   return rot() * E;
 }
 
-/*=============================================================*/
-// end Quaternion class
-/*=============================================================*/
-
-
-// solve for future state vector given associated ordinary differential equations
-Eigen::VectorXd rk5(Eigen::VectorXd state, Eigen::VectorXd input, std::function<Eigen::VectorXd(Eigen::VectorXd, Eigen::VectorXd)> ode, double h)
-{
-  // 5th order Dormand-Prince integration
-  Eigen::VectorXd k1 = ode(state                      , input);
-  Eigen::VectorXd k2 = ode(state + k1 * (h / 5.)      , input);
-  Eigen::VectorXd k3 = ode(state + k2 * (h * 3. / 10.), input);
-  Eigen::VectorXd k4 = ode(state + k3 * (h * 4. / 5.) , input);
-  Eigen::VectorXd k5 = ode(state + k4 * (h * 8. / 9.) , input);
-  Eigen::VectorXd k6 = ode(state + k5 * h             , input);
-
-  return state + (k1 * (35. / 384.) + k3 * (500. / 1113.) + k4 * (125. / 192.) + k5 * (-2187. / 6784.) + k6 * (11. /84.)) * h;
-} 
-
-
 // exponential map to unit quaternion
-Quaternion exp_q(const Eigen::Vector3d delta)
+Quaternion Quaternion::exp(const Eigen::Vector3d delta)
 {
   double delta_norm = delta.norm();
 
@@ -256,9 +236,8 @@ Quaternion exp_q(const Eigen::Vector3d delta)
   return q;
 }
 
-
 // unit quaternion logarithmic map to vector
-Eigen::Vector3d log_q(const Quaternion q)
+Eigen::Vector3d Quaternion::log(const Quaternion q)
 {
   // get magnitude of complex portion
   Eigen::Vector3d qbar(q.x, q.y, q.z);
@@ -274,6 +253,25 @@ Eigen::Vector3d log_q(const Quaternion q)
   return delta;
 }
 
+/*=============================================================*/
+// end Quaternion class
+/*=============================================================*/
+
+
+// solve for future state vector given associated ordinary differential equations
+Eigen::VectorXd rk5(Eigen::VectorXd state, Eigen::VectorXd input, std::function<Eigen::VectorXd(Eigen::VectorXd, Eigen::VectorXd)> ode, double h)
+{
+  // 5th order Dormand-Prince integration
+  Eigen::VectorXd k1 = ode(state                      , input);
+  Eigen::VectorXd k2 = ode(state + k1 * (h / 5.)      , input);
+  Eigen::VectorXd k3 = ode(state + k2 * (h * 3. / 10.), input);
+  Eigen::VectorXd k4 = ode(state + k3 * (h * 4. / 5.) , input);
+  Eigen::VectorXd k5 = ode(state + k4 * (h * 8. / 9.) , input);
+  Eigen::VectorXd k6 = ode(state + k5 * h             , input);
+
+  return state + (k1 * (35. / 384.) + k3 * (500. / 1113.) + k4 * (125. / 192.) + k5 * (-2187. / 6784.) + k6 * (11. /84.)) * h;
+}
+
 
 // rotation matrix logarithmic map to vector
 Eigen::Vector3d log_R(const Eigen::Matrix3d R)
@@ -282,14 +280,11 @@ Eigen::Vector3d log_R(const Eigen::Matrix3d R)
   double theta = acos((R.trace()-1)/2.0);
 
   // avoid numerical error with approximation
-  Eigen::Vector3d delta(0,0,0);
+  Eigen::Vector3d delta;
   if (theta > 1e-6)
-  {
-    Eigen::Vector3d axis(R(2,1) - R(1,2),
-                         R(0,2) - R(2,0),
-                         R(1,0) - R(0,1));
-    delta = theta/(2*sin(theta))*axis;
-  }
+    delta = theta/(2*sin(theta))*vex(R - R.transpose());
+  else
+    delta = 0.5*vex(R - R.transpose());
 
   return delta;
 }

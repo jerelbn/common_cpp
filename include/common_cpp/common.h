@@ -14,6 +14,9 @@ namespace common
 {
 
 
+template<typename T>
+static const T gravity = 9.80665;
+
 class Quaternion
 {
 
@@ -26,10 +29,12 @@ public:
   Quaternion(Eigen::Vector4d v);
   Quaternion(Eigen::Vector3d fz);
 
+  double w;
   double x;
   double y;
   double z;
-  double w;
+
+private:
 
   Quaternion operator*(const Quaternion &q2);
   friend std::ostream& operator<<(std::ostream &os, const Quaternion &q);
@@ -39,7 +44,7 @@ public:
   double roll();
   double pitch();
   double yaw();
-  void convertFromEigen(Eigen::Vector4d q);
+  void convertFromEigen(const Eigen::Vector4d q);
   Eigen::Vector4d convertToEigen();
   Eigen::Vector3d bar();
   Eigen::Matrix3d rot();
@@ -47,12 +52,12 @@ public:
   Eigen::Vector3d rotateVector(Eigen::Vector3d v);
   Eigen::Vector3d unitVector();
   Eigen::MatrixXd projection();
+  Quaternion exp(const Eigen::Vector3d delta);
+  Eigen::Vector3d log(const Quaternion q);
 
 };
 
 Eigen::VectorXd rk5(Eigen::VectorXd state, Eigen::VectorXd input, std::function<Eigen::VectorXd(Eigen::VectorXd, Eigen::VectorXd)> ode, double h);
-Quaternion exp_q(const Eigen::Vector3d delta);
-Eigen::Vector3d log_q(const Quaternion q);
 Eigen::Vector3d log_R(const Eigen::Matrix3d R);
 common::Quaternion vec2quat(const Eigen::Vector3d v);
 Eigen::Vector3d vex(const Eigen::Matrix3d mat);
