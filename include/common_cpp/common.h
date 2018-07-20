@@ -101,14 +101,101 @@ private:
 };
 
 Eigen::VectorXd rk5(Eigen::VectorXd state, Eigen::VectorXd input, std::function<Eigen::VectorXd(Eigen::VectorXd, Eigen::VectorXd)> ode, double h);
-Eigen::Matrix3d expR(const Eigen::Matrix3d deltax);
-Eigen::Vector3d logR(const Eigen::Matrix3d R);
-Eigen::Vector3d vex(const Eigen::Matrix3d mat);
-Eigen::Matrix3d skew(const Eigen::Vector3d vec);
-Eigen::Matrix3d R_v2_to_b(double phi);
-Eigen::Matrix3d R_v1_to_v2(double theta);
-Eigen::Matrix3d R_v_to_v1(double psi);
-Eigen::Matrix3d R_v_to_b(double phi, double theta, double psi);
+
+
+// skew symmetric matrix from vector
+template<typename T>
+Eigen::Matrix<T,3,3> skew(const Eigen::Matrix<T,3,1>& vec)
+{
+  Eigen::Matrix<T,3,3> A;
+  A <<     0, -vec(2),  vec(1),
+      vec(2),       0, -vec(0),
+     -vec(1),  vec(0),       0;
+  return A;
+}
+
+
+// vector from skew symmetric matrix
+template<typename T>
+Eigen::Matrix<T,3,1> vex(const Eigen::Matrix<T,3,3>& mat)
+{
+  Eigen::Matrix<T,3,1> v(mat(2,1), mat(0,2), mat(1,0));
+  return v;
+}
+
+
+// matrix exponential given skew symmetric delta
+template<typename T>
+Eigen::Matrix<T,3,3> expR(const Eigen::Matrix<T,3,3>& deltax)
+{
+  Eigen::Matrix<T,3,1> axis_angle = vex(deltax);
+  T theta = axis_angle.norm();
+  if (theta > 1e-6)
+    return I_3x3 + sin(theta)/theta*deltax + (1-cos(theta))/theta/theta*deltax*deltax;
+  else
+    return I_3x3;
+}
+
+
+// rotation matrix logarithmic map to vector
+template<typename T>
+Eigen::Matrix<T,3,3> logR(const Eigen::Matrix<T,3,3>& R)
+{
+  // rotation magnitude
+  T theta = acos((R.trace()-1)/2.0);
+
+  // avoid numerical error with approximation
+  Eigen::Matrix<T,3,3> deltax;
+  if (theta > 1e-6)
+    deltax = theta/(2*sin(theta))*(R - R.transpose());
+  else
+    deltax = 0.5*(R - R.transpose());
+
+  return deltax;
+}
+
+
+// rotation from vehicle-2 to body frame
+template<typename T>
+Eigen::Matrix<T,3,3> R_v2_to_b(const T& phi)
+{
+  Eigen::Matrix<T,3,3> R_v22b;
+  R_v22b << 1,         0,        0,
+            0,  cos(phi), sin(phi),
+            0, -sin(phi), cos(phi);
+  return R_v22b;
+}
+
+// rotation from vehicle-1 to vehicle-2 frame
+template<typename T>
+Eigen::Matrix<T,3,3> R_v1_to_v2(const T& theta)
+{
+  Eigen::Matrix<T,3,3> R_v12v2;
+  R_v12v2 << cos(theta), 0, -sin(theta),
+                      0, 1,           0,
+             sin(theta), 0,  cos(theta);
+  return R_v12v2;
+}
+
+
+// rotation from vehicle to vehicle-1 frame
+template<typename T>
+Eigen::Matrix<T,3,3> R_v_to_v1(const T& psi)
+{
+  Eigen::Matrix<T,3,3> R_v2v1;
+  R_v2v1 <<  cos(psi), sin(psi), 0,
+            -sin(psi), cos(psi), 0,
+                    0,        0, 1;
+  return R_v2v1;
+}
+
+// rotation from vehicle to body frame (3-2-1 Euler)
+template<typename T>
+Eigen::Matrix<T,3,3> R_v_to_b(const T& phi, const T& theta, const T& psi)
+{
+  return R_v2_to_b(phi) * R_v1_to_v2(theta) * R_v_to_v1(psi);
+}
+
 
 // Loads scalar parameters from a .yaml file
 // Author: James Jackson
@@ -130,6 +217,7 @@ bool get_yaml_node(const std::string key, const std::string filename, T& val, bo
     return false;
   }
 }
+
 
 // Loads array from a .yaml file into an Eigen-type matrix or vector.
 // Author: James Jackson
@@ -166,9 +254,10 @@ bool get_yaml_eigen(const std::string key, const std::string filename, Eigen::Ma
   }
 }
 
+
 // Saturates a scalar value.
 template <typename T>
-T saturate(const T val, const T max, const T min)
+T saturate(const T& val, const T& max, const T& min)
 {
   if (val > max)
     return max;
@@ -176,6 +265,7 @@ T saturate(const T val, const T max, const T min)
     return min;
   return val;
 }
+
 
 // Random normal matrix generation
 template<typename T1, typename T2>
@@ -185,6 +275,7 @@ void randomNormalMatrix(Eigen::MatrixBase<T1>& matrix, std::normal_distribution<
     for (int j = 0; j < matrix.cols(); ++j)
       matrix(i,j) = dist(rng);
 }
+
 
 } // namespace common
 
