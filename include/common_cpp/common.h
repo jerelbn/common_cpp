@@ -18,6 +18,24 @@ namespace common
 template<typename T>
 static const T gravity = 9.80665;
 
+static const Eigen::Vector3d e1 = [] {
+  Eigen::Vector3d tmp;
+  tmp << 1, 0, 0;
+  return tmp;
+}();
+
+static const Eigen::Vector3d e2 = [] {
+  Eigen::Vector3d tmp;
+  tmp << 0, 1, 0;
+  return tmp;
+}();
+
+static const Eigen::Vector3d e3 = [] {
+  Eigen::Vector3d tmp;
+  tmp << 0, 0, 1;
+  return tmp;
+}();
+
 static const Eigen::Matrix3d I_3x3 = [] {
   Eigen::Matrix3d tmp;
   tmp << 1, 0, 0, 0, 1, 0, 0, 0, 1;
