@@ -9,6 +9,7 @@
 #include <iostream>
 #include <yaml-cpp/yaml.h>
 #include <eigen3/Eigen/Eigen>
+#include <random>
 
 namespace common
 {
@@ -135,6 +136,15 @@ T saturate(const T val, const T max, const T min)
   if (val < min)
     return min;
   return val;
+}
+
+// Random normal matrix generation
+template<typename T1, typename T2>
+void randomNormalMatrix(Eigen::MatrixBase<T1>& matrix, std::normal_distribution<T2>& dist, std::default_random_engine& rng)
+{
+  for (int i = 0; i < matrix.rows(); ++i)
+    for (int j = 0; j < matrix.cols(); ++j)
+      matrix(i,j) = dist(rng);
 }
 
 } // namespace common
