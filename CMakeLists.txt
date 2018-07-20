@@ -17,3 +17,8 @@ include_directories(include
   ${Eigen3_INCLUDE_DIRS}
   # ${OpenCV_INCLUDE_DIRS}
 ) 
+
+add_executable(unit_tests
+  src/unit_tests.cpp
+)
+target_link_libraries(unit_tests ${Eigen3_LIBRARIES})
