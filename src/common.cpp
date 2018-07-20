@@ -84,6 +84,18 @@ Quaternion Quaternion::operator*(const Quaternion &q2)
   return Quaternion(qw, qx, qy, qz);
 }
 
+// overload addition operator as boxplus for a quaternion and a 3-vector
+Quaternion Quaternion::operator+(const Eigen::Vector3d &delta)
+{
+  return Quaternion(w,x,y,z)*exp(delta);
+}
+
+// overload minus operator as boxminus for two quaternions
+Eigen::Vector3d Quaternion::operator-(const Quaternion &q2)
+{
+  return log(Quaternion(w,x,y,z).inv()*q2);
+}
+
 // overload stream operator for simple quaternion displaying
 std::ostream& operator<<(std::ostream &os, const Quaternion &q)
 {

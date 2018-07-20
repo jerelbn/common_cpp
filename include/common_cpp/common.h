@@ -37,6 +37,8 @@ public:
 private:
 
   Quaternion operator*(const Quaternion &q2);
+  Quaternion operator+(const Eigen::Vector3d &delta);
+  Eigen::Vector3d operator-(const Quaternion &q2);
   friend std::ostream& operator<<(std::ostream &os, const Quaternion &q);
   Quaternion inv();
   double mag();
