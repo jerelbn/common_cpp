@@ -80,6 +80,7 @@ public:
   double roll();
   double pitch();
   double yaw();
+  Eigen::Vector3d euler();
   void fromEigen(const Eigen::Vector4d &q);
   Eigen::Vector4d toEigen();
   Eigen::Vector3d bar();
@@ -88,8 +89,8 @@ public:
   Eigen::Vector3d rot(Eigen::Vector3d v);
   Eigen::Vector3d uvec();
   Eigen::MatrixXd proj();
-  Quaternion exp(const Eigen::Vector3d &delta);
-  Eigen::Vector3d log(const Quaternion &q);
+  static Quaternion exp(const Eigen::Vector3d &delta);
+  static Eigen::Vector3d log(const Quaternion &q);
 
 private:
 

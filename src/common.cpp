@@ -85,13 +85,13 @@ Quaternion Quaternion::operator*(const Quaternion &q2)
 // overload addition operator as boxplus for a quaternion and a 3-vector
 Quaternion Quaternion::operator+(const Eigen::Vector3d &delta)
 {
-  return Quaternion(w,x,y,z)*exp(delta);
+  return (*this)*exp(delta);
 }
 
 // overload minus operator as boxminus for two quaternions
 Eigen::Vector3d Quaternion::operator-(Quaternion &q2)
 {
-  return log(q2.inv()*Quaternion(w,x,y,z));
+  return log(q2.inv()*(*this));
 }
 
 // overload stream operator for simple quaternion displaying
@@ -155,6 +155,12 @@ double Quaternion::pitch()
 double Quaternion::yaw()
 {
   return atan2(2*(w*z + x*y), 1 - 2*(y*y + z*z));
+}
+
+// get vector of Euler angles
+Eigen::Vector3d Quaternion::euler()
+{
+  return Eigen::Vector3d(this->roll(),this->pitch(),this->yaw());
 }
 
 // get complex portion of quaternion in Eigen
