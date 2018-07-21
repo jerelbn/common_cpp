@@ -10,6 +10,7 @@
 #include <yaml-cpp/yaml.h>
 #include <eigen3/Eigen/Eigen>
 #include <random>
+#include <chrono>
 
 namespace common
 {
@@ -272,6 +273,72 @@ void randomNormalMatrix(Eigen::MatrixBase<T1>& matrix, std::normal_distribution<
     for (int j = 0; j < matrix.cols(); ++j)
       matrix(i,j) = dist(rng);
 }
+
+
+// Shows progress of simulation or event
+// Author: James Jackson
+class ProgressBar
+{
+public:
+  ProgressBar(){}
+  ProgressBar(int total, int barwidth) :
+    initialized_(false),
+    barwidth_(barwidth),
+    total_(total)
+  {}
+
+  ~ProgressBar()
+  {
+    std::cout << std::endl;
+  }
+
+  void init(int total, int barwidth)
+  {
+    initialized_ = false;
+    barwidth_ = barwidth;
+    total_ = total;
+    last_completed_ = 0;
+  }
+
+  void print(int completed)
+  {
+    if (!initialized_)
+    {
+      last_print_time_ = std::chrono::system_clock::now();
+      start_time_ = std::chrono::system_clock::now();
+      initialized_ = true;
+    }
+    std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+    double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time_).count()/1000.0;
+
+    // limit printing to about 60 Hz
+    if (std::chrono::duration_cast<std::chrono::milliseconds>(now - last_print_time_).count() > 33
+        || completed == total_)
+    {
+      last_print_time_ = now;
+      std::cout << "[";
+      int pos = barwidth_ * (completed / (double)total_);
+      for (int i = 0; i < barwidth_; ++i)
+        if (i < pos) std::cout << "=";
+        else if (i == pos) std::cout << ">";
+        else std::cout << " ";
+      std::cout << "]  ";
+      printf("%.0f%% ", (completed / (double)total_)*100.0);
+      double it_s = completed / elapsed;
+      double left = (total_ - completed) / it_s;
+      printf("[%.2f<%.2f, %.2fit/s] \r", elapsed, left, it_s);
+    }
+    last_completed_ = completed;
+  }
+private:
+  int barwidth_;
+  int total_;
+  bool initialized_;
+  int last_completed_;
+
+  std::chrono::system_clock::time_point start_time_;
+  std::chrono::system_clock::time_point last_print_time_;
+};
 
 
 } // namespace common
