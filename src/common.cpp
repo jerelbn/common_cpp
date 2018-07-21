@@ -34,7 +34,7 @@ Quaternion::Quaternion(double roll, double pitch, double yaw)
   z = cos(roll/2)*cos(pitch/2)*sin(yaw/2) - sin(roll/2)*sin(pitch/2)*cos(yaw/2);
 }
 
-Quaternion::Quaternion(Eigen::Vector4d v)
+Quaternion::Quaternion(const Eigen::Vector4d &v)
 {
   w = v(0);
   x = v(1);
@@ -42,7 +42,7 @@ Quaternion::Quaternion(Eigen::Vector4d v)
   z = v(3);
 }
 
-Quaternion::Quaternion(Eigen::Vector3d fz)
+Quaternion::Quaternion(Eigen::Vector3d &fz)
 {
   // convert to axis-angle representation
   Eigen::Vector3d ez(0, 0, 1);
@@ -174,7 +174,7 @@ Eigen::Vector4d Quaternion::toEigen()
 }
 
 // convert Eigen Vector to Quaternion
-void Quaternion::fromEigen(const Eigen::Vector4d q)
+void Quaternion::fromEigen(const Eigen::Vector4d &q)
 {
   w = q(0);
   x = q(1);
@@ -226,7 +226,7 @@ Eigen::MatrixXd Quaternion::proj()
 }
 
 // exponential map to unit quaternion
-Quaternion Quaternion::exp(const Eigen::Vector3d delta)
+Quaternion Quaternion::exp(const Eigen::Vector3d &delta)
 {
   double delta_norm = delta.norm();
 
@@ -251,7 +251,7 @@ Quaternion Quaternion::exp(const Eigen::Vector3d delta)
 }
 
 // unit quaternion logarithmic map to vector
-Eigen::Vector3d Quaternion::log(const Quaternion q)
+Eigen::Vector3d Quaternion::log(const Quaternion &q)
 {
   // get magnitude of complex portion
   Eigen::Vector3d qbar(q.x, q.y, q.z);

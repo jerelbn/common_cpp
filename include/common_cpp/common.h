@@ -66,8 +66,8 @@ public:
   ~Quaternion();
   Quaternion(double _w, double _x, double _y, double _z);
   Quaternion(double roll, double pitch, double yaw);
-  Quaternion(Eigen::Vector4d v);
-  Quaternion(Eigen::Vector3d fz);
+  Quaternion(const Eigen::Vector4d &v);
+  Quaternion(Eigen::Vector3d &fz);
 
   Quaternion operator*(const Quaternion &q2);
   Quaternion operator+(const Eigen::Vector3d &delta);
@@ -80,7 +80,7 @@ public:
   double roll();
   double pitch();
   double yaw();
-  void fromEigen(const Eigen::Vector4d q);
+  void fromEigen(const Eigen::Vector4d &q);
   Eigen::Vector4d toEigen();
   Eigen::Vector3d bar();
   Eigen::Matrix3d R();
@@ -88,8 +88,8 @@ public:
   Eigen::Vector3d rot(Eigen::Vector3d v);
   Eigen::Vector3d uvec();
   Eigen::MatrixXd proj();
-  Quaternion exp(const Eigen::Vector3d delta);
-  Eigen::Vector3d log(const Quaternion q);
+  Quaternion exp(const Eigen::Vector3d &delta);
+  Eigen::Vector3d log(const Quaternion &q);
 
 private:
 
