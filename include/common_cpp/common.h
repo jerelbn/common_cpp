@@ -276,6 +276,16 @@ void randomNormalMatrix(Eigen::MatrixBase<T1>& matrix, std::normal_distribution<
 }
 
 
+// Random normal array generation
+template<typename T1, typename T2>
+void randomNormalArray(Eigen::ArrayBase<T1>& array, std::normal_distribution<T2>& dist, std::default_random_engine& rng)
+{
+  for (int i = 0; i < array.rows(); ++i)
+    for (int j = 0; j < array.cols(); ++j)
+      array(i,j) = dist(rng);
+}
+
+
 // Shows progress of simulation or event
 // Author: James Jackson
 class ProgressBar
