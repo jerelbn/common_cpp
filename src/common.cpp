@@ -97,7 +97,7 @@ Eigen::Vector3d Quaternion::operator-(Quaternion &q2)
 // overload stream operator for simple quaternion displaying
 std::ostream& operator<<(std::ostream &os, const Quaternion &q)
 {
-  os << q.w << ", " << q.x << ", " << q.y << ", " << q.z;
+  os << q.w << "\n" << q.x << "\n" << q.y << "\n" << q.z << "\n";
   return os;
 }
 
