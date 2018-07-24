@@ -371,6 +371,20 @@ void dirFromPix(Eigen::Matrix<T,3,1> &dir, const Eigen::Matrix<T,2,1> &pix, cons
 }
 
 
+// Angular difference between two vectors
+template<typename T>
+double angDiffBetweenVecs(const Eigen::Matrix<T,3,1>& v1, const Eigen::Matrix<T,3,1>& v2)
+{
+  double val = (v1.transpose() * v2)(0) / (v1.norm() * v2.norm());
+  if (val > 1)
+    return 0;
+  else if (val < -1)
+    return M_PI;
+  else
+    return acos(val);
+}
+
+
 } // namespace common
 
 #endif // COMMON_H
