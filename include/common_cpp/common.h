@@ -85,8 +85,8 @@ public:
   Eigen::Vector4d toEigen();
   Eigen::Vector3d bar();
   Eigen::Matrix3d R();
-  Eigen::Vector3d rotSlow(Eigen::Vector3d v);
-  Eigen::Vector3d rot(Eigen::Vector3d v);
+  Eigen::Vector3d rotSlow(const Eigen::Vector3d &v);
+  Eigen::Vector3d rot(const Eigen::Vector3d &v);
   Eigen::Vector3d uvec();
   Eigen::MatrixXd proj();
   static Quaternion exp(const Eigen::Vector3d &delta);
@@ -350,6 +350,25 @@ private:
   std::chrono::system_clock::time_point start_time_;
   std::chrono::system_clock::time_point last_print_time_;
 };
+
+
+// Perspective projection into an image
+template<typename T>
+void projToImg(Eigen::Matrix<T,2,1>& pix, const Eigen::Matrix<T,3,1> &pt3d, const Eigen::Matrix<T,3,3> &K,
+               common::Quaternion &q_i2c, const Eigen::Matrix<T,3,1> &p_i2c)
+{
+  Eigen::Matrix<T,3,1> l = q_i2c.rot(pt3d - p_i2c); // Full 3D point vector in camera frame
+  pix = K.topRows(2) * (l / l(2)); // Project into image
+};
+
+
+// Direction vector from pixel coordinate
+template<typename T>
+void dirFromPix(Eigen::Matrix<T,3,1> &dir, const Eigen::Matrix<T,2,1> &pix, const Eigen::Matrix<T,3,3> &K_inv)
+{
+  dir = K_inv * Eigen::Matrix<T,3,1>(pix(0), pix(1), 1);
+  dir /= dir.norm();
+}
 
 
 } // namespace common

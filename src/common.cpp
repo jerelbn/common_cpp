@@ -199,7 +199,7 @@ Eigen::Matrix3d Quaternion::R()
 }
 
 // rotate a 3-vector directly the original way
-Eigen::Vector3d Quaternion::rotSlow(Eigen::Vector3d v)
+Eigen::Vector3d Quaternion::rotSlow(const Eigen::Vector3d &v)
 {
   Quaternion qv = Quaternion(0, v(0), v(1), v(2));
   Quaternion qv_new = this->inv() * qv * *this;
@@ -207,10 +207,10 @@ Eigen::Vector3d Quaternion::rotSlow(Eigen::Vector3d v)
 }
 
 // rotate a 3-vector directly the fast way
-Eigen::Vector3d Quaternion::rot(Eigen::Vector3d v)
+Eigen::Vector3d Quaternion::rot(const Eigen::Vector3d &v)
 {
   Eigen::Vector3d t = 2 * skew(v) * this->bar();
-  return v + this->w * t + skew(t) * this->bar();
+  return v + w * t + skew(t) * this->bar();
 }
 
 // compute the unit vector in the camera frame given its quaternion
