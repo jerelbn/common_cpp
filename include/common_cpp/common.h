@@ -354,11 +354,9 @@ private:
 
 // Perspective projection into an image
 template<typename T>
-void projToImg(Eigen::Matrix<T,2,1>& pix, const Eigen::Matrix<T,3,1> &pt3d, const Eigen::Matrix<T,3,3> &K,
-               common::Quaternion &q_i2c, const Eigen::Matrix<T,3,1> &p_i2c)
+void projToImg(Eigen::Matrix<T,2,1>& pix, const Eigen::Matrix<T,3,1> &lc, const Eigen::Matrix<T,3,3> &K)
 {
-  Eigen::Matrix<T,3,1> l = q_i2c.rot(pt3d - p_i2c); // Full 3D point vector in camera frame
-  pix = K.topRows(2) * (l / l(2)); // Project into image
+  pix = K.topRows(2) * (lc / lc(2));
 };
 
 
