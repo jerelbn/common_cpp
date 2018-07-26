@@ -69,26 +69,26 @@ public:
   Quaternion(const Eigen::Vector4d &v);
   Quaternion(Eigen::Vector3d &fz);
 
-  Quaternion operator*(const Quaternion &q2);
-  Quaternion operator+(const Eigen::Vector3d &delta);
-  Eigen::Vector3d operator-(Quaternion &q2);
+  Quaternion operator*(const Quaternion &q2) const;
+  Quaternion operator+(const Eigen::Vector3d &delta) const;
+  Eigen::Vector3d operator-(const Quaternion &q2) const;
   friend std::ostream& operator<<(std::ostream &os, const Quaternion &q);
 
-  Quaternion inv();
-  double mag();
   void normalize();
-  double roll();
-  double pitch();
-  double yaw();
-  Eigen::Vector3d euler();
   void fromEigen(const Eigen::Vector4d &q);
-  Eigen::Vector4d toEigen();
-  Eigen::Vector3d bar();
-  Eigen::Matrix3d R();
-  Eigen::Vector3d rotSlow(const Eigen::Vector3d &v);
-  Eigen::Vector3d rot(const Eigen::Vector3d &v);
-  Eigen::Vector3d uvec();
-  Eigen::MatrixXd proj();
+  Quaternion inv() const;
+  double mag() const;
+  double roll() const;
+  double pitch() const;
+  double yaw() const;
+  Eigen::Vector3d euler() const;
+  Eigen::Vector4d toEigen() const;
+  Eigen::Vector3d bar() const;
+  Eigen::Matrix3d R() const;
+  Eigen::Vector3d rotSlow(const Eigen::Vector3d &v) const;
+  Eigen::Vector3d rot(const Eigen::Vector3d &v) const;
+  Eigen::Vector3d uvec() const;
+  Eigen::MatrixXd proj() const;
   static Quaternion exp(const Eigen::Vector3d &delta);
   static Eigen::Vector3d log(const Quaternion &q);
 

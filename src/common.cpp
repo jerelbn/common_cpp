@@ -72,7 +72,7 @@ Quaternion::Quaternion(Eigen::Vector3d &fz)
 }
 
 // overload multiply operator for simple quaternion multiplication
-Quaternion Quaternion::operator*(const Quaternion &q2)
+Quaternion Quaternion::operator*(const Quaternion &q2) const
 {
   double qw = w*q2.w - x*q2.x - y*q2.y - z*q2.z;
   double qx = w*q2.x + x*q2.w + y*q2.z - z*q2.y;
@@ -83,13 +83,13 @@ Quaternion Quaternion::operator*(const Quaternion &q2)
 }
 
 // overload addition operator as boxplus for a quaternion and a 3-vector
-Quaternion Quaternion::operator+(const Eigen::Vector3d &delta)
+Quaternion Quaternion::operator+(const Eigen::Vector3d &delta) const
 {
   return (*this)*exp(delta);
 }
 
 // overload minus operator as boxminus for two quaternions
-Eigen::Vector3d Quaternion::operator-(Quaternion &q2)
+Eigen::Vector3d Quaternion::operator-(const Quaternion &q2) const
 {
   return log(q2.inv()*(*this));
 }
@@ -102,7 +102,7 @@ std::ostream& operator<<(std::ostream &os, const Quaternion &q)
 }
 
 // quaternion inverse
-Quaternion Quaternion::inv()
+Quaternion Quaternion::inv() const
 {
   Quaternion q;
   q.w = w;
@@ -114,7 +114,7 @@ Quaternion Quaternion::inv()
 }
 
 // quaternion norm
-double Quaternion::mag()
+double Quaternion::mag() const
 {
   return sqrt(w*w + x*x + y*y + z*z);
 }
@@ -134,13 +134,13 @@ void Quaternion::normalize()
 }
 
 // conversion from quaternion to roll angle
-double Quaternion::roll()
+double Quaternion::roll() const
 {
   return atan2(2*(w*x + y*z), 1 - 2*(x*x + y*y));
 }
 
 // conversion from quaternion to pitch angle
-double Quaternion::pitch()
+double Quaternion::pitch() const
 {
   double val = 2*(w*y - x*z);
 
@@ -152,31 +152,27 @@ double Quaternion::pitch()
 }
 
 // conversion from quaternion to yaw angle
-double Quaternion::yaw()
+double Quaternion::yaw() const
 {
   return atan2(2*(w*z + x*y), 1 - 2*(y*y + z*z));
 }
 
 // get vector of Euler angles
-Eigen::Vector3d Quaternion::euler()
+Eigen::Vector3d Quaternion::euler() const
 {
   return Eigen::Vector3d(this->roll(),this->pitch(),this->yaw());
 }
 
 // get complex portion of quaternion in Eigen
-Eigen::Vector3d Quaternion::bar()
+Eigen::Vector3d Quaternion::bar() const
 {
-  Eigen::Vector3d v;
-  v << x, y, z;
-  return v;
+  return Eigen::Vector3d(x,y,z);
 }
 
 // convert Quaternion to Eigen vector
-Eigen::Vector4d Quaternion::toEigen()
+Eigen::Vector4d Quaternion::toEigen() const
 {
-  Eigen::Vector4d v;
-  v << w, x, y, z;
-  return v;
+  return Eigen::Vector4d(w,x,y,z);
 }
 
 // convert Eigen Vector to Quaternion
@@ -189,7 +185,7 @@ void Quaternion::fromEigen(const Eigen::Vector4d &q)
 }
 
 // create rotation matrix from quaternion
-Eigen::Matrix3d Quaternion::R()
+Eigen::Matrix3d Quaternion::R() const
 {
   Eigen::Matrix3d R;
   R <<  2*w*w + 2*x*x - 1,      2*w*z + 2*x*y,     -2*w*y + 2*x*z,
@@ -199,7 +195,7 @@ Eigen::Matrix3d Quaternion::R()
 }
 
 // rotate a 3-vector directly the original way
-Eigen::Vector3d Quaternion::rotSlow(const Eigen::Vector3d &v)
+Eigen::Vector3d Quaternion::rotSlow(const Eigen::Vector3d &v) const
 {
   Quaternion qv = Quaternion(0, v(0), v(1), v(2));
   Quaternion qv_new = this->inv() * qv * *this;
@@ -207,14 +203,14 @@ Eigen::Vector3d Quaternion::rotSlow(const Eigen::Vector3d &v)
 }
 
 // rotate a 3-vector directly the fast way
-Eigen::Vector3d Quaternion::rot(const Eigen::Vector3d &v)
+Eigen::Vector3d Quaternion::rot(const Eigen::Vector3d &v) const
 {
   Eigen::Vector3d t = 2 * skew(v) * this->bar();
   return v + w * t + skew(t) * this->bar();
 }
 
 // compute the unit vector in the camera frame given its quaternion
-Eigen::Vector3d Quaternion::uvec()
+Eigen::Vector3d Quaternion::uvec() const
 {
   Eigen::Vector3d ez;
   ez << 0, 0, 1;
@@ -222,7 +218,7 @@ Eigen::Vector3d Quaternion::uvec()
 }
 
 // projection matrix of unit vector onto its tangent space
-Eigen::MatrixXd Quaternion::proj()
+Eigen::MatrixXd Quaternion::proj() const
 {
   Eigen::MatrixXd E(3,2);
   E << 1, 0,
