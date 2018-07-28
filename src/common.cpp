@@ -270,6 +270,19 @@ Eigen::Vector3d Quaternion::log(const Quaternion &q)
 }
 
 
+// derivative of quaternion exponential map
+Eigen::Matrix3d Quaternion::dexp(const Eigen::Vector3d &delta)
+{
+  double dmag = delta.norm();
+  Eigen::Matrix3d delta_x = skew(delta);
+  if (dmag < 1e-6)
+    return I_3x3 - 0.5 * delta_x;
+  else
+    return I_3x3 - (1 - cos(dmag)) / (dmag * dmag) * delta_x +
+           (dmag - sin(dmag)) / (dmag * dmag * dmag) * delta_x * delta_x;
+}
+
+
 } // namespace common
 
 

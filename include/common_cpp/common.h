@@ -48,6 +48,12 @@ static const Eigen::Matrix2d I_2x2 = [] {
   return tmp;
 }();
 
+static const Eigen::Matrix<double, 2, 3> I_2x3 = [] {
+  Eigen::Matrix<double, 2, 3> tmp;
+  tmp << 1, 0, 0, 0, 1, 0;
+  return tmp;
+}();
+
 // rotation from NED style camera body coordinates to camera coordinates
 static const Eigen::Matrix2d R_cb2c = [] {
   Eigen::Matrix2d tmp;
@@ -91,6 +97,7 @@ public:
   Eigen::MatrixXd proj() const;
   static Quaternion exp(const Eigen::Vector3d &delta);
   static Eigen::Vector3d log(const Quaternion &q);
+  static Eigen::Matrix3d dexp(const Eigen::Vector3d &delta);
 
 private:
 
