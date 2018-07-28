@@ -123,41 +123,6 @@ Eigen::Matrix<T,3,3> skew(const Eigen::Matrix<T,3,1>& vec)
 }
 
 
-// create string of red text
-template<typename T>
-std::string redText(const T &input)
-{
-  return "\033[31m" + input + "\033[0m";
-}
-
-
-// create string of green text
-template<typename T>
-std::string greenText(const T &input)
-{
-  return "\033[32m" + input + "\033[0m";
-}
-
-
-// test equivalence of Eigen matrices and vectors
-template<typename T1, typename T2>
-void TEST(const std::string &test_name, const double &tol, const Eigen::MatrixBase<T1> &mat1, const Eigen::MatrixBase<T2> &mat2)
-{
-  if (mat1.norm() < 1e-6 || mat2.norm() < 1e-6)
-    std::cout << redText("WARNING: Test values near zero.\n");
-  if (fabs((mat1 - mat2).norm()) < tol)
-  {
-    std::cout << greenText("[PASSED] ") << test_name << std::endl;
-  }
-  else
-  {
-    std::cout << redText("[FAILED] ") << test_name << std::endl;
-    std::cout << "\nvalue1 = \n" << mat1 << std::endl;
-    std::cout << "\nvalue2 = \n" << mat2 << std::endl;
-  }
-}
-
-
 // vector from skew symmetric matrix
 template<typename T>
 Eigen::Matrix<T,3,1> vex(const Eigen::Matrix<T,3,3>& mat)
@@ -424,6 +389,30 @@ double angDiffBetweenVecs(const Eigen::Matrix<T,3,1>& v1, const Eigen::Matrix<T,
     return M_PI;
   else
     return acos(val);
+}
+
+
+// create string of red or green text
+std::string redText(const std::string &input);
+std::string greenText(const std::string &input);
+
+
+// test equivalence of Eigen matrices and vectors
+template<typename T1, typename T2>
+void TEST(const std::string &test_name, const double &tol, const Eigen::MatrixBase<T1> &mat1, const Eigen::MatrixBase<T2> &mat2)
+{
+  if (mat1.norm() < 1e-6 || mat2.norm() < 1e-6)
+    std::cout << redText("WARNING: Test values near zero.\n");
+  if (fabs((mat1 - mat2).norm()) < tol)
+  {
+    std::cout << greenText("[PASSED] ") << test_name << std::endl;
+  }
+  else
+  {
+    std::cout << redText("[FAILED] ") << test_name << std::endl;
+    std::cout << "\nvalue1 = \n" << mat1 << std::endl;
+    std::cout << "\nvalue2 = \n" << mat2 << std::endl;
+  }
 }
 
 

@@ -314,6 +314,20 @@ Eigen::Matrix3d Quaternion::dexp(const Eigen::Vector3d &delta)
 }
 
 
+// create string of red text
+std::string redText(const std::string &input)
+{
+  return "\033[31m" + input + "\033[0m";
+}
+
+
+// create string of green text
+std::string greenText(const std::string &input)
+{
+  return "\033[32m" + input + "\033[0m";
+}
+
+
 } // namespace common
 
 
