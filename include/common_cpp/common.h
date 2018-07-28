@@ -74,6 +74,7 @@ public:
   Quaternion(double roll, double pitch, double yaw);
   Quaternion(const Eigen::Vector4d &v);
   Quaternion(Eigen::Vector3d &fz);
+  Quaternion(std::normal_distribution<double> &dist, std::default_random_engine &rng);
 
   Quaternion operator*(const Quaternion &q2) const;
   Quaternion operator+(const Eigen::Vector3d &delta) const;
@@ -119,6 +120,41 @@ Eigen::Matrix<T,3,3> skew(const Eigen::Matrix<T,3,1>& vec)
       vec(2),       0, -vec(0),
      -vec(1),  vec(0),       0;
   return A;
+}
+
+
+// create string of red text
+template<typename T>
+std::string redText(const T &input)
+{
+  return "\033[31m" + input + "\033[0m";
+}
+
+
+// create string of green text
+template<typename T>
+std::string greenText(const T &input)
+{
+  return "\033[32m" + input + "\033[0m";
+}
+
+
+// test equivalence of Eigen matrices and vectors
+template<typename T1, typename T2>
+void TEST(const std::string &test_name, const double &tol, const Eigen::MatrixBase<T1> &mat1, const Eigen::MatrixBase<T2> &mat2)
+{
+  if (mat1.norm() < 1e-6 || mat2.norm() < 1e-6)
+    std::cout << redText("WARNING: Test values near zero.\n");
+  if (fabs((mat1 - mat2).norm()) < tol)
+  {
+    std::cout << greenText("[PASSED] ") << test_name << std::endl;
+  }
+  else
+  {
+    std::cout << redText("[FAILED] ") << test_name << std::endl;
+    std::cout << "\nvalue1 = \n" << mat1 << std::endl;
+    std::cout << "\nvalue2 = \n" << mat2 << std::endl;
+  }
 }
 
 

@@ -71,6 +71,18 @@ Quaternion::Quaternion(Eigen::Vector3d &fz)
   }
 }
 
+// initialize random unit quaternion
+Quaternion::Quaternion(std::normal_distribution<double> &dist, std::default_random_engine &rng)
+{
+  Quaternion q = Quaternion(dist(rng), dist(rng), dist(rng), dist(rng));
+  q.normalize();
+  q.w = (q.w > 0) ? q.w : -q.w;
+  w = q.w;
+  x = q.x;
+  y = q.y;
+  z = q.z;
+}
+
 // overload multiply operator for simple quaternion multiplication
 Quaternion Quaternion::operator*(const Quaternion &q2) const
 {
