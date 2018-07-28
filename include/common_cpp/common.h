@@ -97,6 +97,7 @@ public:
   Eigen::MatrixXd proj() const;
   static Quaternion exp(const Eigen::Vector3d &delta);
   static Eigen::Vector3d log(const Quaternion &q);
+  static Eigen::Vector2d log_uvec(const Quaternion &q1, const Quaternion &q2); // q1 - q2
   static Eigen::Matrix3d dexp(const Eigen::Vector3d &delta);
 
 private:

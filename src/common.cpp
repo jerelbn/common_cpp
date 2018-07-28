@@ -212,19 +212,13 @@ Eigen::Vector3d Quaternion::rot(const Eigen::Vector3d &v) const
 // compute the unit vector in the camera frame given its quaternion
 Eigen::Vector3d Quaternion::uvec() const
 {
-  Eigen::Vector3d ez;
-  ez << 0, 0, 1;
-  return R() * ez;
+  return rot(common::e3);
 }
 
 // projection matrix of unit vector onto its tangent space
 Eigen::MatrixXd Quaternion::proj() const
 {
-  Eigen::MatrixXd E(3,2);
-  E << 1, 0,
-       0, 1,
-       0, 0;
-  return R() * E;
+  return R() * I_2x3.transpose();
 }
 
 // exponential map to unit quaternion
@@ -267,6 +261,31 @@ Eigen::Vector3d Quaternion::log(const Quaternion &q)
     delta = 2. * atan2(qbar_mag,q.w) * qbar / qbar_mag;
 
   return delta;
+}
+
+
+// axis-angle difference between two unit vectors represented by unit quaternions
+Eigen::Vector2d Quaternion::log_uvec(const Quaternion &q1, const Quaternion &q2)
+{
+  // get unit vectors
+  Eigen::Vector3d e1 = q1.uvec();
+  Eigen::Vector3d e2 = q2.uvec();
+
+  // avoid too small of angles
+  double e1T_e2 = e1.transpose() * e2;
+  if (fabs(e1T_e2 - 1) < 1e-6) // same direction
+    return Eigen::Vector2d(0, 0);
+  else if (fabs(e1T_e2 + 1) < 1e-6) // opposite direction
+    return Eigen::Vector2d(M_PI, 0);
+  else
+  {
+    // compute axis angle difference
+    Eigen::Vector3d e1_x_e2 = e1.cross(e2);
+    Eigen::Vector3d aa = acos(e1T_e2) * e1_x_e2 / e1_x_e2.norm();
+
+    // place error on first vector's tangent space
+    return q1.proj().transpose() * aa;
+  }
 }
 
 
