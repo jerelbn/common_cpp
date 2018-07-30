@@ -399,19 +399,22 @@ std::string greenText(const std::string &input);
 
 // test equivalence of Eigen matrices and vectors
 template<typename T1, typename T2>
-void TEST(const std::string &test_name, const double &tol, const Eigen::MatrixBase<T1> &mat1, const Eigen::MatrixBase<T2> &mat2)
+bool TEST(const std::string &test_name, const double &tol, const Eigen::MatrixBase<T1> &mat1, const Eigen::MatrixBase<T2> &mat2)
 {
   if (mat1.norm() < 1e-6 || mat2.norm() < 1e-6)
-    std::cout << redText("WARNING: Test values near zero.\n");
-  if (fabs((mat1 - mat2).norm()) < tol)
+    std::cout << redText("WARNING: ") << "Test values near zero in " << test_name << ".\n";
+  if ((mat1 - mat2).norm() < tol)
   {
     std::cout << greenText("[PASSED] ") << test_name << std::endl;
+    return true;
   }
   else
   {
-    std::cout << redText("[FAILED] ") << test_name << std::endl;
-    std::cout << "\nvalue1 = \n" << mat1 << std::endl;
-    std::cout << "\nvalue2 = \n" << mat2 << std::endl;
+    std::cout << redText("[FAILED] ") << test_name << "\n\n";
+    std::cout << "Error: " << (mat1 - mat2).norm() << std::endl;
+    std::cout << "\nFirst input  = \n" << mat1 << std::endl;
+    std::cout << "\nSecond input = \n" << mat2 << std::endl;
+    return false;
   }
 }
 

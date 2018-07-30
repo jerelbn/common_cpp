@@ -285,9 +285,9 @@ Eigen::Vector2d Quaternion::log_uvec(const Quaternion &q1, const Quaternion &q2)
 
   // avoid too small of angles
   double e1T_e2 = e1.transpose() * e2;
-  if (fabs(e1T_e2 - 1) < 1e-6) // same direction
+  if (fabs(e1T_e2 - 1) < 1e-14) // same direction
     return Eigen::Vector2d(0, 0);
-  else if (fabs(e1T_e2 + 1) < 1e-6) // opposite direction
+  else if (fabs(e1T_e2 + 1) < 1e-14) // opposite direction
     return Eigen::Vector2d(M_PI, 0);
   else
   {
