@@ -100,6 +100,12 @@ Quaternion Quaternion::operator+(const Eigen::Vector3d &delta) const
   return (*this)*exp(delta);
 }
 
+// overload += operator as boxplus for a quaternion and a 3-vector
+void Quaternion::operator+=(const Eigen::Vector3d &delta)
+{
+  *this = *this + delta;
+}
+
 // overload minus operator as boxminus for two quaternions
 Eigen::Vector3d Quaternion::operator-(const Quaternion &q2) const
 {
