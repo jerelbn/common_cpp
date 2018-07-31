@@ -79,6 +79,7 @@ public:
   Quaternion operator*(const Quaternion &q2) const;
   Quaternion operator+(const Eigen::Vector3d &delta) const;
   void operator+=(const Eigen::Vector3d &delta);
+  void operator*=(const Quaternion &q);
   Eigen::Vector3d operator-(const Quaternion &q2) const;
   friend std::ostream& operator<<(std::ostream &os, const Quaternion &q);
 
