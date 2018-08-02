@@ -55,8 +55,8 @@ static const Eigen::Matrix<double, 2, 3> I_2x3 = [] {
 }();
 
 // rotation from NED style camera body coordinates to camera coordinates
-static const Eigen::Matrix2d R_cb2c = [] {
-  Eigen::Matrix2d tmp;
+static const Eigen::Matrix3d R_cb2c = [] {
+  Eigen::Matrix3d tmp;
   tmp << 0, 1, 0,
          0, 0, 1,
          1, 0, 0;
