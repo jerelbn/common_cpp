@@ -119,6 +119,17 @@ private:
 };
 
 
+// wrap angle to +- input bound (typically [0,2*pi] or [-pi,pi])
+template<typename T>
+void wrapAngle(T &angle, const T &bound)
+{
+  if (angle > bound)
+    angle -= 2.0 * M_PI;
+  if (angle < bound - 2.0 * M_PI)
+    angle += 2.0 * M_PI;
+}
+
+
 // skew symmetric matrix from vector
 template<typename T>
 Eigen::Matrix<T,3,3> skew(const Eigen::Matrix<T,3,1>& vec)
