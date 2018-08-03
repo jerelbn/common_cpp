@@ -84,6 +84,7 @@ public:
   friend std::ostream& operator<<(std::ostream &os, const Quaternion &q);
 
   void normalize();
+  void scale(const double &s);
   void fromEigen(const Eigen::Vector4d &q);
   Quaternion inv() const;
   double mag() const;
@@ -102,6 +103,11 @@ public:
   static Eigen::Vector3d log(const Quaternion &q);
   static Eigen::Vector2d log_uvec(const Quaternion &q1, const Quaternion &q2); // q1 - q2
   static Eigen::Matrix3d dexp(const Eigen::Vector3d &delta);
+
+  const double getW() const { return w; }
+  const double getX() const { return x; }
+  const double getY() const { return y; }
+  const double getZ() const { return z; }
 
 private:
 

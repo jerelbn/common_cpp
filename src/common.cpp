@@ -97,15 +97,7 @@ Quaternion Quaternion::operator*(const Quaternion &q2) const
 // overload addition operator as boxplus for a quaternion and a 3-vector
 Quaternion Quaternion::operator+(const Eigen::Vector3d &delta) const
 {
-  Quaternion q_new = (*this)*exp(delta);
-  if (q_new.w < 0)
-  {
-    q_new.w *= -1;
-    q_new.x *= -1;
-    q_new.y *= -1;
-    q_new.z *= -1;
-  }
-  return q_new;
+  return *this * exp(delta);
 }
 
 // overload += operator
@@ -159,10 +151,15 @@ void Quaternion::normalize()
   x /= mag;
   y /= mag;
   z /= mag;
+}
 
-  // ensure positive scalar portion
-  if (w < 0)
-    w *= -1;
+// scale quaternion components by a scalar
+void Quaternion::scale(const double &s)
+{
+  w *= s;
+  x *= s;
+  y *= s;
+  z *= s;
 }
 
 // conversion from quaternion to roll angle
