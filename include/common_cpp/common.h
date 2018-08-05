@@ -11,6 +11,7 @@
 #include <eigen3/Eigen/Eigen>
 #include <random>
 #include <chrono>
+#include <cmath>
 
 namespace common
 {
@@ -117,6 +118,14 @@ private:
   double z;
 
 };
+
+
+// round to desired decimal place
+template<typename T>
+T decRound(const T &number, const int &decimal_place)
+{
+  return round(number * decimal_place) / decimal_place;
+}
 
 
 // wrap angle to +- input bound (typically [0,2*pi] or [-pi,pi])
