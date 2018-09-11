@@ -292,8 +292,7 @@ Eigen::Vector3d Quaternion::log(const Quaternion &q)
   {
     // Quaternions have double cover issues so wrap the axis-angle magnitude
     // to ensure the shortest rotation.
-    double delta_mag = 2. * atan2(qbar_mag,q.w);
-    wrapAngle(delta_mag, M_PI);
+    double delta_mag = wrapAngle(2. * atan2(qbar_mag,q.w), M_PI);
     delta = delta_mag * qbar / qbar_mag;
   }
 

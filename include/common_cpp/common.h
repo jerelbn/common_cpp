@@ -130,12 +130,13 @@ T decRound(const T &number, const int &decimal_place)
 
 // wrap angle to +- input bound (typically [0,2*pi] or [-pi,pi])
 template<typename T>
-void wrapAngle(T &angle, const T &bound)
+T wrapAngle(const T &angle, const T &bound)
 {
   if (angle > bound)
-    angle -= 2.0 * M_PI;
+    return angle - 2.0 * M_PI;
   if (angle < bound - 2.0 * M_PI)
-    angle += 2.0 * M_PI;
+    return angle + 2.0 * M_PI;
+  return angle;
 }
 
 
