@@ -234,8 +234,8 @@ Eigen::Vector3d Quaternion::rotSlow(const Eigen::Vector3d &v) const
 // rotate a 3-vector directly the fast way
 Eigen::Vector3d Quaternion::rot(const Eigen::Vector3d &v) const
 {
-  Eigen::Vector3d t = 2 * skew(v) * this->bar();
-  return v + w * t + skew(t) * this->bar();
+  Eigen::Vector3d t = 2 * v.cross(this->bar());
+  return v + w * t + t.cross(this->bar());
 }
 
 // compute the unit vector in the camera frame given its quaternion
