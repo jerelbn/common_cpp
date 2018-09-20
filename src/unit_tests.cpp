@@ -43,5 +43,16 @@ int main()
     Eigen::Matrix3d dR = R1*R2.transpose();
     delta_new = vex(logR(dR));
     if (!TEST("Rotation matrix logarithm.",tol,delta,delta_new)) break;
+
+    // Check rotation matrix transpose exponential
+    R1 = q1.R().transpose();
+    R2 = q2.R().transpose();
+    R2_new = R1*expR(skew(delta));
+    if (!TEST("Rotation matrix transpose exponential.",tol,R2,R2_new)) break;
+
+    // Check rotation matrix transpose logarithm
+    dR = R1.transpose()*R2;
+    delta_new = vex(logR(dR));
+    if (!TEST("Rotation matrix transpose logarithm.",tol,delta,delta_new)) break;
   }
 }
