@@ -167,14 +167,14 @@ Eigen::Matrix<T,3,3> expR(const Eigen::Matrix<T,3,3>& deltax)
 {
   Eigen::Matrix<T,3,1> axis_angle = vex(deltax);
   T theta = axis_angle.norm();
-  if (theta > 1e-6)
+  if (theta > 1e-5)
     return I_3x3 + sin(theta)/theta*deltax + (1-cos(theta))/theta/theta*deltax*deltax;
   else
     return I_3x3;
 }
 
 
-// rotation matrix logarithmic map to vector
+// rotation matrix logarithmic map
 template<typename T>
 Eigen::Matrix<T,3,3> logR(const Eigen::Matrix<T,3,3>& R)
 {
@@ -183,7 +183,7 @@ Eigen::Matrix<T,3,3> logR(const Eigen::Matrix<T,3,3>& R)
 
   // avoid numerical error with approximation
   Eigen::Matrix<T,3,3> deltax;
-  if (theta > 1e-6)
+  if (theta > 1e-5)
     deltax = theta/(2*sin(theta))*(R - R.transpose());
   else
     deltax = 0.5*(R - R.transpose());
@@ -439,10 +439,9 @@ bool TEST(const std::string &test_name, const double &tol, const Eigen::MatrixBa
   }
   else
   {
-    std::cout << redText("[FAILED] ") << test_name << "\n\n";
-    std::cout << "Error: " << (mat1 - mat2).norm() << std::endl;
-    std::cout << "\nFirst input  = \n" << mat1 << std::endl;
-    std::cout << "\nSecond input = \n" << mat2 << std::endl;
+    std::cout << redText("[FAILED] ") << test_name << std::endl;
+    std::cout << "\nvalue1 = \n" << mat1 << std::endl;
+    std::cout << "\nvalue2 = \n" << mat2 << std::endl;
     return false;
   }
 }
