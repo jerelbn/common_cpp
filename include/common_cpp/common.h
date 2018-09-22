@@ -145,9 +145,13 @@ template<typename T>
 Eigen::Matrix<T,3,3> skew(const Eigen::Matrix<T,3,1>& vec)
 {
   Eigen::Matrix<T,3,3> A;
-  A <<     0, -vec(2),  vec(1),
-      vec(2),       0, -vec(0),
-     -vec(1),  vec(0),       0;
+  A.setZero();
+  A(0,1) = -vec(2);
+  A(0,2) = vec(1);
+  A(1,0) = vec(2);
+  A(1,2) = -vec(0);
+  A(2,0) = -vec(1);
+  A(2,1) = vec(0);
   return A;
 }
 
@@ -165,12 +169,12 @@ Eigen::Matrix<T,3,1> vex(const Eigen::Matrix<T,3,3>& mat)
 template<typename T>
 Eigen::Matrix<T,3,3> expR(const Eigen::Matrix<T,3,3>& deltax)
 {
-  Eigen::Matrix<T,3,1> axis_angle = vex(deltax);
-  T theta = axis_angle.norm();
+  const Eigen::Matrix<T,3,1> axis_angle = vex(deltax);
+  const T theta = axis_angle.norm();
   if (theta > 1e-5)
-    return I_3x3 + sin(theta)/theta*deltax + (1-cos(theta))/theta/theta*deltax*deltax;
+    return I_3x3.cast<T>() + sin(theta)/theta*deltax + (T(1)-cos(theta))/theta/theta*deltax*deltax;
   else
-    return I_3x3;
+    return I_3x3.cast<T>();
 }
 
 
