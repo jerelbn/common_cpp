@@ -77,393 +77,6 @@ T wrapAngle(const T &angle, const T &bound)
 }
 
 
-class Quaternion
-{
-
-public:
-
-  template<typename T = double>
-  Quaternion()
-  {
-    w = T(1.0);
-    x = T(0.0);
-    y = T(0.0);
-    z = T(0.0);
-  }
-
-  template<typename T>
-  Quaternion(const T& _w, const T& _x, const T& _y, const T& _z)
-  {
-    w = _w;
-    x = _x;
-    y = _y;
-    z = _z;
-  }
-
-  template<typename T>
-  Quaternion(const T& roll, const T& pitch, const T& yaw)
-  {
-    // Pre-calculations
-    const T r_2 = roll / T(2.0);
-    const T p_2 = pitch / T(2.0);
-    const T y_2 = yaw / T(2.0);
-    const T sr = sin(r_2);
-    const T sp = sin(p_2);
-    const T sy = sin(y_2);
-    const T cr = cos(r_2);
-    const T cp = cos(p_2);
-    const T cy = cos(y_2);
-
-    // Output
-    w = cr*cp*cy + sr*sp*sy;
-    x = sr*cp*cy - cr*sp*sy;
-    y = cr*sp*cy + sr*cp*sy;
-    z = cr*cp*sy - sr*sp*cy;
-  }
-
-  template<typename T>
-  Quaternion(const Eigen::Matrix<T,4,1>& v)
-  {
-    w = v(0);
-    x = v(1);
-    y = v(2);
-    z = v(3);
-  }
-
-  // create quaternion from a unit vector
-  template<typename T>
-  Quaternion(const Eigen::Matrix<T,3,1>& fz)
-  {
-    // convert to axis-angle representation
-    fz.normalize(); // enforce unit length
-    const T theta = acos(fz.dot(e1.cast<T>()));
-
-    if (theta < T(1e-6))
-    {
-      w = T(1.0);
-      x = T(0.0);
-      y = T(0.0);
-      z = T(0.0);
-    }
-    else
-    {
-      const Eigen::Matrix<T,3,1> iaa = (fz.cross(e1.cast<T>())).normalized();
-
-      // get complex portion of quaternion
-      const T theta_2 = theta / T(2.0);
-      const Eigen::Matrix<T,3,1> qv = iaa * sin(theta_2);
-
-      w = cos(theta_2);
-      x = qv(0);
-      y = qv(1);
-      z = qv(2);
-    }
-  }
-
-  template<typename T = double>
-  void normalize()
-  {
-    const T mag = this->mag();
-    w /= mag;
-    x /= mag;
-    y /= mag;
-    z /= mag;
-  }
-
-  // initialize random unit quaternion
-  template<typename T>
-  Quaternion(std::normal_distribution<T>& dist, std::default_random_engine& rng)
-  {
-    Quaternion q(dist(rng), dist(rng), dist(rng), dist(rng));
-    q.normalize();
-    q.w = (q.w > 0) ? q.w : -q.w;
-    w = q.w;
-    x = q.x;
-    y = q.y;
-    z = q.z;
-  }
-
-  // overload addition operator as boxplus for a quaternion and a 3-vector
-  template<typename T>
-  Quaternion operator+(const Eigen::Matrix<T,3,1>& delta) const
-  {
-    return *this * exp(delta);
-  }
-
-  template<typename T>
-  void operator+=(const Eigen::Matrix<T,3,1>& delta)
-  {
-    *this = *this + delta;
-  }
-
-  // overload minus operator as boxminus for two quaternions
-  template<typename T>
-  Eigen::Matrix<T,3,1> operator-(const Quaternion &q2) const
-  {
-    return log(q2.inv() * *this);
-  }
-
-  template<typename T = double>
-  Quaternion operator*(const Quaternion &q2) const
-  {
-    const T qw = w*q2.w - x*q2.x - y*q2.y - z*q2.z;
-    const T qx = w*q2.x + x*q2.w + y*q2.z - z*q2.y;
-    const T qy = w*q2.y - x*q2.z + y*q2.w + z*q2.x;
-    const T qz = w*q2.z + x*q2.y - y*q2.x + z*q2.w;
-    return Quaternion(qw, qx, qy, qz);
-  }
-
-  void operator*=(const Quaternion &q)
-  {
-    *this = *this * q;
-  }
-
-  friend std::ostream& operator<<(std::ostream &os, const Quaternion &q)
-  {
-    os << q.w << "\n" << q.x << "\n" << q.y << "\n" << q.z << "\n";
-    return os;
-  }
-
-  template<typename T>
-  void scale(const T& s)
-  {
-    w *= s;
-    x *= s;
-    y *= s;
-    z *= s;
-  }
-
-  template<typename T = double>
-  const T mag() const
-  {
-    return sqrt(w*w + x*x + y*y + z*z);
-  }
-
-  template<typename T = double>
-  const T roll() const
-  {
-    return atan2(T(2.0) * (w*x + y*z), T(1.0) - T(2.0) * (x*x + y*y));
-  }
-
-  template<typename T = double>
-  const T pitch() const
-  {
-    const T val = T(2.0) * (w*y - x*z);
-
-    // hold at 90 degrees if invalid
-    if (fabs(val) > T(1.0))
-      return copysign(T(1.0), val) * T(M_PI) / T(2.0);
-    else
-      return asin(val);
-  }
-
-  template<typename T = double>
-  const T yaw() const
-  {
-    return atan2(T(2.0) * (w*z + x*y), T(1.0) - T(2.0) * (y*y + z*z));
-  }
-
-  template<typename T>
-  const Eigen::Matrix<T,3,1> euler() const
-  {
-    return Eigen::Matrix<T,3,1>(this->roll(),this->pitch(),this->yaw());
-  }
-
-  template<typename T>
-  void fromEigen(const Eigen::Matrix<T,4,1>& q)
-  {
-    w = q(0);
-    x = q(1);
-    y = q(2);
-    z = q(3);
-  }
-
-  template<typename T = double>
-  const Eigen::Matrix<T,4,1> toEigen() const
-  {
-    return Eigen::Matrix<T,4,1>(w,x,y,z);
-  }
-
-  template<typename T = double>
-  const Eigen::Matrix<T,3,1> bar() const
-  {
-    return Eigen::Matrix<T,3,1>(x,y,z);
-  }
-
-  const Quaternion inv() const
-  {
-    return Quaternion(w, -x, -y, -z);
-  }
-
-  template<typename T = double>
-  const Eigen::Matrix<T,3,3> R() const
-  {
-    // Pre-calculations
-    const T qw2 = w * w;
-    const T qwqx = w * x;
-    const T qwqy = w * y;
-    const T qwqz = w * z;
-    const T qxqy = x * y;
-    const T qxqz = x * z;
-    const T qyqz = y * z;
-
-    // Output
-    Eigen::Matrix<T,3,3> R;
-    R(0,0) = 2.0 * (qw2 + x * x) - 1.0;
-    R(0,1) = 2.0 * (qwqz + qxqy);
-    R(0,2) = 2.0 * (qxqz - qwqy);
-    R(1,0) = 2.0 * (qxqy - qwqz);
-    R(1,1) = 2.0 * (qw2 + y * y) - 1.0;
-    R(1,2) = 2.0 * (qwqx + qyqz);
-    R(2,0) = 2.0 * (qwqy + qxqz);
-    R(2,1) = 2.0 * (qyqz - qwqx);
-    R(2,2) = 2.0 * (qw2 + z * z) - 1.0;
-    return R;
-  }
-
-  template<typename T>
-  const Eigen::Matrix<T,3,1> rotSlow(const Eigen::Matrix<T,3,1>& v) const
-  {
-    const Quaternion qv(T(0.0), v(0), v(1), v(2));
-    const Quaternion qv_new = this->inv() * qv * *this;
-    return Eigen::Matrix<T,3,1>(qv_new.x, qv_new.y, qv_new.z);
-  }
-
-  template<typename T>
-  const Eigen::Matrix<T,3,1> rot(const Eigen::Matrix<T,3,1>& v) const
-  {
-    const Eigen::Matrix<T,3,1> t = T(2.0) * v.cross(this->bar());
-    return v + w * t + t.cross(this->bar());
-  }
-
-  template<typename T = double>
-  const Eigen::Matrix<T,3,1> uvec() const
-  {
-    return rot(e3.cast<T>());
-  }
-
-  template<typename T = double>
-  const Eigen::Matrix<T,3,2> proj() const
-  {
-    return R() * I_2x3.cast<T>().transpose();
-  }
-
-  template<typename T>
-  static Quaternion exp(const Eigen::Matrix<T,3,1>& delta)
-  {
-    const T delta_norm = delta.norm();
-
-    Quaternion q;
-    if (delta_norm < T(1e-6)) // avoid numerical error with approximation
-    {
-      q.w = T(1.0);
-      q.x = delta(0) / T(2.0);
-      q.y = delta(1) / T(2.0);
-      q.z = delta(2) / T(2.0);
-    }
-    else
-    {
-      const T delta_norm_2 = delta_norm / T(2.0);
-      const T sn = sin(delta_norm_2) / delta_norm;
-      q.w = cos(delta_norm_2);
-      q.x = sn * delta(0);
-      q.y = sn * delta(1);
-      q.z = sn * delta(2);
-    }
-
-    return q;
-  }
-
-  template<typename T = double>
-  static Eigen::Matrix<T,3,1> log(const Quaternion& q)
-  {
-    // get magnitude of complex portion
-    const Eigen::Matrix<T,3,1> qbar(q.x, q.y, q.z);
-    const T qbar_mag = qbar.norm();
-
-    // avoid numerical error with approximation
-    Eigen::Matrix<T,3,1> delta;
-    if (qbar_mag < T(1e-6))
-    {
-      if (q.w >= T(0.0))
-        delta = qbar;
-      else
-        delta = -qbar;
-    }
-    else
-    {
-      // Quaternions have double cover issues so wrap the axis-angle magnitude
-      // to ensure the shortest rotation.
-      const T delta_mag = wrapAngle(T(2.0) * atan2(qbar_mag, q.w), T(M_PI));
-      delta = delta_mag * qbar / qbar_mag;
-    }
-
-    return delta;
-  }
-
-  // q1 - q2
-  template<typename T = double>
-  static Eigen::Matrix<T,2,1> log_uvec(const Quaternion& q1, const Quaternion& q2)
-  {
-    // get unit vectors
-    const Eigen::Matrix<T,3,1> e1 = q1.uvec();
-    const Eigen::Matrix<T,3,1> e2 = q2.uvec();
-
-    // avoid too small of angles
-    const T e1T_e2 = e1.dot(e2);
-    if (fabs(e1T_e2 - T(1.0)) < T(1e-14)) // same direction
-      return Eigen::Matrix<T,2,1>(T(0.0), T(0.0));
-    else if (fabs(e1T_e2 + T(1.0)) < T(1e-14)) // opposite direction
-      return Eigen::Matrix<T,2,1>(T(M_PI), T(0.0));
-    else
-    {
-      // compute axis angle difference
-      const Eigen::Matrix<T,3,1> e1_x_e2 = e1.cross(e2);
-      const Eigen::Matrix<T,3,1> aa = acos(e1T_e2) * e1_x_e2.normalized();
-
-      // place error on first vector's tangent space
-      return q1.proj().transpose() * aa;
-    }
-  }
-
-  // derivative of quaternion exponential map
-  template<typename T>
-  static Eigen::Matrix<T,3,3> dexp(const Eigen::Matrix<T,3,1>& delta)
-  {
-    const T dmag = delta.norm();
-    const Eigen::Matrix<T,3,3> delta_x = skew(delta);
-    if (dmag < T(1e-6))
-      return I_3x3 - T(0.5) * delta_x;
-    else
-    {
-      const T dmag2 = dmag * dmag;
-      return I_3x3 - (T(1.0) - cos(dmag)) / dmag2 * delta_x +
-             (dmag - sin(dmag)) / (dmag2 * dmag) * delta_x * delta_x;
-    }
-  }
-
-  template<typename T = double>
-  const T getW() const { return w; }
-
-  template<typename T = double>
-  const T getX() const { return x; }
-
-  template<typename T = double>
-  const T getY() const { return y; }
-
-  template<typename T = double>
-  const T getZ() const { return z; }
-
-private:
-
-  double w;
-  double x;
-  double y;
-  double z;
-
-};
-
-
 // round to desired decimal place
 template<typename T>
 T decRound(const T &number, const int &decimal_place)
@@ -574,7 +187,7 @@ Eigen::Matrix<T,3,3> R_v_to_b(const T& phi, const T& theta, const T& psi)
 // Loads scalar parameters from a .yaml file
 // Author: James Jackson
 template <typename T>
-bool get_yaml_node(const std::string key, const std::string filename, T& val, bool print_error = true) 
+bool get_yaml_node(const std::string key, const std::string filename, T& val, bool print_error = true)
 {
   YAML::Node node = YAML::LoadFile(filename);
   if (node[key])
@@ -596,7 +209,7 @@ bool get_yaml_node(const std::string key, const std::string filename, T& val, bo
 // Loads array from a .yaml file into an Eigen-type matrix or vector.
 // Author: James Jackson
 template <typename T>
-bool get_yaml_eigen(const std::string key, const std::string filename, Eigen::MatrixBase<T>& val) 
+bool get_yaml_eigen(const std::string key, const std::string filename, Eigen::MatrixBase<T>& val)
 {
   YAML::Node node = YAML::LoadFile(filename);
   std::vector<double> vec;
@@ -746,9 +359,9 @@ void dirFromPix(Eigen::Matrix<T,3,1> &dir, const Eigen::Matrix<T,2,1> &pix, cons
 
 // Angular difference between two vectors
 template<typename T>
-double angDiffBetweenVecs(const Eigen::Matrix<T,3,1>& v1, const Eigen::Matrix<T,3,1>& v2)
+T angDiffBetweenVecs(const Eigen::Matrix<T,3,1>& v1, const Eigen::Matrix<T,3,1>& v2)
 {
-  double val = (v1.transpose() * v2)(0) / (v1.norm() * v2.norm());
+  T val = (v1.transpose() * v2)(0) / (v1.norm() * v2.norm());
   if (val > 1)
     return 0;
   else if (val < -1)
@@ -782,6 +395,358 @@ bool TEST(const std::string &test_name, const double &tol, const Eigen::MatrixBa
     return false;
   }
 }
+
+
+template<typename T = double>
+class Quaternion
+{
+
+public:
+
+  Quaternion()
+  {
+    w = T(1.0);
+    x = T(0.0);
+    y = T(0.0);
+    z = T(0.0);
+  }
+
+  Quaternion(const T& _w, const T& _x, const T& _y, const T& _z)
+  {
+    w = _w;
+    x = _x;
+    y = _y;
+    z = _z;
+  }
+
+  Quaternion(const T& roll, const T& pitch, const T& yaw)
+  {
+    // Pre-calculations
+    const T r_2 = roll / T(2.0);
+    const T p_2 = pitch / T(2.0);
+    const T y_2 = yaw / T(2.0);
+    const T sr = sin(r_2);
+    const T sp = sin(p_2);
+    const T sy = sin(y_2);
+    const T cr = cos(r_2);
+    const T cp = cos(p_2);
+    const T cy = cos(y_2);
+
+    // Output
+    w = cr*cp*cy + sr*sp*sy;
+    x = sr*cp*cy - cr*sp*sy;
+    y = cr*sp*cy + sr*cp*sy;
+    z = cr*cp*sy - sr*sp*cy;
+  }
+
+  Quaternion(const Eigen::Matrix<T,4,1>& v)
+  {
+    w = v(0);
+    x = v(1);
+    y = v(2);
+    z = v(3);
+  }
+
+  // create quaternion from a unit vector
+  Quaternion(Eigen::Matrix<T,3,1>& fz)
+  {
+    // convert to axis-angle representation
+    fz.normalize(); // enforce unit length
+    const T theta = acos(fz.dot(e1.cast<T>()));
+
+    if (theta < T(1e-6))
+    {
+      w = T(1.0);
+      x = T(0.0);
+      y = T(0.0);
+      z = T(0.0);
+    }
+    else
+    {
+      const Eigen::Matrix<T,3,1> iaa = (fz.cross(e1.cast<T>())).normalized();
+
+      // get complex portion of quaternion
+      const T theta_2 = theta / T(2.0);
+      const Eigen::Matrix<T,3,1> qv = iaa * sin(theta_2);
+
+      w = cos(theta_2);
+      x = qv(0);
+      y = qv(1);
+      z = qv(2);
+    }
+  }
+
+  void normalize()
+  {
+    const T mag = this->mag();
+    w /= mag;
+    x /= mag;
+    y /= mag;
+    z /= mag;
+  }
+
+  // initialize random unit quaternion
+  Quaternion(std::normal_distribution<T>& dist, std::default_random_engine& rng)
+  {
+    Quaternion q(dist(rng), dist(rng), dist(rng), dist(rng));
+    q.normalize();
+    q.w = (q.w > 0) ? q.w : -q.w;
+    w = q.w;
+    x = q.x;
+    y = q.y;
+    z = q.z;
+  }
+
+  // overload addition operator as boxplus for a quaternion and a 3-vector
+  Quaternion operator+(const Eigen::Matrix<T,3,1>& delta) const
+  {
+    return *this * exp(delta);
+  }
+
+  void operator+=(const Eigen::Matrix<T,3,1>& delta)
+  {
+    *this = *this + delta;
+  }
+
+  // overload minus operator as boxminus for two quaternions
+  Eigen::Matrix<T,3,1> operator-(const Quaternion &q2) const
+  {
+    return log(q2.inv() * *this);
+  }
+
+  Quaternion operator*(const Quaternion &q2) const
+  {
+    const T qw = w*q2.w - x*q2.x - y*q2.y - z*q2.z;
+    const T qx = w*q2.x + x*q2.w + y*q2.z - z*q2.y;
+    const T qy = w*q2.y - x*q2.z + y*q2.w + z*q2.x;
+    const T qz = w*q2.z + x*q2.y - y*q2.x + z*q2.w;
+    return Quaternion(qw, qx, qy, qz);
+  }
+
+  void operator*=(const Quaternion &q)
+  {
+    *this = *this * q;
+  }
+
+  friend std::ostream& operator<<(std::ostream &os, const Quaternion &q)
+  {
+    os << q.w << "\n" << q.x << "\n" << q.y << "\n" << q.z << "\n";
+    return os;
+  }
+
+  void scale(const T& s)
+  {
+    w *= s;
+    x *= s;
+    y *= s;
+    z *= s;
+  }
+
+  T mag() const
+  {
+    return sqrt(w*w + x*x + y*y + z*z);
+  }
+
+  T roll() const
+  {
+    return atan2(T(2.0) * (w*x + y*z), T(1.0) - T(2.0) * (x*x + y*y));
+  }
+
+  T pitch() const
+  {
+    const T val = T(2.0) * (w*y - x*z);
+
+    // hold at 90 degrees if invalid
+    if (fabs(val) > T(1.0))
+      return copysign(T(1.0), val) * T(M_PI) / T(2.0);
+    else
+      return asin(val);
+  }
+
+  T yaw() const
+  {
+    return atan2(T(2.0) * (w*z + x*y), T(1.0) - T(2.0) * (y*y + z*z));
+  }
+
+  Eigen::Matrix<T,3,1> euler() const
+  {
+    return Eigen::Matrix<T,3,1>(this->roll(),this->pitch(),this->yaw());
+  }
+
+  void fromEigen(const Eigen::Matrix<T,4,1>& q)
+  {
+    w = q(0);
+    x = q(1);
+    y = q(2);
+    z = q(3);
+  }
+
+  Eigen::Matrix<T,4,1> toEigen() const
+  {
+    return Eigen::Matrix<T,4,1>(w,x,y,z);
+  }
+
+  Eigen::Matrix<T,3,1> bar() const
+  {
+    return Eigen::Matrix<T,3,1>(x,y,z);
+  }
+
+  Quaternion inv() const
+  {
+    return Quaternion(w, -x, -y, -z);
+  }
+
+  Eigen::Matrix<T,3,3> R() const
+  {
+    // Pre-calculations
+    const T qw2 = w * w;
+    const T qwqx = w * x;
+    const T qwqy = w * y;
+    const T qwqz = w * z;
+    const T qxqy = x * y;
+    const T qxqz = x * z;
+    const T qyqz = y * z;
+
+    // Output
+    Eigen::Matrix<T,3,3> R;
+    R(0,0) = 2.0 * (qw2 + x * x) - 1.0;
+    R(0,1) = 2.0 * (qwqz + qxqy);
+    R(0,2) = 2.0 * (qxqz - qwqy);
+    R(1,0) = 2.0 * (qxqy - qwqz);
+    R(1,1) = 2.0 * (qw2 + y * y) - 1.0;
+    R(1,2) = 2.0 * (qwqx + qyqz);
+    R(2,0) = 2.0 * (qwqy + qxqz);
+    R(2,1) = 2.0 * (qyqz - qwqx);
+    R(2,2) = 2.0 * (qw2 + z * z) - 1.0;
+    return R;
+  }
+
+  Eigen::Matrix<T,3,1> rotSlow(const Eigen::Matrix<T,3,1>& v) const
+  {
+    const Quaternion qv(T(0.0), v(0), v(1), v(2));
+    const Quaternion qv_new = this->inv() * qv * *this;
+    return Eigen::Matrix<T,3,1>(qv_new.x, qv_new.y, qv_new.z);
+  }
+
+  Eigen::Matrix<T,3,1> rot(const Eigen::Matrix<T,3,1>& v) const
+  {
+    const Eigen::Matrix<T,3,1> t = T(2.0) * v.cross(this->bar());
+    return v + w * t + t.cross(this->bar());
+  }
+
+  Eigen::Matrix<T,3,1> uvec() const
+  {
+    return rot(e3.cast<T>());
+  }
+
+  Eigen::Matrix<T,3,2> proj() const
+  {
+    return R() * I_2x3.cast<T>().transpose();
+  }
+
+  static Quaternion exp(const Eigen::Matrix<T,3,1>& delta)
+  {
+    const T delta_norm = delta.norm();
+
+    Quaternion q;
+    if (delta_norm < T(1e-6)) // avoid numerical error with approximation
+    {
+      q.w = T(1.0);
+      q.x = delta(0) / T(2.0);
+      q.y = delta(1) / T(2.0);
+      q.z = delta(2) / T(2.0);
+    }
+    else
+    {
+      const T delta_norm_2 = delta_norm / T(2.0);
+      const T sn = sin(delta_norm_2) / delta_norm;
+      q.w = cos(delta_norm_2);
+      q.x = sn * delta(0);
+      q.y = sn * delta(1);
+      q.z = sn * delta(2);
+    }
+
+    return q;
+  }
+
+  static Eigen::Matrix<T,3,1> log(const Quaternion& q)
+  {
+    // get magnitude of complex portion
+    const Eigen::Matrix<T,3,1> qbar(q.x, q.y, q.z);
+    const T qbar_mag = qbar.norm();
+
+    // avoid numerical error with approximation
+    Eigen::Matrix<T,3,1> delta;
+    if (qbar_mag < T(1e-6))
+    {
+      if (q.w >= T(0.0))
+        delta = qbar;
+      else
+        delta = -qbar;
+    }
+    else
+    {
+      // Quaternions have double cover issues so wrap the axis-angle magnitude
+      // to ensure the shortest rotation.
+      const T delta_mag = wrapAngle(T(2.0) * atan2(qbar_mag, q.w), T(M_PI));
+      delta = delta_mag * qbar / qbar_mag;
+    }
+
+    return delta;
+  }
+
+  // q1 - q2
+  static Eigen::Matrix<T,2,1> log_uvec(const Quaternion& q1, const Quaternion& q2)
+  {
+    // get unit vectors
+    const Eigen::Matrix<T,3,1> e1 = q1.uvec();
+    const Eigen::Matrix<T,3,1> e2 = q2.uvec();
+
+    // avoid too small of angles
+    const T e1T_e2 = e1.dot(e2);
+    if (fabs(e1T_e2 - T(1.0)) < T(1e-14)) // same direction
+      return Eigen::Matrix<T,2,1>(T(0.0), T(0.0));
+    else if (fabs(e1T_e2 + T(1.0)) < T(1e-14)) // opposite direction
+      return Eigen::Matrix<T,2,1>(T(M_PI), T(0.0));
+    else
+    {
+      // compute axis angle difference
+      const Eigen::Matrix<T,3,1> e1_x_e2 = e1.cross(e2);
+      const Eigen::Matrix<T,3,1> aa = acos(e1T_e2) * e1_x_e2.normalized();
+
+      // place error on first vector's tangent space
+      return q1.proj().transpose() * aa;
+    }
+  }
+
+  // derivative of quaternion exponential map
+  static Eigen::Matrix<T,3,3> dexp(const Eigen::Matrix<T,3,1>& delta)
+  {
+    const T dmag = delta.norm();
+    const Eigen::Matrix<T,3,3> delta_x = skew(delta);
+    if (dmag < T(1e-6))
+      return I_3x3 - T(0.5) * delta_x;
+    else
+    {
+      const T dmag2 = dmag * dmag;
+      return I_3x3 - (T(1.0) - cos(dmag)) / dmag2 * delta_x +
+             (dmag - sin(dmag)) / (dmag2 * dmag) * delta_x * delta_x;
+    }
+  }
+
+  T getW() const { return w; }
+  T getX() const { return x; }
+  T getY() const { return y; }
+  T getZ() const { return z; }
+
+private:
+
+  T w;
+  T x;
+  T y;
+  T z;
+
+};
 
 
 } // namespace common
