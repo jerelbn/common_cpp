@@ -448,8 +448,7 @@ public:
   {
     // convert to axis-angle representation
     fz.normalize(); // enforce unit length
-    const T theta = acos(fz.dot(e1.cast<T>()));
-
+    const T theta = acos(fz.dot(e3.cast<T>()));
     if (theta < T(1e-6))
     {
       w = T(1.0);
@@ -459,9 +458,7 @@ public:
     }
     else
     {
-      const Eigen::Matrix<T,3,1> iaa = (fz.cross(e1.cast<T>())).normalized();
-
-      // get complex portion of quaternion
+      const Eigen::Matrix<T,3,1> iaa = (fz.cross(e3.cast<T>())).normalized();
       const T theta_2 = theta / T(2.0);
       const Eigen::Matrix<T,3,1> qv = iaa * sin(theta_2);
 
@@ -484,7 +481,7 @@ public:
   // initialize random unit quaternion
   Quaternion(std::normal_distribution<T>& dist, std::default_random_engine& rng)
   {
-    Quaternion q(dist(rng), dist(rng), dist(rng), dist(rng));
+    Quaternion<T> q(dist(rng), dist(rng), dist(rng), dist(rng));
     q.normalize();
     q.w = (q.w > 0) ? q.w : -q.w;
     w = q.w;
@@ -494,7 +491,7 @@ public:
   }
 
   // overload addition operator as boxplus for a quaternion and a 3-vector
-  Quaternion operator+(const Eigen::Matrix<T,3,1>& delta) const
+  Quaternion<T> operator+(const Eigen::Matrix<T,3,1>& delta) const
   {
     return *this * exp(delta);
   }
@@ -505,12 +502,12 @@ public:
   }
 
   // overload minus operator as boxminus for two quaternions
-  Eigen::Matrix<T,3,1> operator-(const Quaternion &q2) const
+  Eigen::Matrix<T,3,1> operator-(const Quaternion<T> &q2) const
   {
     return log(q2.inv() * *this);
   }
 
-  Quaternion operator*(const Quaternion &q2) const
+  Quaternion<T> operator*(const Quaternion<T> &q2) const
   {
     const T qw = w*q2.w - x*q2.x - y*q2.y - z*q2.z;
     const T qx = w*q2.x + x*q2.w + y*q2.z - z*q2.y;
@@ -519,7 +516,7 @@ public:
     return Quaternion(qw, qx, qy, qz);
   }
 
-  void operator*=(const Quaternion &q)
+  void operator*=(const Quaternion<T> &q)
   {
     *this = *this * q;
   }
@@ -587,7 +584,7 @@ public:
     return Eigen::Matrix<T,3,1>(x,y,z);
   }
 
-  Quaternion inv() const
+  Quaternion<T> inv() const
   {
     return Quaternion<T>(w, -x, -y, -z);
   }
@@ -640,7 +637,7 @@ public:
     return R() * I_2x3.cast<T>().transpose();
   }
 
-  static Quaternion exp(const Eigen::Matrix<T,3,1>& delta)
+  static Quaternion<T> exp(const Eigen::Matrix<T,3,1>& delta)
   {
     const T delta_norm = delta.norm();
 
@@ -665,7 +662,7 @@ public:
     return q;
   }
 
-  static Eigen::Matrix<T,3,1> log(const Quaternion& q)
+  static Eigen::Matrix<T,3,1> log(const Quaternion<T>& q)
   {
     // get magnitude of complex portion
     const Eigen::Matrix<T,3,1> qbar(q.x, q.y, q.z);
@@ -692,7 +689,7 @@ public:
   }
 
   // q1 - q2
-  static Eigen::Matrix<T,2,1> log_uvec(const Quaternion& q1, const Quaternion& q2)
+  static Eigen::Matrix<T,2,1> log_uvec(const Quaternion<T>& q1, const Quaternion<T>& q2)
   {
     // get unit vectors
     const Eigen::Matrix<T,3,1> e1 = q1.uvec();
