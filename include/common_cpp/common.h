@@ -90,13 +90,9 @@ template<typename T>
 Eigen::Matrix<T,3,3> skew(const Eigen::Matrix<T,3,1>& vec)
 {
   Eigen::Matrix<T,3,3> A;
-  A.setZero();
-  A(0,1) = -vec(2);
-  A(0,2) = vec(1);
-  A(1,0) = vec(2);
-  A(1,2) = -vec(0);
-  A(2,0) = -vec(1);
-  A(2,1) = vec(0);
+  A <<    T(0), -vec(2),  vec(1),
+        vec(2),    T(0), -vec(0),
+       -vec(1),  vec(0),    T(0);
   return A;
 }
 
@@ -478,11 +474,11 @@ public:
 
   void normalize()
   {
-    const T mag = this->mag();
-    w /= mag;
-    x /= mag;
-    y /= mag;
-    z /= mag;
+    const T m = mag();
+    w /= m;
+    x /= m;
+    y /= m;
+    z /= m;
   }
 
   // initialize random unit quaternion
@@ -570,7 +566,7 @@ public:
 
   Eigen::Matrix<T,3,1> euler() const
   {
-    return Eigen::Matrix<T,3,1>(this->roll(),this->pitch(),this->yaw());
+    return Eigen::Matrix<T,3,1>(roll(),pitch(),yaw());
   }
 
   void fromEigen(const Eigen::Matrix<T,4,1>& q)
@@ -593,45 +589,45 @@ public:
 
   Quaternion inv() const
   {
-    return Quaternion(w, -x, -y, -z);
+    return Quaternion<T>(w, -x, -y, -z);
   }
 
   Eigen::Matrix<T,3,3> R() const
   {
     // Pre-calculations
-    const T qw2 = w * w;
-    const T qwqx = w * x;
-    const T qwqy = w * y;
-    const T qwqz = w * z;
-    const T qxqy = x * y;
-    const T qxqz = x * z;
-    const T qyqz = y * z;
+    const T ww = w * w;
+    const T wx = w * x;
+    const T wy = w * y;
+    const T wz = w * z;
+    const T xy = x * y;
+    const T xz = x * z;
+    const T yz = y * z;
 
     // Output
     Eigen::Matrix<T,3,3> R;
-    R(0,0) = 2.0 * (qw2 + x * x) - 1.0;
-    R(0,1) = 2.0 * (qwqz + qxqy);
-    R(0,2) = 2.0 * (qxqz - qwqy);
-    R(1,0) = 2.0 * (qxqy - qwqz);
-    R(1,1) = 2.0 * (qw2 + y * y) - 1.0;
-    R(1,2) = 2.0 * (qwqx + qyqz);
-    R(2,0) = 2.0 * (qwqy + qxqz);
-    R(2,1) = 2.0 * (qyqz - qwqx);
-    R(2,2) = 2.0 * (qw2 + z * z) - 1.0;
+    R(0,0) = T(2.0) * (ww + x * x) - T(1.0);
+    R(0,1) = T(2.0) * (wz + xy);
+    R(0,2) = T(2.0) * (xz - wy);
+    R(1,0) = T(2.0) * (xy - wz);
+    R(1,1) = T(2.0) * (ww + y * y) - T(1.0);
+    R(1,2) = T(2.0) * (wx + yz);
+    R(2,0) = T(2.0) * (wy + xz);
+    R(2,1) = T(2.0) * (yz - wx);
+    R(2,2) = T(2.0) * (ww + z * z) - T(1.0);
     return R;
   }
 
   Eigen::Matrix<T,3,1> rotSlow(const Eigen::Matrix<T,3,1>& v) const
   {
     const Quaternion qv(T(0.0), v(0), v(1), v(2));
-    const Quaternion qv_new = this->inv() * qv * *this;
+    const Quaternion qv_new = inv() * qv * *this;
     return Eigen::Matrix<T,3,1>(qv_new.x, qv_new.y, qv_new.z);
   }
 
   Eigen::Matrix<T,3,1> rot(const Eigen::Matrix<T,3,1>& v) const
   {
-    const Eigen::Matrix<T,3,1> t = T(2.0) * v.cross(this->bar());
-    return v + w * t + t.cross(this->bar());
+    const Eigen::Matrix<T,3,1> t = T(2.0) * v.cross(bar());
+    return v + w * t + t.cross(bar());
   }
 
   Eigen::Matrix<T,3,1> uvec() const
@@ -648,7 +644,7 @@ public:
   {
     const T delta_norm = delta.norm();
 
-    Quaternion q;
+    Quaternion<T> q;
     if (delta_norm < T(1e-6)) // avoid numerical error with approximation
     {
       q.w = T(1.0);
