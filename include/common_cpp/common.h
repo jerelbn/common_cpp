@@ -744,6 +744,9 @@ private:
 
 };
 
+typedef Quaternion<float> Quaternionf;
+typedef Quaternion<double> Quaterniond;
+
 
 } // namespace common
 
