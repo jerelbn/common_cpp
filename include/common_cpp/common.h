@@ -393,7 +393,7 @@ bool TEST(const std::string &test_name, const double &tol, const Eigen::MatrixBa
 }
 
 
-template<typename T = double>
+template<typename T = double, typename T2 = double>
 class Quaternion
 {
 
@@ -491,37 +491,37 @@ public:
   }
 
   // overload addition operator as boxplus for a quaternion and a 3-vector
-  Quaternion<T> operator+(const Eigen::Matrix<T,3,1>& delta) const
+  Quaternion<T> operator+(const Eigen::Matrix<T2,3,1>& delta) const
   {
     return *this * exp(delta);
   }
 
-  void operator+=(const Eigen::Matrix<T,3,1>& delta)
+  void operator+=(const Eigen::Matrix<T2,3,1>& delta)
   {
     *this = *this + delta;
   }
 
   // overload minus operator as boxminus for two quaternions
-  Eigen::Matrix<T,3,1> operator-(const Quaternion<T> &q2) const
+  Eigen::Matrix<T,3,1> operator-(const Quaternion<T2> &q2) const
   {
     return log(q2.inv() * *this);
   }
 
-  Quaternion<T> operator*(const Quaternion<T> &q2) const
+  Quaternion<T> operator*(const Quaternion<T2> &q2) const
   {
     const T qw = w*q2.w - x*q2.x - y*q2.y - z*q2.z;
     const T qx = w*q2.x + x*q2.w + y*q2.z - z*q2.y;
     const T qy = w*q2.y - x*q2.z + y*q2.w + z*q2.x;
     const T qz = w*q2.z + x*q2.y - y*q2.x + z*q2.w;
-    return Quaternion(qw, qx, qy, qz);
+    return Quaternion<T>(qw, qx, qy, qz);
   }
 
-  void operator*=(const Quaternion<T> &q)
+  void operator*=(const Quaternion<T2> &q)
   {
     *this = *this * q;
   }
 
-  friend std::ostream& operator<<(std::ostream &os, const Quaternion &q)
+  friend std::ostream& operator<<(std::ostream &os, const Quaternion<T> &q)
   {
     os << q.w << "\n" << q.x << "\n" << q.y << "\n" << q.z << "\n";
     return os;
