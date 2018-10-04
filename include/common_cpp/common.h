@@ -5,7 +5,6 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-
 #include <iostream>
 #include <yaml-cpp/yaml.h>
 #include <eigen3/Eigen/Eigen>
@@ -523,7 +522,7 @@ public:
 
   friend std::ostream& operator<<(std::ostream &os, const Quaternion<T> &q)
   {
-    os << q.w() << "\n" << q.x() << "\n" << q.y() << "\n" << q.z() << "\n";
+    os << q.w() << "\n" << q.x() << "\n" << q.y() << "\n" << q.z();
     return os;
   }
 
