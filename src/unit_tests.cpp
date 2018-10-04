@@ -15,20 +15,21 @@ int main()
   // Initialize Gaussian random number generation
   unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
   std::default_random_engine rng(seed);
+  srand(seed);
   std::normal_distribution<double> dist(0.0,1.0);
 
   for (int i = 0; i < N; ++i)
   {
     Eigen::Vector4d vec;
     randomNormalMatrix(vec,dist,rng);
-    Quaternion q1(vec);
+    Quaterniond q1(vec);
     q1.normalize();
     Eigen::Vector3d delta;
     randomNormalMatrix(delta,dist,rng);
     if (delta.norm() > M_PI) continue;
 
     // Check boxplus and boxminus operations
-    Quaternion q2 = q1 + delta;
+    Quaterniond q2 = q1 + delta;
     Eigen::Vector3d delta_new = q2 - q1;
     if (!TEST("Quaternion boxplus and boxminus operations.",tol,delta,delta_new)) break;
 
@@ -54,5 +55,14 @@ int main()
     dR = R1.transpose()*R2;
     delta_new = vex(logR(dR));
     if (!TEST("Rotation matrix transpose logarithm.",tol,delta,delta_new)) break;
+
+    // Check transform boxplus and boxminus operators
+    Eigen::Vector3d p1(1.0,2.0,3.0);
+    Transformd t1(p1, q1);
+    Eigen::Matrix<double,6,1> deltat;
+    deltat.setRandom();
+    Transformd t2 = t1 + deltat;
+    Eigen::Matrix<double,6,1> deltat2 = t2 - t1;
+    if (!TEST("Transform boxplus and boxminus operators.",tol,deltat,deltat2)) break;
   }
 }

@@ -746,6 +746,150 @@ typedef Quaternion<float> Quaternionf;
 typedef Quaternion<double> Quaterniond;
 
 
+template<typename T = double>
+class Transform
+{
+
+enum
+{
+  PX, PY, PZ, QW, QX, QY, QZ, T_SIZE
+};
+
+enum
+{
+  UX, UY, UZ, WX, WY, WZ, DT_SIZE
+};
+
+public:
+
+  Transform()
+  {
+    arr.setZero();
+    arr(QW) = 1;
+  }
+
+  Transform(const Eigen::Matrix<T,3,1>& p, const Quaternion<T>& q)
+  {
+    setP(p);
+    setQ(q);
+  }
+
+  Transform(const Eigen::Matrix<T,3,1>& p, const Eigen::Matrix<T,4,1>& q)
+  {
+    setP(p);
+    setQ(q);
+  }
+
+  Transform(const Eigen::Matrix<T,T_SIZE,1>& t)
+  {
+    setT(t);
+  }
+
+  template<typename T2>
+  Transform<T2> operator*(const Transform<T2>& t2)
+  {
+    Transform<T2> t;
+    t.setP(q().rot(t2.p()) + p());
+    t.setQ(t2.q() * q());
+    return t;
+  }
+
+  template<typename T2>
+  Transform<T2> operator+(const Eigen::Matrix<T2,DT_SIZE,1>& delta)
+  {
+    return *this * exp(delta);
+  }
+
+  template<typename T2>
+  Eigen::Matrix<T2,DT_SIZE,1> operator-(const Transform<T2>& t1)
+  {
+    return log(t1.inv() * *this);
+  }
+
+  Transform<T> inv() const
+  {
+    return Transform<T>(-q().inv().rot(p()), q().inv());
+  }
+
+  static Transform<T> exp(const Eigen::Matrix<T,DT_SIZE,1>& delta)
+  {
+    Eigen::Matrix<T,3,1> u = delta.template segment<3>(UX);
+    Eigen::Matrix<T,3,1> theta_vec = delta.template segment<3>(WX);
+    T theta = theta_vec.norm();
+
+    Transform<T> t;
+    if (theta < T(1e-6)) // avoid numerical error with approximation
+    {
+      Eigen::Matrix<T,3,1> theta_vec_2 = theta_vec / T(2.0);
+      t.setP(u);
+      t.setQ(Eigen::Matrix<T,4,1>(1, theta_vec_2(0), theta_vec_2(1), theta_vec_2(2)));
+    }
+    else
+    {
+      T theta2 = theta * theta;
+      T theta3 = theta * theta2;
+      Eigen::Matrix<T,3,3> theta_skew = skew(theta_vec);
+      Eigen::Matrix<T,3,3> theta_skew2 = theta_skew * theta_skew;
+      Eigen::Matrix<T,3,3> V = I_3x3.cast<T>() + (T(1.0) - cos(theta))/theta2 *
+                               theta_skew + (theta - sin(theta))/theta3 * theta_skew2;
+      t.setP(V * u);
+      t.setQ(Quaternion<T>::exp(theta_vec));
+    }
+
+    return t;
+  }
+
+  static Eigen::Matrix<T,DT_SIZE,1> log(const Transform<T>& t)
+  {
+    Eigen::Matrix<T,3,1> theta_vec = Quaternion<T>::log(t.q());
+    T theta = theta_vec.norm();
+
+    // avoid numerical error with approximation
+    Eigen::Matrix<T,DT_SIZE,1> delta;
+    if (theta < T(1e-6))
+    {
+      delta.template segment<3>(PX) = t.p();
+    }
+    else
+    {
+      T theta2 = theta * theta;
+      Eigen::Matrix<T,3,3> theta_skew = skew(theta_vec);
+      Eigen::Matrix<T,3,3> theta_skew2 = theta_skew * theta_skew;
+      Eigen::Matrix<T,3,3> Vinv = I_3x3.cast<T>() - T(0.5) * theta_skew + (T(1.0)/theta2) * (T(1.0) -
+                                  theta*sin(theta)/(T(2.0)*(T(1.0) - cos(theta)))) * theta_skew2;
+      delta.template segment<3>(PX) = Vinv * t.p();
+    }
+    delta.template segment<3>(WX) = theta_vec;
+
+    return delta;
+  }
+
+  void setT(const Eigen::Matrix<T,T_SIZE,1> t) { arr = t; }
+  void setP(const Eigen::Matrix<T,3,1> p) { arr.template segment<3>(PX) = p; }
+  void setQ(const Quaternion<T> q) { arr.template segment<4>(QW) = q.toEigen(); }
+  void setQ(const Eigen::Matrix<T,4,1> q) { arr.template segment<4>(QW) = q; }
+  void setPX(const T& x) { arr(PX) = x; }
+  void setPY(const T& y) { arr(PY) = y; }
+  void setPZ(const T& z) { arr(PZ) = z; }
+  void setQW(const T& w) { arr(QW) = w; }
+  void setQX(const T& x) { arr(QX) = x; }
+  void setQY(const T& y) { arr(QY) = y; }
+  void setQZ(const T& z) { arr(QZ) = z; }
+
+  Eigen::Matrix<T,3,1> p() const { return arr.template segment<3>(PX); }
+  Quaternion<T> q() const { return Quaternion<T>(arr(QW), arr(QX), arr(QY), arr(QZ)); }
+  T* data() const { return arr.data(); }
+
+private:
+
+  Eigen::Matrix<T,T_SIZE,1> arr;
+
+};
+
+typedef Transform<float> Transformf;
+typedef Transform<double> Transformd;
+
+
 } // namespace common
 
 #endif // COMMON_H
