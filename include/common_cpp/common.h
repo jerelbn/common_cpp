@@ -6,6 +6,7 @@
 #define COMMON_H
 
 #include <iostream>
+#include <fstream>
 #include <yaml-cpp/yaml.h>
 #include <eigen3/Eigen/Eigen>
 #include <random>
@@ -236,6 +237,34 @@ bool get_yaml_eigen(const std::string key, const std::string filename, Eigen::Ma
   }
 }
 
+
+// Loads array from a binary file onto the heap (in case the file is large)
+// and returns the pointer to the beginning of the array
+template<typename T>
+T* load_binary(const std::string& filename, long& array_size)
+{
+  std::ifstream file(filename, std::ios::in|std::ios::binary|std::ios::ate);
+  if (file.is_open())
+  {
+    // File opened with ios::ate flag to position the get pointer at end of file
+    // then tellg() gets the file size
+    std::ifstream::pos_type size = file.tellg();
+    char* memblock = new char[size]; // Allocate memory on the heap for the file
+    file.seekg(0, std::ios::beg); // Set the get pointer to beginning of file
+    file.read(memblock, size); // Read entire file
+    file.close();
+    std::cout << "Loaded file: " << filename << std::endl;
+
+    // Return array as type T and its size
+    array_size = (long)size;
+    return (T*)memblock;
+  }
+  else
+  {
+    std::cout << "Unable to open file: " << filename << std::endl;
+    exit(0);
+  }
+}
 
 // Saturates a scalar value.
 template <typename T>
