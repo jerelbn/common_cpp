@@ -426,6 +426,7 @@ class Quaternion
 {
 
 public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   Quaternion()
   {
@@ -553,6 +554,12 @@ public:
   {
     os << q.w() << "\n" << q.x() << "\n" << q.y() << "\n" << q.z();
     return os;
+  }
+
+  template<typename T2>
+  Quaternion<T2> cast() const
+  {
+    return Quaternion<T2>(arr.cast<T2>());
   }
 
   void scale(const T& s)
@@ -790,6 +797,7 @@ enum
 };
 
 public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   Transform()
   {
