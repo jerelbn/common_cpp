@@ -256,7 +256,7 @@ T* load_binary(const std::string& filename, long& array_size)
     std::cout << "Loaded file: " << filename << std::endl;
 
     // Return array as type T and its size
-    array_size = (long)size;
+    array_size = (long)size / sizeof(T);
     return (T*)memblock;
   }
   else
