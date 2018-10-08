@@ -288,6 +288,7 @@ Eigen::Matrix<T,-1,-1> load_binary_to_matrix(const std::string& filename, const 
   T* ptr = load_binary<T>(filename, array_size);
   Eigen::Matrix<T,-1,-1> m(matrix_rows, array_size/matrix_rows);
   copy_ptr_to_eigen(ptr, m);
+  delete[] ptr;
   return m;
 }
 
