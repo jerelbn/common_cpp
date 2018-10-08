@@ -238,6 +238,20 @@ bool get_yaml_eigen(const std::string key, const std::string filename, Eigen::Ma
 }
 
 
+// copy data to Eigen matrix
+template<typename T>
+void copy_ptr_to_eigen(const T* ptr, Eigen::Matrix<T,-1,-1>& m)
+{
+  int i(0), j(0);
+  for (int k = 0; k < m.rows() * m.cols(); ++k)
+  {
+    m(i,j) = ptr[k];
+    ++i;
+    if (i == m.rows()) { i = 0; ++j; }
+  }
+}
+
+
 // Loads array from a binary file onto the heap (in case the file is large)
 // and returns the pointer to the beginning of the array
 template<typename T>
@@ -264,6 +278,17 @@ T* load_binary(const std::string& filename, long& array_size)
     std::cout << "Unable to open file: " << filename << std::endl;
     exit(0);
   }
+}
+
+// Load binary file directly into an Eigen array
+template<typename T>
+Eigen::Matrix<T,-1,-1> load_binary_to_matrix(const std::string& filename, const int& matrix_rows)
+{
+  long array_size;
+  T* ptr = load_binary<T>(filename, array_size);
+  Eigen::Matrix<T,-1,-1> m(matrix_rows, array_size/matrix_rows);
+  copy_ptr_to_eigen(ptr, m);
+  return m;
 }
 
 // Saturates a scalar value.
