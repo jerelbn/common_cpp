@@ -462,6 +462,14 @@ public:
     arr(3) = T(0.0);
   }
 
+  Quaternion(const T* ptr)
+  {
+    arr(0) = ptr[0];
+    arr(1) = ptr[1];
+    arr(2) = ptr[2];
+    arr(3) = ptr[3];
+  }
+
   Quaternion(const T& _w, const T& _x, const T& _y, const T& _z)
   {
     arr(0) = _w;
