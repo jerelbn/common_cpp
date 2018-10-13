@@ -816,6 +816,7 @@ typedef Quaternion<float> Quaternionf;
 typedef Quaternion<double> Quaterniond;
 
 
+// This class operates on a translation p^a_b/a and rotation R^b_a
 template<typename T = double>
 class Transform
 {
@@ -827,7 +828,7 @@ enum
 
 enum
 {
-  UX, UY, UZ, WX, WY, WZ, DT_SIZE
+  TX, TY, TZ, WX, WY, WZ, DT_SIZE
 };
 
 public:
@@ -837,6 +838,17 @@ public:
   {
     arr.setZero();
     arr(QW) = 1;
+  }
+
+  Transform(const T* ptr)
+  {
+    arr(0) = ptr[0];
+    arr(1) = ptr[1];
+    arr(2) = ptr[2];
+    arr(3) = ptr[3];
+    arr(4) = ptr[4];
+    arr(5) = ptr[5];
+    arr(6) = ptr[6];
   }
 
   Transform(const Eigen::Matrix<T,3,1>& p, const Quaternion<T>& q)
@@ -860,8 +872,8 @@ public:
   Transform<T2> operator*(const Transform<T2>& t2)
   {
     Transform<T2> t;
-    t.setP(q().rot(t2.p()) + p());
-    t.setQ(t2.q() * q());
+    t.setP(p() + q().inv().rot(t2.p()));
+    t.setQ(q() * t2.q());
     return t;
   }
 
@@ -879,12 +891,12 @@ public:
 
   Transform<T> inv() const
   {
-    return Transform<T>(-q().inv().rot(p()), q().inv());
+    return Transform<T>(-q().rot(p()), q().inv());
   }
 
   static Transform<T> exp(const Eigen::Matrix<T,DT_SIZE,1>& delta)
   {
-    Eigen::Matrix<T,3,1> u = delta.template segment<3>(UX);
+    Eigen::Matrix<T,3,1> u = delta.template segment<3>(TX);
     Eigen::Matrix<T,3,1> theta_vec = delta.template segment<3>(WX);
     T theta = theta_vec.norm();
 
