@@ -837,7 +837,7 @@ public:
   Transform()
   {
     arr.setZero();
-    arr(QW) = 1;
+    arr(QW) = T(1.0);
   }
 
   Transform(const T* ptr)
@@ -868,25 +868,28 @@ public:
     setT(t);
   }
 
-  template<typename T2>
-  Transform<T2> operator*(const Transform<T2>& t2)
+  Transform<T> operator*(const Transform<T>& t2) const
   {
-    Transform<T2> t;
+    Transform<T> t;
     t.setP(p() + q().inv().rot(t2.p()));
     t.setQ(q() * t2.q());
     return t;
   }
 
-  template<typename T2>
-  Transform<T2> operator+(const Eigen::Matrix<T2,DT_SIZE,1>& delta)
+  Transform<T> operator+(const Eigen::Matrix<T,DT_SIZE,1>& delta) const
   {
     return *this * exp(delta);
   }
 
-  template<typename T2>
-  Eigen::Matrix<T2,DT_SIZE,1> operator-(const Transform<T2>& t1)
+  Eigen::Matrix<T,DT_SIZE,1> operator-(const Transform<T>& t1) const
   {
     return log(t1.inv() * *this);
+  }
+
+  template<typename T2>
+  Transform<T2> cast() const
+  {
+    return Transform<T2>(arr.cast<T2>());
   }
 
   Transform<T> inv() const
@@ -905,7 +908,7 @@ public:
     {
       Eigen::Matrix<T,3,1> theta_vec_2 = theta_vec / T(2.0);
       t.setP(u);
-      t.setQ(Eigen::Matrix<T,4,1>(1, theta_vec_2(0), theta_vec_2(1), theta_vec_2(2)));
+      t.setQ(Eigen::Matrix<T,4,1>(T(1.0), theta_vec_2(0), theta_vec_2(1), theta_vec_2(2)));
     }
     else
     {
@@ -961,7 +964,8 @@ public:
 
   Eigen::Matrix<T,3,1> p() const { return arr.template segment<3>(PX); }
   Quaternion<T> q() const { return Quaternion<T>(arr(QW), arr(QX), arr(QY), arr(QZ)); }
-  T* data() const { return arr.data(); }
+  Eigen::Matrix<T,T_SIZE,1> toEigen() const { return arr; }
+  T* data() { return arr.data(); }
 
 private:
 
