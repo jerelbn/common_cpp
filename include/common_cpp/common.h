@@ -541,6 +541,11 @@ public:
     arr(3) /= m;
   }
 
+  Quaternion<T> normalized()
+  {
+    return Quaternion<T>(Eigen::Matrix<T,4,1>(arr.normalized()));
+  }
+
   // initialize random unit quaternion
   Quaternion(std::normal_distribution<T>& dist, std::default_random_engine& rng)
   {
@@ -860,7 +865,7 @@ public:
   Transform(const Eigen::Matrix<T,3,1>& p, const Eigen::Matrix<T,4,1>& q)
   {
     setP(p);
-    setQ(q);
+    setQ(q.normalized());
   }
 
   Transform(const Eigen::Matrix<T,T_SIZE,1>& t)
