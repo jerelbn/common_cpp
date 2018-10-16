@@ -868,6 +868,12 @@ public:
     setQ(q.normalized());
   }
 
+  Transform(const Transform<T>& T_)
+  {
+    setP(T_.p());
+    setQ(T_.q());
+  }
+
   Transform(const Eigen::Matrix<T,T_SIZE,1>& t)
   {
     setT(t);
