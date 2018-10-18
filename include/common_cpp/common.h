@@ -892,6 +892,11 @@ public:
     return *this * exp(delta);
   }
 
+  void operator+=(const Eigen::Matrix<T,6,1>& delta)
+  {
+    *this = *this + delta;
+  }
+
   Eigen::Matrix<T,DT_SIZE,1> operator-(const Transform<T>& t1) const
   {
     return log(t1.inv() * *this);
@@ -910,27 +915,27 @@ public:
 
   static Transform<T> exp(const Eigen::Matrix<T,DT_SIZE,1>& delta)
   {
-    Eigen::Matrix<T,3,1> u = delta.template segment<3>(TX);
-    Eigen::Matrix<T,3,1> theta_vec = delta.template segment<3>(WX);
-    T theta = theta_vec.norm();
+    Eigen::Matrix<T,3,1> delta_t = delta.template segment<3>(TX);
+    Eigen::Matrix<T,3,1> delta_q = delta.template segment<3>(WX);
+    T theta = delta_q.norm();
 
     Transform<T> t;
     if (theta < T(1e-6)) // avoid numerical error with approximation
     {
-      Eigen::Matrix<T,3,1> theta_vec_2 = theta_vec / T(2.0);
-      t.setP(u);
-      t.setQ(Eigen::Matrix<T,4,1>(T(1.0), theta_vec_2(0), theta_vec_2(1), theta_vec_2(2)));
+      Eigen::Matrix<T,3,1> delta_q_2 = delta_q / T(2.0);
+      t.setP(delta_t);
+      t.setQ(Eigen::Matrix<T,4,1>(T(1.0), delta_q_2(0), delta_q_2(1), delta_q_2(2)));
     }
     else
     {
       T theta2 = theta * theta;
       T theta3 = theta * theta2;
-      Eigen::Matrix<T,3,3> theta_skew = skew(theta_vec);
-      Eigen::Matrix<T,3,3> theta_skew2 = theta_skew * theta_skew;
+      Eigen::Matrix<T,3,3> delta_q_skew = skew(delta_q);
+      Eigen::Matrix<T,3,3> delta_q_skew2 = delta_q_skew * delta_q_skew;
       Eigen::Matrix<T,3,3> V = I_3x3.cast<T>() + (T(1.0) - cos(theta))/theta2 *
-                               theta_skew + (theta - sin(theta))/theta3 * theta_skew2;
-      t.setP(V * u);
-      t.setQ(Quaternion<T>::exp(theta_vec));
+                               delta_q_skew + (theta - sin(theta))/theta3 * delta_q_skew2;
+      t.setP(V * delta_t);
+      t.setQ(Quaternion<T>::exp(delta_q));
     }
 
     return t;
