@@ -703,12 +703,12 @@ public:
 
   Eigen::Matrix<T,3,1> uvec() const
   {
-    return rot(e3.cast<T>());
+    return inv().rot(e3.cast<T>());
   }
 
   Eigen::Matrix<T,3,2> proj() const
   {
-    return R() * I_2x3.cast<T>().transpose();
+    return inv().R() * I_2x3.cast<T>().transpose();
   }
 
   static Quaternion<T> exp(const Eigen::Matrix<T,3,1>& delta)
@@ -770,19 +770,19 @@ public:
     const Eigen::Matrix<T,3,1> e2 = q2.uvec();
 
     // avoid too small of angles
-    const T e1T_e2 = e1.dot(e2);
-    if (fabs(e1T_e2 - T(1.0)) < T(1e-14)) // same direction
+    const T e2T_e1 = e2.dot(e1);
+    if (fabs(e2T_e1 - T(1.0)) < T(1e-14)) // same direction
       return Eigen::Matrix<T,2,1>(T(0.0), T(0.0));
-    else if (fabs(e1T_e2 + T(1.0)) < T(1e-14)) // opposite direction
+    else if (fabs(e2T_e1 + T(1.0)) < T(1e-14)) // opposite direction
       return Eigen::Matrix<T,2,1>(T(M_PI), T(0.0));
     else
     {
       // compute axis angle difference
-      const Eigen::Matrix<T,3,1> e1_x_e2 = e1.cross(e2);
-      const Eigen::Matrix<T,3,1> aa = acos(e1T_e2) * e1_x_e2.normalized();
+      const Eigen::Matrix<T,3,1> e2_x_e1 = e2.cross(e1);
+      const Eigen::Matrix<T,3,1> s = acos(e2T_e1) * e2_x_e1.normalized();
 
       // place error on first vector's tangent space
-      return q1.proj().transpose() * aa;
+      return q1.proj().transpose() * s;
     }
   }
 
