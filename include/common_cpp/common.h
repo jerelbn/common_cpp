@@ -440,8 +440,10 @@ bool TEST(const std::string &test_name, const double &tol, const Eigen::MatrixBa
   else
   {
     std::cout << redText("[FAILED] ") << test_name << std::endl;
-    std::cout << "\nvalue1 = \n" << mat1 << std::endl;
-    std::cout << "\nvalue2 = \n" << mat2 << std::endl;
+    std::cout << "\nError: " << (mat1 - mat2).norm() << std::endl;
+    std::cout << "\nValue1 = \n" << mat1 << std::endl;
+    std::cout << "\nValue2 = \n" << mat2 << std::endl;
+    std::cout << "\nDifference = \n" << mat1 - mat2 << std::endl;
     return false;
   }
 }
