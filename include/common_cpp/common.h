@@ -513,7 +513,7 @@ public:
   {
     // convert to axis-angle representation
     fz.normalize(); // enforce unit length
-    const T theta = acos(fz.dot(e3.cast<T>()));
+    const T theta = acos(e3.cast<T>().dot(fz));
     if (theta < T(1e-6))
     {
       arr(0) = T(1.0);
@@ -523,7 +523,7 @@ public:
     }
     else
     {
-      const Eigen::Matrix<T,3,1> iaa = (fz.cross(e3.cast<T>())).normalized();
+      const Eigen::Matrix<T,3,1> iaa = (e3.cast<T>().cross(fz)).normalized();
       const T theta_2 = theta / T(2.0);
       const Eigen::Matrix<T,3,1> qv = iaa * sin(theta_2);
 
