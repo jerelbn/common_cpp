@@ -772,10 +772,10 @@ public:
     const Eigen::Matrix<T,3,1> e2 = q2.uvec();
 
     // avoid too small of angles
-    const T e2T_e1 = e2.dot(e1);
-    if (fabs(e2T_e1 - T(1.0)) < T(1e-14)) // same direction
+    const T e2T_e1 = saturate<T>(e2.dot(e1), T(1.0), T(-1.0));
+    if (e2T_e1 - T(1.0) > T(-1e-14)) // same direction
       return Eigen::Matrix<T,2,1>(T(0.0), T(0.0));
-    else if (fabs(e2T_e1 + T(1.0)) < T(1e-14)) // opposite direction
+    else if (e2T_e1 + T(1.0) < T(1e-14)) // opposite direction
       return Eigen::Matrix<T,2,1>(T(M_PI), T(0.0));
     else
     {
