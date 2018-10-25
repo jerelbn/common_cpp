@@ -746,7 +746,7 @@ public:
 
     // avoid numerical error with approximation
     Eigen::Matrix<T,3,1> delta;
-    if (qbar_mag < T(1e-6))
+    if (qbar_mag < T(1e-8))
     {
       if (q.w() >= T(0.0))
         delta = qbar;
@@ -773,9 +773,9 @@ public:
 
     // avoid too small of angles
     const T e2T_e1 = saturate<T>(e2.dot(e1), T(1.0), T(-1.0));
-    if (e2T_e1 - T(1.0) > T(-1e-14)) // same direction
+    if (e2T_e1 - T(1.0) > T(-1e-16)) // same direction
       return Eigen::Matrix<T,2,1>(T(0.0), T(0.0));
-    else if (e2T_e1 + T(1.0) < T(1e-14)) // opposite direction
+    else if (e2T_e1 + T(1.0) < T(1e-16)) // opposite direction
       return Eigen::Matrix<T,2,1>(T(M_PI), T(0.0));
     else
     {
@@ -786,6 +786,11 @@ public:
       // place error on first vector's tangent space
       return q1.proj().transpose() * s;
     }
+  }
+
+  static Quaternion<T> boxplus_uvec(const Quaternion<T>& q, const Eigen::Matrix<T,2,1>& delta)
+  {
+    return Quaternion<T>::exp(q.proj() * delta) * q;
   }
 
   // derivative of quaternion exponential map
