@@ -600,7 +600,7 @@ public:
   template<typename T2>
   Quaternion<T2> cast() const
   {
-    return Quaternion<T2>(arr.cast<T2>());
+    return Quaternion<T2>(arr.template cast<T2>());
   }
 
   void scale(const T& s)
@@ -912,7 +912,7 @@ public:
   template<typename T2>
   Transform<T2> cast() const
   {
-    return Transform<T2>(arr.cast<T2>());
+    return Transform<T2>(arr.template cast<T2>());
   }
 
   Transform<T> inv() const
