@@ -597,12 +597,11 @@ public:
     return os;
   }
 
-//  template<typename T2>
-//  Quaternion<T2> cast() const
-//  {
-//    auto v = arr.cast<T2>();
-//    return Quaternion<T2>(v);
-//  }
+  template<typename T2>
+  Quaternion<T2> cast() const
+  {
+    return Quaternion<T2>(arr.template cast<T2>());
+  }
 
   void scale(const T& s)
   {
@@ -910,11 +909,11 @@ public:
     return log(t1.inv() * *this);
   }
 
-//  template<typename T2>
-//  Transform<T2> cast() const
-//  {
-//    return Transform<T2>(arr.cast<T2>());
-//  }
+  template<typename T2>
+  Transform<T2> cast() const
+  {
+    return Transform<T2>(arr.template cast<T2>());
+  }
 
   Transform<T> inv() const
   {
