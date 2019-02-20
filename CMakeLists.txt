@@ -5,20 +5,16 @@ project(common_cpp)
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif(NOT CMAKE_BUILD_TYPE)
-set(CMAKE_CXX_FLAGS "-std=c++14 -mavx -mfma")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-## Find libraries
 find_package(Eigen3 REQUIRED)
-#find_package(OpenCV 3 REQUIRED)
-#message(STATUS "OpenCV Version: ${OpenCV_VERSION} (${OpenCV_DIR})")
 
-## Specify include directories
 include_directories(include
   ${EIGEN3_INCLUDE_DIRS}
-  # ${OpenCV_INCLUDE_DIRS}
 )
 
-add_library(common_cpp src/common.cpp)
+add_library(common_cpp INTERFACE)
+target_include_directories(common_cpp INTERFACE include)
 
 add_executable(unit_tests
   src/unit_tests.cpp

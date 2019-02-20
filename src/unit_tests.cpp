@@ -1,4 +1,6 @@
 #include "common_cpp/common.h"
+#include "common_cpp/quaternion.h"
+#include "common_cpp/transform.h"
 #include <random>
 #include <chrono>
 
