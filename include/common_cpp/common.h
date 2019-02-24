@@ -305,22 +305,14 @@ T saturate(const T& val, const T& max, const T& min)
 
 
 // Random normal matrix generation
-template<typename T1, typename T2>
-void randomNormalMatrix(Eigen::MatrixBase<T1>& matrix, std::normal_distribution<T2>& dist, std::default_random_engine& rng)
+template<typename T>
+void randomNormal(Eigen::DenseBase<T>& matrix,
+                  std::normal_distribution<typename T::Scalar>& dist,
+                  std::default_random_engine& rng)
 {
   for (int i = 0; i < matrix.rows(); ++i)
     for (int j = 0; j < matrix.cols(); ++j)
       matrix(i,j) = dist(rng);
-}
-
-
-// Random normal array generation
-template<typename T1, typename T2>
-void randomNormalArray(Eigen::ArrayBase<T1>& array, std::normal_distribution<T2>& dist, std::default_random_engine& rng)
-{
-  for (int i = 0; i < array.rows(); ++i)
-    for (int j = 0; j < array.cols(); ++j)
-      array(i,j) = dist(rng);
 }
 
 

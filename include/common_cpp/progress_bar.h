@@ -70,6 +70,7 @@ public:
   void finished()
   {
     print(total_);
+    std::cout << std::endl;
   }
 private:
 
