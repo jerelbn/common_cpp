@@ -384,6 +384,14 @@ bool TEST(const std::string &test_name, const double &tol, const Eigen::MatrixBa
 }
 
 
+// Sign function
+template<typename T>
+int sign(T val)
+{
+    return (T(0) < val) - (val < T(0));
+}
+
+
 } // namespace common
 
 #endif // COMMON_H
