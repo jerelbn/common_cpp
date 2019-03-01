@@ -87,12 +87,13 @@ T decRound(const T &number, const int &decimal_place)
 
 // skew symmetric matrix from vector
 template<typename T>
-Eigen::Matrix<T,3,3> skew(const Eigen::Matrix<T,3,1>& vec)
+Eigen::Matrix<typename T::Scalar,3,3> skew(const Eigen::MatrixBase<T>& vec)
 {
-  Eigen::Matrix<T,3,3> A;
-  A <<    T(0), -vec(2),  vec(1),
-        vec(2),    T(0), -vec(0),
-       -vec(1),  vec(0),    T(0);
+  Eigen::Matrix<typename T::Scalar,3,3> A;
+  typename T::Scalar zr(0);
+  A <<      zr, -vec(2),  vec(1),
+        vec(2),      zr, -vec(0),
+       -vec(1),  vec(0),      zr;
   return A;
 }
 
@@ -301,6 +302,17 @@ T saturate(const T& val, const T& max, const T& min)
   if (val < min)
     return min;
   return val;
+}
+
+
+template<typename T, int S>
+Eigen::Matrix<T,S,1> saturateVector(const T& max, Eigen::Matrix<T,S,1>& vec)
+{
+  T vec_mag = vec.norm();
+  if (vec_mag <= max)
+    return vec;
+  else
+    return vec / vec_mag * max;
 }
 
 
