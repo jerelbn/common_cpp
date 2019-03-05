@@ -72,14 +72,6 @@ static const Eigen::Matrix3d R_cb2c = [] {
 }();
 
 
-// Air temperature as a function of altitude above sea level
-template<typename T>
-T airTemp(const T &alt)
-{
-  return T_sea - T_lapse * alt;
-}
-
-
 // Atmospheric pressure as a function of altitude above sea level
 template<typename T>
 T airPres(const T &alt)
@@ -88,11 +80,11 @@ T airPres(const T &alt)
 }
 
 
-// Air density as a function of altitude above sea level
+// Air density as a function of altitude above sea level and air temperature
 template<typename T>
-T airDense(const T &alt)
+T airDense(const T &alt, const T &temp)
 {
-  return airPres(alt) * M_air / (R_gas * airTemp(alt));
+  return airPres(alt) * M_air / (R_gas * temp);
 }
 
 
