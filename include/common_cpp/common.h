@@ -17,7 +17,14 @@ namespace common
 {
 
 
-static const double gravity = 9.80665;
+// Approximate constants near Earth's surface
+static const double gravity = 9.80665; // (m/s^2) Gravitational acceleration
+static const double P_sea = 101325.0; // (Pa) Standard atmospheric pressure at sea level
+static const double T_sea = 288.15; // (K) Standard temperature at sea level
+static const double T_lapse = 0.0065; // (K/m) Temperature lapse rate
+static const double R_gas = 8.31447; // (J/(mol*K) Universal gas constant
+static const double M_air = 0.0289644; // (kg/mol) Molar mass of dry air
+
 
 static const Eigen::Vector3d e1 = [] {
   Eigen::Vector3d tmp;
@@ -63,6 +70,30 @@ static const Eigen::Matrix3d R_cb2c = [] {
          1, 0, 0;
   return tmp;
 }();
+
+
+// Air temperature as a function of altitude above sea level
+template<typename T>
+T airTemp(const T &alt)
+{
+  return T_sea - T_lapse * alt;
+}
+
+
+// Atmospheric pressure as a function of altitude above sea level
+template<typename T>
+T airPres(const T &alt)
+{
+  return P_sea * pow(1.0 - T_lapse * alt / T_sea, gravity * M_air / (R_gas * T_lapse));
+}
+
+
+// Air density as a function of altitude above sea level
+template<typename T>
+T airDense(const T &alt)
+{
+  return airPres(alt) * M_air / (R_gas * airTemp(alt));
+}
 
 
 // wrap angle to +- input bound (typically [0,2*pi] or [-pi,pi])
