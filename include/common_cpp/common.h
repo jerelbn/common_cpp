@@ -80,11 +80,12 @@ T airPres(const T &alt)
 }
 
 
-// Air density as a function of altitude above sea level and air temperature
+// Air density as a function of altitude (meters) above sea level and air temperature (degrees Fahrenheit)
 template<typename T>
 T airDense(const T &alt, const T &temp)
 {
-  return airPres(alt) * M_air / (R_gas * temp);
+  T tempK = 5.0 / 9.0 * (temp - 32.0) + 273.15; // convert to Kelvin
+  return airPres(alt) * M_air / (R_gas * tempK);
 }
 
 
