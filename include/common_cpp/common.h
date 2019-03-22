@@ -263,6 +263,17 @@ bool get_yaml_eigen(const std::string key, const std::string filename, Eigen::Ma
 }
 
 
+// Load array from a .yaml file into a diagonal Eigen-type matrix
+template <typename T>
+bool get_yaml_eigen_diag(const std::string key, const std::string filename, Eigen::MatrixBase<T>& val)
+{
+  Eigen::Matrix<typename T::Scalar, T::RowsAtCompileTime, 1> val2;
+  get_yaml_eigen(key, filename, val2);
+  val = val2.asDiagonal();
+  return true;
+}
+
+
 // copy data to Eigen matrix
 template<typename T>
 void copy_ptr_to_eigen(const T* ptr, Eigen::Matrix<T,-1,-1>& m)
