@@ -251,7 +251,7 @@ bool get_yaml_eigen(const std::string key, const std::string filename, Eigen::Ma
     }
     else
     {
-      printf("Eigen Matrix Size does not match parameter size for \"%s\" in %s", key.c_str(), filename.c_str());
+      printf("Eigen Matrix Size does not match parameter size for \"%s\" in %s\n", key.c_str(), filename.c_str());
       return false;
     }
   }
