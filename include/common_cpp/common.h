@@ -103,9 +103,10 @@ T wrapAngle(const T &angle, const T &bound)
 
 // round to desired decimal place
 template<typename T>
-T decRound(const T &number, const int &decimal_place)
+T round2dec(const T &number, const int &decimal_place)
 {
-  return round(number * decimal_place) / decimal_place;
+  T val = pow(T(10),decimal_place);
+  return round(number * val) / val;
 }
 
 
@@ -274,20 +275,6 @@ bool get_yaml_eigen_diag(const std::string key, const std::string filename, Eige
 }
 
 
-// copy data to Eigen matrix
-template<typename T>
-void copy_ptr_to_eigen(const T* ptr, Eigen::Matrix<T,-1,-1>& m)
-{
-  int i(0), j(0);
-  for (int k = 0; k < m.rows() * m.cols(); ++k)
-  {
-    m(i,j) = ptr[k];
-    ++i;
-    if (i == m.rows()) { i = 0; ++j; }
-  }
-}
-
-
 // Loads array from a binary file onto the heap (in case the file is large)
 // and returns the pointer to the beginning of the array
 template<typename T>
@@ -363,26 +350,12 @@ void randomNormal(Eigen::DenseBase<T>& matrix,
 }
 
 
-// create string of red text
-inline std::string redText(const std::string& input)
-{
-  return "\033[31m" + input + "\033[0m";
-}
-
-
-// create string of green text
-inline std::string greenText(const std::string& input)
-{
-  return "\033[32m" + input + "\033[0m";
-}
-
-
 // Perspective projection into an image
 template<typename T>
 void projToImg(Eigen::Matrix<T,2,1>& pix, const Eigen::Matrix<T,3,1> &lc, const Eigen::Matrix<T,3,3> &K)
 {
   pix = K.topRows(2) * (lc / lc(2));
-};
+}
 
 
 // Direction vector from pixel coordinate
@@ -405,29 +378,6 @@ T angDiffBetweenVecs(const Eigen::Matrix<T,3,1>& v1, const Eigen::Matrix<T,3,1>&
     return M_PI;
   else
     return acos(val);
-}
-
-
-// test equivalence of Eigen matrices and vectors
-template<typename T1, typename T2>
-bool TEST(const std::string &test_name, const double &tol, const Eigen::MatrixBase<T1> &mat1, const Eigen::MatrixBase<T2> &mat2)
-{
-  if (mat1.norm() < 1e-6 || mat2.norm() < 1e-6)
-    std::cout << redText("WARNING: ") << "Test values near zero in " << test_name << ".\n";
-  if ((mat1 - mat2).norm() < tol)
-  {
-    std::cout << greenText("[PASSED] ") << test_name << std::endl;
-    return true;
-  }
-  else
-  {
-    std::cout << redText("[FAILED] ") << test_name << std::endl;
-    std::cout << "\nError: " << (mat1 - mat2).norm() << std::endl;
-    std::cout << "\nValue1 = \n" << mat1 << std::endl;
-    std::cout << "\nValue2 = \n" << mat2 << std::endl;
-    std::cout << "\nDifference = \n" << mat1 - mat2 << std::endl;
-    return false;
-  }
 }
 
 
