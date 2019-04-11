@@ -131,10 +131,10 @@ public:
   T rho; // inverse z component of pos
 
   Feat()
-    : id(-1), rho(0)
+    : id(-1), rho(NAN)
   {
-    pix.setConstant(0);
-    pos.setConstant(0);
+    pix.setConstant(NAN);
+    pos.setConstant(NAN);
   }
 
   Feat(const int& _id, const Matrix<T,2,1>& _pix, const Matrix<T,3,1>& _pos)
