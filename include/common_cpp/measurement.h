@@ -129,9 +129,10 @@ public:
   Matrix<T,2,1> pix; // pixel position in image
   Matrix<T,3,1> pos; // vector from camera to landmark in camera frame
   T rho; // inverse z component of pos
+  T depth; // magnitude of pos
 
   Feat()
-    : id(-1), rho(NAN)
+    : id(-1), rho(NAN), depth(NAN)
   {
     pix.setConstant(NAN);
     pos.setConstant(NAN);
@@ -141,6 +142,7 @@ public:
     : id(_id), pix(_pix), pos(_pos)
   {
     rho = T(1.0) / pos(2);
+    depth = pos.norm();
   }
 };
 template<typename T2>
