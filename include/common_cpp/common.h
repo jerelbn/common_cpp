@@ -19,11 +19,15 @@ namespace common
 
 // Approximate constants near Earth's surface
 static const double gravity = 9.80665; // (m/s^2) Gravitational acceleration
+static const double R_earth = 6371008.8; // (m) Earth's mean radius
+static const double B0 = 31200.0; // (nT) mean magnetic field at Earth's equator
 static const double P_sea = 101325.0; // (Pa) Standard atmospheric pressure at sea level
 static const double T_sea = 288.15; // (K) Standard temperature at sea level
 static const double T_lapse = 0.0065; // (K/m) Temperature lapse rate
 static const double R_gas = 8.31447; // (J/(mol*K) Universal gas constant
 static const double M_air = 0.0289644; // (kg/mol) Molar mass of dry air
+static const double MNP_lat = 80.37; // (deg) magnetic north pole latitude as of 2015
+static const double MNP_lon = -72.62; // (deg) magnetic north pole longitude as of 2015
 
 
 static const Eigen::Vector3d e1 = [] {

@@ -18,8 +18,9 @@ enum
   GPS = 2,
   IMAGE = 3,
   BARO = 4,
-  PITOT = 5,
-  WVANE = 6
+  MAG = 5,
+  PITOT = 6,
+  WVANE = 7
 };
 
 
@@ -200,6 +201,31 @@ typedef Baro<double> Barod;
 
 
 template<typename T>
+class Mag
+{
+public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+  int id;
+  int type;
+  T t;
+  Matrix<T,3,1> field; // magnetic field (nanotesla)
+
+  Mag()
+    : id(-1), type(MAG), t(NAN)
+  {
+    field.setConstant(NAN);
+  }
+
+  Mag(const int& _id, const T& _t, const Matrix<T,3,1>& _field)
+    : id(_id), type(MAG), t(_t), field(_field)
+  {}
+};
+typedef Mag<float> Magf;
+typedef Mag<double> Magd;
+
+
+template<typename T>
 class Pitot
 {
 public:
@@ -268,6 +294,7 @@ public:
   Gps<T> gps;
   Image<T> image;
   Baro<T> baro;
+  Mag<T> mag;
   Pitot<T> pitot;
   Wvane<T> wvane;
 
