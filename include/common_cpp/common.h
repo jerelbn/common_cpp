@@ -393,6 +393,98 @@ int sign(T val)
 }
 
 
+// Generic PID controller class
+template<typename T = double>
+struct PID
+{
+  PID()
+  {
+    kp = T(0);
+    ki = T(0);
+    kd = T(0);
+    max = T(0);
+    integrator = T(0);
+    differentiator = T(0);
+    prev_x = T(0);
+    tau = T(0);
+  }
+
+  void init(T _kp, T _ki, T _kd, T _max, T _min, T _tau)
+  {
+    kp = _kp;
+    ki = _ki;
+    kd = _kd;
+    max = _max;
+    min = _min;
+    tau = _tau;
+  }
+
+  T run(T dt, T x, T x_c, bool update_integrator)
+  {
+    T xdot;
+    if (dt > 1e-4)
+    {
+      // calculate D term (use dirty derivative if we don't have access to a measurement of the derivative)
+      // The dirty derivative is a sort of low-pass filtered version of the derivative.
+      //// (Include reference to Dr. Beard's notes here)
+      differentiator = (T(2) * tau - dt) / (T(2) * tau + dt) * differentiator
+          + T(2) / (T(2) * tau + dt) * (x - prev_x);
+      xdot = differentiator;
+    }
+    else
+    {
+      xdot = T(0);
+    }
+    prev_x = x;
+
+    return run(dt, x, x_c, update_integrator, xdot);
+  }
+
+  T run(T dt, T x, T x_c, bool update_integrator, T xdot)
+  {
+    // Calculate Error
+    T error = x_c - x;
+
+    // Initialize Terms
+    T p_term = error * kp;
+    T i_term = T(0);
+    T d_term = T(0);
+
+    // If there is a derivative term
+    if (kd > T(0))
+    {
+      d_term = kd * xdot;
+    }
+
+    //If there is an integrator term and we are updating integrators
+    if ((ki > T(0)) && update_integrator)
+    {
+      // integrate
+      integrator += error * dt;
+      // calculate I term
+      i_term = ki * integrator;
+    }
+
+    // sum three terms
+    T u = p_term - d_term + i_term;
+
+    // Integrator anti-windup
+    T u_sat = (u > max) ? max : (u < min) ? min : u;
+    if (u != u_sat && fabs(i_term) > fabs(u - p_term + d_term) && ki > T(0))
+      integrator = (u_sat - p_term + d_term)/ki;
+
+    // Set output
+    return u_sat;
+  }
+
+  T kp, ki, kd;
+  T max, min;
+  T integrator, differentiator;
+  T prev_x;
+  T tau;
+};
+
+
 } // namespace common
 
 #endif // COMMON_H
