@@ -20,7 +20,8 @@ enum
   BARO = 4,
   MAG = 5,
   PITOT = 6,
-  WVANE = 7
+  WVANE = 7,
+  ROTENC = 8
 };
 
 
@@ -269,6 +270,29 @@ public:
 };
 typedef Wvane<float> Wvanef;
 typedef Wvane<double> Wvaned;
+
+
+template<typename T>
+class RotEnc
+{
+public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+  int id;
+  int type;
+  T t;
+  T angle; // angle (rad)
+
+  RotEnc()
+    : id(-1), type(ROTENC), t(NAN), angle(NAN)
+  {}
+
+  RotEnc(const int& _id, const T& _t, const T& _angle)
+    : id(_id), type(ROTENC), t(_t), angle(_angle)
+  {}
+};
+typedef RotEnc<float> RotEncf;
+typedef RotEnc<double> RotEncd;
 
 
 template<typename T>
