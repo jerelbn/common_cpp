@@ -34,8 +34,8 @@ public:
   int id;
   int type;
   T t;
-  Matrix<T,3,1> accel;
-  Matrix<T,3,1> gyro;
+  Eigen::Matrix<T,3,1> accel;
+  Eigen::Matrix<T,3,1> gyro;
 
   Imu()
     : id(-1), type(IMU), t(NAN)
@@ -44,13 +44,13 @@ public:
     gyro.setConstant(NAN);
   }
 
-  Imu(const int& _id, const T& _t, const Matrix<T,3,1>& _accel, const Matrix<T,3,1>& _gyro)
+  Imu(const int& _id, const T& _t, const Eigen::Matrix<T,3,1>& _accel, const Eigen::Matrix<T,3,1>& _gyro)
      : id(_id), type(IMU), accel(_accel), gyro(_gyro)
   {}
 
-  Matrix<T,6,1> vec() const
+  Eigen::Matrix<T,6,1> vec() const
   {
-    Matrix<T,6,1> out;
+    Eigen::Matrix<T,6,1> out;
     out << accel, gyro;
     return out;
   }
@@ -96,8 +96,8 @@ public:
   int id;
   int type;
   T t;
-  Matrix<T,3,1> pos; // position
-  Matrix<T,3,1> vel; // velocity
+  Eigen::Matrix<T,3,1> pos; // position
+  Eigen::Matrix<T,3,1> vel; // velocity
 
   Gps()
     : id(-1), type(GPS), t(NAN)
@@ -106,13 +106,13 @@ public:
     vel.setConstant(NAN);
   }
 
-  Gps(const int& _id, const T& _t, const Matrix<T,3,1>& _pos, const Matrix<T,3,1>& _vel)
+  Gps(const int& _id, const T& _t, const Eigen::Matrix<T,3,1>& _pos, const Eigen::Matrix<T,3,1>& _vel)
     : id(_id), type(GPS), t(_t), pos(_pos), vel(_vel)
   {}
 
-  Matrix<T,6,1> vec() const
+  Eigen::Matrix<T,6,1> vec() const
   {
-    Matrix<T,6,1> out;
+    Eigen::Matrix<T,6,1> out;
     out << pos, vel;
     return out;
   }
@@ -128,8 +128,8 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   int id; // feature id or label
-  Matrix<T,2,1> pix; // pixel position in image
-  Matrix<T,3,1> pos; // vector from camera to landmark in camera frame
+  Eigen::Matrix<T,2,1> pix; // pixel position in image
+  Eigen::Matrix<T,3,1> pos; // vector from camera to landmark in camera frame
   T rho; // inverse z component of pos
   T depth; // magnitude of pos
 
@@ -140,7 +140,7 @@ public:
     pos.setConstant(NAN);
   }
 
-  Feat(const int& _id, const Matrix<T,2,1>& _pix, const Matrix<T,3,1>& _pos)
+  Feat(const int& _id, const Eigen::Matrix<T,2,1>& _pix, const Eigen::Matrix<T,3,1>& _pos)
     : id(_id), pix(_pix), pos(_pos)
   {
     rho = T(1.0) / pos(2);
@@ -148,11 +148,11 @@ public:
   }
 };
 template<typename T2>
-using FeatVec = std::vector<Feat<T2>, aligned_allocator<Feat<T2>>>;
+using FeatVec = std::vector<Feat<T2>, Eigen::aligned_allocator<Feat<T2>>>;
 typedef Feat<float> Featf;
 typedef Feat<double> Featd;
-typedef std::vector<Featf, aligned_allocator<Featf>> FeatVecf;
-typedef std::vector<Featd, aligned_allocator<Featd>> FeatVecd;
+typedef std::vector<Featf, Eigen::aligned_allocator<Featf>> FeatVecf;
+typedef std::vector<Featd, Eigen::aligned_allocator<Featd>> FeatVecd;
 
 
 template<typename T>
@@ -210,7 +210,7 @@ public:
   int id;
   int type;
   T t;
-  Matrix<T,3,1> field; // magnetic field (nanotesla)
+  Eigen::Matrix<T,3,1> field; // magnetic field (nanotesla)
 
   Mag()
     : id(-1), type(MAG), t(NAN)
@@ -218,7 +218,7 @@ public:
     field.setConstant(NAN);
   }
 
-  Mag(const int& _id, const T& _t, const Matrix<T,3,1>& _field)
+  Mag(const int& _id, const T& _t, const Eigen::Matrix<T,3,1>& _field)
     : id(_id), type(MAG), t(_t), field(_field)
   {}
 };
