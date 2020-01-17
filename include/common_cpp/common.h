@@ -485,6 +485,48 @@ struct PID
 };
 
 
+// Solution to general cubic equation
+// https://en.wikipedia.org/wiki/Cubic_equation
+void solveCubic(const double& _a, const double& _b, const double& _c, const double& _d, std::vector<double>& real, std::vector<double>& imag)
+{
+  // Make coefficients complex
+  std::complex<double> a(_a, 0.0);
+  std::complex<double> b(_b, 0.0);
+  std::complex<double> c(_c, 0.0);
+  std::complex<double> d(_d, 0.0);
+
+  // Constant
+  static std::complex<double> xi = (-1.0 + sqrt(std::complex<double>(-3.0)))/2.0;
+
+  // Compute 3 possible solutions
+  std::complex<double> Delta_0 = b*b - 3.0*a*c;
+  std::complex<double> Delta_1 = 2.0*b*b*b - 9.0*a*b*c + 27.0*a*a*d;
+
+  std::complex<double> dd = sqrt(pow(Delta_1,2.0) - 4.0*pow(Delta_0,3.0));
+  std::complex<double> C = pow((Delta_1 + dd)/2.0, 1.0/3.0);
+  if (std::abs(C.real()) < 1e-6)
+    C = pow((Delta_1 - dd)/2.0, 1.0/3.0);
+  
+  std::vector<std::complex<double> > solutions;
+  for (int k = 0; k < 3; ++k)
+    solutions.push_back(-1.0/3.0*(b + pow(xi,double(k))*C + Delta_0/(pow(xi,double(k))*C)));
+  
+  // Sort solutions in ascending order of real parts
+  std::sort(solutions.begin(), solutions.end(),
+            [](const std::complex<double>& a, const std::complex<double>& b)
+            { return a.real() < b.real(); });
+
+  // Pack output
+  real.clear();
+  imag.clear();
+  for (const auto& s : solutions)
+  {
+    real.push_back(s.real());
+    imag.push_back(s.imag());
+  }
+}
+
+
 } // namespace common
 
 #endif // COMMON_H
