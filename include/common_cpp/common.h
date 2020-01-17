@@ -389,7 +389,7 @@ T angDiffBetweenVecs(const Eigen::Matrix<T,3,1>& v1, const Eigen::Matrix<T,3,1>&
 template<typename T>
 int sign(T val)
 {
-    return (T(0) < val) - (val < T(0));
+    return (T(0) <= val) - (val < T(0));
 }
 
 
