@@ -1,5 +1,5 @@
 This repository contains common C++ functions and classes. 
 
 Requirements:
-1. C++11
-1. Eigen 3
+* Eigen 3.X (https://gitlab.com/libeigen/eigen)
+* Google Test (https://github.com/google/googletest)
