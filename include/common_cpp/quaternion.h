@@ -25,7 +25,7 @@ public:
 
   Quaternion(const T* ptr)
   {
-    arr(0) = ptr[0];
+    arr(0) = ptr[0] < 0 ? -ptr[0] : ptr[0];
     arr(1) = ptr[1];
     arr(2) = ptr[2];
     arr(3) = ptr[3];
@@ -33,7 +33,7 @@ public:
 
   Quaternion(const T& _w, const T& _x, const T& _y, const T& _z)
   {
-    arr(0) = _w;
+    arr(0) = _w < 0 ? -_w : _w;
     arr(1) = _x;
     arr(2) = _y;
     arr(3) = _z;
@@ -61,7 +61,7 @@ public:
 
   Quaternion(const Eigen::Matrix<T,4,1>& v)
   {
-    arr(0) = v(0);
+    arr(0) = v(0) < 0 ? -v(0) : v(0);
     arr(1) = v(1);
     arr(2) = v(2);
     arr(3) = v(3);
@@ -93,22 +93,8 @@ public:
     }
   }
 
-  void normalize()
-  {
-    const T m = mag();
-    arr(0) /= m;
-    arr(1) /= m;
-    arr(2) /= m;
-    arr(3) /= m;
-  }
-
-  Quaternion<T> normalized()
-  {
-    return Quaternion<T>(Eigen::Matrix<T,4,1>(arr.normalized()));
-  }
-
   // initialize random unit quaternion
-  Quaternion(std::normal_distribution<T>& dist, std::default_random_engine& rng)
+  Quaternion(std::uniform_real_distribution<T>& dist, std::default_random_engine& rng)
   {
     Quaternion<T> q(dist(rng), dist(rng), dist(rng), dist(rng));
     q.normalize();
@@ -117,23 +103,6 @@ public:
     arr(1) = q.x();
     arr(2) = q.y();
     arr(3) = q.z();
-  }
-
-  // overload addition operator as boxplus for a quaternion and a 3-vector
-  Quaternion<T> operator+(const Eigen::Matrix<T,3,1>& delta) const
-  {
-    return *this * exp(delta);
-  }
-
-  void operator+=(const Eigen::Matrix<T,3,1>& delta)
-  {
-    *this = *this + delta;
-  }
-
-  // overload minus operator as boxminus for two quaternions
-  Eigen::Matrix<T,3,1> operator-(const Quaternion<T> &q2) const
-  {
-    return log(q2.inv() * *this);
   }
 
   Quaternion<T> operator*(const Quaternion<T> &q2) const
@@ -150,10 +119,42 @@ public:
     *this = *this * q;
   }
 
+  Quaternion<T> operator+(const Eigen::Matrix<T,3,1>& delta) const
+  {
+    Quaternion<T> q = *this * exp(delta);
+    if (q.w() < T(0)) q.setW(-q.w());
+    return q;
+  }
+
+  void operator+=(const Eigen::Matrix<T,3,1>& delta)
+  {
+    *this = *this + delta;
+  }
+
+  // overload minus operator as boxminus for two quaternions
+  Eigen::Matrix<T,3,1> operator-(const Quaternion<T> &q2) const
+  {
+    return log(q2.inv() * *this);
+  }
+
   friend std::ostream& operator<<(std::ostream &os, const Quaternion<T> &q)
   {
     os << q.w() << "\n" << q.x() << "\n" << q.y() << "\n" << q.z();
     return os;
+  }
+
+  void normalize()
+  {
+    const T m = mag();
+    arr(0) /= m;
+    arr(1) /= m;
+    arr(2) /= m;
+    arr(3) /= m;
+  }
+
+  Quaternion<T> normalized()
+  {
+    return Quaternion<T>(Eigen::Matrix<T,4,1>(arr.normalized()));
   }
 
   template<typename T2>

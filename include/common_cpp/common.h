@@ -142,7 +142,7 @@ Eigen::Matrix<T,3,3> expR(const Eigen::Matrix<T,3,3>& deltax)
 {
   const Eigen::Matrix<T,3,1> axis_angle = vex(deltax);
   const T theta = axis_angle.norm();
-  if (theta > 1e-5)
+  if (theta > 1e-6)
     return I_3x3.cast<T>() + sin(theta) / theta * deltax +
            (T(1.0) - cos(theta)) / theta / theta * deltax * deltax;
   else
@@ -159,7 +159,7 @@ Eigen::Matrix<T,3,3> logR(const Eigen::Matrix<T,3,3>& R)
 
   // avoid numerical error with approximation
   Eigen::Matrix<T,3,3> deltax;
-  if (theta > 1e-5)
+  if (theta > 1e-6)
     deltax = theta/(2*sin(theta))*(R - R.transpose());
   else
     deltax = 0.5*(R - R.transpose());
