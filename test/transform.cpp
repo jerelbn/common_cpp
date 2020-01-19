@@ -30,8 +30,6 @@ namespace common
 
 
 static const unsigned seed = time(NULL);
-static const default_random_engine rng(seed);
-static const std::uniform_real_distribution<double> dist(-1.0,1.0);
 static const double sqrt3 = sqrt(3.0);
 
 
@@ -63,6 +61,22 @@ TEST(Transform, BoxMinus)
     Transformd x2 = x1 + delta;
     Vector6d delta2 = x2 - x1;
     EXPECT_MATRIX_CLOSE(delta, delta2, TOL);
+  }
+}
+
+
+TEST(Transform, TransformVector)
+{
+  srand(seed);
+  for (size_t iter = 0; iter < NUM_ITERS; ++iter)
+  {
+    Transformd x1;
+    x1.setP(5.0*Vector3d::Random());
+    x1.setQ(Vector4d::Random().normalized());
+    Vector3d v = 5.0*Vector3d::Random();
+    Vector3d v2 = x1.transform(v);
+    Vector3d v3 = x1.inv().transform(v2);
+    EXPECT_MATRIX_CLOSE(v, v3, TOL);
   }
 }
 

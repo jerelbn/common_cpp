@@ -28,8 +28,6 @@ namespace common
 
 
 static const unsigned seed = time(NULL);
-static const default_random_engine rng(seed);
-static const std::uniform_real_distribution<double> dist(-1.0,1.0);
 static const double sqrt3 = sqrt(3.0);
 
 

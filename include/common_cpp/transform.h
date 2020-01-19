@@ -55,6 +55,14 @@ public:
     setQ(q.normalized());
   }
 
+  Transform(const T& x, const T& y, const T& z, const T& roll, const T& pitch, const T& yaw)
+  {
+    setPX(x);
+    setPY(y);
+    setPZ(z);
+    setQ(Quaternion<T>(roll, pitch, yaw));
+  }
+
   Transform(const Transform<T>& T_)
   {
     setP(T_.p());
@@ -98,6 +106,11 @@ public:
   Transform<T> inv() const
   {
     return Transform<T>(-q().rot(p()), q().inv());
+  }
+
+  Eigen::Matrix<T,3,1> transform(const Eigen::Matrix<T,3,1>& v)
+  {
+    return q().rot(v - p());
   }
 
   static Transform<T> exp(const Eigen::Matrix<T,DT_SIZE,1>& delta)
