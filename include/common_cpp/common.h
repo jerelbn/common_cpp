@@ -487,7 +487,7 @@ struct PID
 
 // Solution to general cubic equation
 // https://en.wikipedia.org/wiki/Cubic_equation
-void solveCubic(const double& _a, const double& _b, const double& _c, const double& _d, std::vector<double>& real, std::vector<double>& imag)
+inline void solveCubic(const double& _a, const double& _b, const double& _c, const double& _d, std::vector<double>& real, std::vector<double>& imag)
 {
   // Make coefficients complex
   std::complex<double> a(_a, 0.0);
