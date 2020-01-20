@@ -108,7 +108,7 @@ public:
     return Transform<T>(-q().rot(p()), q().inv());
   }
 
-  Eigen::Matrix<T,3,1> transform(const Eigen::Matrix<T,3,1>& v)
+  Eigen::Matrix<T,3,1> transform(const Eigen::Matrix<T,3,1>& v) const
   {
     return q().rot(v - p());
   }
@@ -178,9 +178,9 @@ public:
   void setQY(const T& y) { arr(QY) = y; }
   void setQZ(const T& z) { arr(QZ) = z; }
 
-  Eigen::Matrix<T,3,1> p() const { return arr.template segment<3>(PX); }
-  Quaternion<T> q() const { return Quaternion<T>(arr(QW), arr(QX), arr(QY), arr(QZ)); }
-  Eigen::Matrix<T,T_SIZE,1> toEigen() const { return arr; }
+  const Eigen::Matrix<T,3,1> p() const { return arr.template segment<3>(PX); }
+  const Quaternion<T> q() const { return Quaternion<T>(arr(QW), arr(QX), arr(QY), arr(QZ)); }
+  const Eigen::Matrix<T,T_SIZE,1> toEigen() const { return arr; }
   T* data() { return arr.data(); }
 
 private:

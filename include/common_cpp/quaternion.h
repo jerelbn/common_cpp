@@ -152,7 +152,7 @@ public:
     arr(3) /= m;
   }
 
-  Quaternion<T> normalized()
+  Quaternion<T> normalized() const
   {
     return Quaternion<T>(Eigen::Matrix<T,4,1>(arr.normalized()));
   }
