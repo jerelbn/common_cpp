@@ -33,7 +33,7 @@ public:
 
   Quaternion(const T& _w, const T& _x, const T& _y, const T& _z)
   {
-    arr(0) = _w < 0 ? -_w : _w;
+    arr(0) = std::real(_w) < std::real(T(0)) ? -_w : _w;
     arr(1) = _x;
     arr(2) = _y;
     arr(3) = _z;
@@ -122,7 +122,7 @@ public:
   Quaternion<T> operator+(const Eigen::Matrix<T,3,1>& delta) const
   {
     Quaternion<T> q = *this * exp(delta);
-    if (q.w() < T(0)) q.setW(-q.w());
+    if (std::real(q.w()) < std::real(T(0))) q.setW(-q.w());
     return q;
   }
 
@@ -278,7 +278,7 @@ public:
     const T delta_norm = delta.norm();
 
     Quaternion<T> q;
-    if (delta_norm < T(1e-6)) // avoid numerical error with approximation
+    if (std::real(delta_norm) < std::real(T(1e-6))) // avoid numerical error with approximation
     {
       q.setW(T(1.0));
       q.setX(delta(0) / T(2.0));
