@@ -393,6 +393,21 @@ int sign(T val)
 }
 
 
+// Relationship between body angular rates and euler angular rates
+// - rotates vector of euler angle rates (roll,pitch,yaw) to body angular rates
+template<typename T>
+Eigen::Matrix<T,3,3> R_euler_rates(const T& roll, const T& pitch)
+{
+  Eigen::Matrix<T,3,3> R = Eigen::Matrix<T,3,3>::Identity();
+  R(0,2) = -sin(pitch);
+  R(1,1) = cos(roll);
+  R(1,2) = sin(roll) * cos(pitch);
+  R(2,1) = -sin(roll);
+  R(2,2) = cos(roll) * cos(pitch);
+  return R;
+}
+
+
 // Generic PID controller class
 template<typename T = double>
 struct PID
