@@ -134,13 +134,38 @@ public:
   // overload minus operator as boxminus for two quaternions
   Eigen::Matrix<T,3,1> operator-(const Quaternion<T> &q2) const
   {
-    return log(q2.inv() * *this);
+    return log(q2.inverse() * *this);
   }
 
   friend std::ostream& operator<<(std::ostream &os, const Quaternion<T> &q)
   {
     os << q.w() << "\n" << q.x() << "\n" << q.y() << "\n" << q.z();
     return os;
+  }
+
+  static Quaternion<T> from_euler(const T& roll, const T& pitch, const T& yaw)
+  {
+    // Pre-calculations
+    const T r_2 = roll / T(2.0);
+    const T p_2 = pitch / T(2.0);
+    const T y_2 = yaw / T(2.0);
+    const T sr = sin(r_2);
+    const T sp = sin(p_2);
+    const T sy = sin(y_2);
+    const T cr = cos(r_2);
+    const T cp = cos(p_2);
+    const T cy = cos(y_2);
+
+    // Output
+    return Quaternion<T>(cr*cp*cy + sr*sp*sy,
+                         sr*cp*cy - cr*sp*sy,
+                         cr*sp*cy + sr*cp*sy,
+                         cr*cp*sy - sr*sp*cy);
+  }
+
+  static Quaternion<T> from_axis_angle(const Eigen::Matrix<T,3,1>& axis, const double& angle)
+  {
+    return exp(angle*axis);
   }
 
   void normalize()
@@ -220,7 +245,7 @@ public:
     return Eigen::Matrix<T,3,1>(x(),y(),z());
   }
 
-  Quaternion<T> inv() const
+  Quaternion<T> inverse() const
   {
     return Quaternion<T>(w(), -x(), -y(), -z());
   }
@@ -253,24 +278,32 @@ public:
   Eigen::Matrix<T,3,1> rotSlow(const Eigen::Matrix<T,3,1>& v) const
   {
     const Quaternion qv(T(0.0), v(0), v(1), v(2));
-    const Quaternion qv_new = inv() * qv * *this;
+    const Quaternion qv_new = inverse() * qv * *this;
     return Eigen::Matrix<T,3,1>(qv_new.x(), qv_new.y(), qv_new.z());
   }
 
-  Eigen::Matrix<T,3,1> rot(const Eigen::Matrix<T,3,1>& v) const
+  // Passive rotation (rotate coordinate frame)
+  Eigen::Matrix<T,3,1> rotp(const Eigen::Matrix<T,3,1>& v) const
   {
     const Eigen::Matrix<T,3,1> t = T(2.0) * v.cross(bar());
     return v + w() * t + t.cross(bar());
   }
 
+  // Active rotation (rotate vector, transpose of passive rotation)
+  Eigen::Matrix<T,3,1> rota(const Eigen::Matrix<T,3,1>& v) const
+  {
+    const Eigen::Matrix<T,3,1> t = T(2.0) * v.cross(bar());
+    return v - w() * t + t.cross(bar());
+  }
+
   Eigen::Matrix<T,3,1> uvec() const
   {
-    return inv().rot(e3.cast<T>());
+    return rota(e3.cast<T>());
   }
 
   Eigen::Matrix<T,3,2> proj() const
   {
-    return inv().R() * I_2x3.cast<T>().transpose();
+    return inverse().R() * I_2x3.cast<T>().transpose();
   }
 
   static Quaternion<T> exp(const Eigen::Matrix<T,3,1>& delta)
@@ -278,7 +311,7 @@ public:
     const T delta_norm = delta.norm();
 
     Quaternion<T> q;
-    if (delta_norm < T(1e-6)) // avoid numerical error with approximation
+    if (delta_norm < T(1e-8)) // avoid numerical error with approximation
     {
       q.setW(T(1.0));
       q.setX(delta(0) / T(2.0));
@@ -368,10 +401,10 @@ public:
     }
   }
 
-  T w() const { return arr(0); }
-  T x() const { return arr(1); }
-  T y() const { return arr(2); }
-  T z() const { return arr(3); }
+  const T& w() const { return arr(0); }
+  const T& x() const { return arr(1); }
+  const T& y() const { return arr(2); }
+  const T& z() const { return arr(3); }
   void setW(const T& w) { arr(0) = w; }
   void setX(const T& x) { arr(1) = x; }
   void setY(const T& y) { arr(2) = y; }

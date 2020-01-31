@@ -77,7 +77,7 @@ public:
   Transform<T> operator*(const Transform<T>& t2) const
   {
     Transform<T> t;
-    t.setP(p() + q().inv().rot(t2.p()));
+    t.setP(p() + q().inverse().rotp(t2.p()));
     t.setQ(q() * t2.q());
     return t;
   }
@@ -94,7 +94,7 @@ public:
 
   Eigen::Matrix<T,DT_SIZE,1> operator-(const Transform<T>& t1) const
   {
-    return log(t1.inv() * *this);
+    return log(t1.inverse() * *this);
   }
 
   template<typename T2>
@@ -103,14 +103,21 @@ public:
     return Transform<T2>(arr.template cast<T2>());
   }
 
-  Transform<T> inv() const
+  Transform<T> inverse() const
   {
-    return Transform<T>(-q().rot(p()), q().inv());
+    return Transform<T>(-q().rotp(p()), q().inverse());
   }
 
-  Eigen::Matrix<T,3,1> transform(const Eigen::Matrix<T,3,1>& v) const
+  // Passive transform (change coordinates)
+  Eigen::Matrix<T,3,1> transformp(const Eigen::Matrix<T,3,1>& v) const
   {
-    return q().rot(v - p());
+    return q().rotp(v - p());
+  }
+
+  // Active transform (change vector, inverse of passive)
+  Eigen::Matrix<T,3,1> transforma(const Eigen::Matrix<T,3,1>& v) const
+  {
+    return q().rota(v) + p();
   }
 
   static Transform<T> exp(const Eigen::Matrix<T,DT_SIZE,1>& delta)

@@ -3,8 +3,7 @@
 #include <Eigen/Dense>
 #include <vector>
 #include <set>
-#include "geometry/support.h"
-#include "geometry/xform.h"
+#include "common_cpp/transform.h"
 
 
 namespace common
@@ -68,16 +67,16 @@ public:
   int id;
   int type;
   T t;
-  xform::Xform<T> transform; // transform containing position and attitude
+  common::Transform<T> transform; // transform containing position and attitude
 
   Mocap()
     : id(-1), type(MOCAP), t(NAN)
   {
-    transform.t_.setConstant(NAN);
-    transform.q_.arr_.setConstant(NAN);
+    transform.setP(Eigen::Matrix<T,3,1>::Constant(NAN));
+    transform.setQ(Eigen::Matrix<T,4,1>::Constant(NAN));
   }
 
-  Mocap(const int& _id, const T& _t, const xform::Xform<T>& _transform)
+  Mocap(const int& _id, const T& _t, const common::Transform<T>& _transform)
     : id(_id), type(MOCAP), t(_t)
   {
     transform = _transform;
