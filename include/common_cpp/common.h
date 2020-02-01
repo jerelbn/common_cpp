@@ -18,65 +18,30 @@ namespace common
 
 
 // Approximate constants near Earth's surface
-static const double gravity = 9.80665; // (m/s^2) Gravitational acceleration
-static const double R_earth = 6371008.8; // (m) Earth's mean radius
-static const double B0 = 31200.0; // (nT) mean magnetic field at Earth's equator
-static const double P_sea = 101325.0; // (Pa) Standard atmospheric pressure at sea level
-static const double T_sea = 288.15; // (K) Standard temperature at sea level
-static const double T_lapse = 0.0065; // (K/m) Temperature lapse rate
-static const double R_gas = 8.31447; // (J/(mol*K) Universal gas constant
-static const double M_air = 0.0289644; // (kg/mol) Molar mass of dry air
-static const double MNP_lat = 80.37; // (deg) magnetic north pole latitude as of 2015
-static const double MNP_lon = -72.62; // (deg) magnetic north pole longitude as of 2015
+static constexpr double gravity = 9.80665;   // (m/s^2) Gravitational acceleration
+static constexpr double R_earth = 6371008.8; // (m) Earth's mean radius
+static constexpr double B0      = 31200.0;   // (nT) mean magnetic field at Earth's equator
+static constexpr double P_sea   = 101325.0;  // (Pa) Standard atmospheric pressure at sea level
+static constexpr double T_sea   = 288.15;    // (K) Standard temperature at sea level
+static constexpr double T_lapse = 0.0065;    // (K/m) Temperature lapse rate
+static constexpr double R_gas   = 8.31447;   // (J/(mol*K) Universal gas constant
+static constexpr double M_air   = 0.0289644; // (kg/mol) Molar mass of dry air
+static constexpr double MNP_lat = 80.37;     // (deg) magnetic north pole latitude as of 2015
+static constexpr double MNP_lon = -72.62;    // (deg) magnetic north pole longitude as of 2015
+
+// Constant vectors and matrices
+static const Eigen::Vector3d e1(1, 0, 0);
+static const Eigen::Vector3d e2(0, 1, 0);
+static const Eigen::Vector3d e3(0, 0, 1);
+static const Eigen::Matrix3d I_3x3 = Eigen::Matrix3d::Identity();
+static const Eigen::Matrix2d I_2x2 = Eigen::Matrix2d::Identity();
+static const Eigen::Matrix<double,2,3> I_2x3 = (Eigen::Matrix<double,2,3>() << 1, 0, 0, 0, 1, 0).finished();
+static const Eigen::Matrix<double,3,2> I_3x2 = (Eigen::Matrix<double,3,2>() << 1, 0, 0, 1, 0, 0).finished();
 
 
-static const Eigen::Vector3d e1 = [] {
-  Eigen::Vector3d tmp;
-  tmp << 1, 0, 0;
-  return tmp;
-}();
-
-static const Eigen::Vector3d e2 = [] {
-  Eigen::Vector3d tmp;
-  tmp << 0, 1, 0;
-  return tmp;
-}();
-
-static const Eigen::Vector3d e3 = [] {
-  Eigen::Vector3d tmp;
-  tmp << 0, 0, 1;
-  return tmp;
-}();
-
-static const Eigen::Matrix3d I_3x3 = [] {
-  Eigen::Matrix3d tmp;
-  tmp << 1, 0, 0, 0, 1, 0, 0, 0, 1;
-  return tmp;
-}();
-
-static const Eigen::Matrix2d I_2x2 = [] {
-  Eigen::Matrix2d tmp;
-  tmp << 1, 0, 0, 1;
-  return tmp;
-}();
-
-static const Eigen::Matrix<double, 2, 3> I_2x3 = [] {
-  Eigen::Matrix<double, 2, 3> tmp;
-  tmp << 1, 0, 0, 0, 1, 0;
-  return tmp;
-}();
-
-// rotation from NED style camera body coordinates to camera coordinates
-static const Eigen::Matrix3d R_cb2c = [] {
-  Eigen::Matrix3d tmp;
-  tmp << 0, 1, 0,
-         0, 0, 1,
-         1, 0, 0;
-  return tmp;
-}();
-
-
-// Atmospheric pressure as a function of altitude above sea level
+/** @brief Computes atmospheric pressure as a function of altitude.
+ @param alt altitude above sea level in meters
+ */
 template<typename T>
 T airPres(const T &alt)
 {
@@ -84,7 +49,10 @@ T airPres(const T &alt)
 }
 
 
-// Air density as a function of altitude (meters) above sea level and air temperature (degrees Fahrenheit)
+/** @brief Computes air density as a function of altitude and temperature.
+ @param alt altitude above sea level in meters
+ @param temp air temperature in degrees Fahrenheit
+ */
 template<typename T>
 T airDense(const T &alt, const T &temp)
 {
@@ -93,7 +61,10 @@ T airDense(const T &alt, const T &temp)
 }
 
 
-// wrap angle to +- input bound (typically [0,2*pi] or [-pi,pi])
+/** @brief Wraps an angle to some bound.
+ @param angle angle to be wrapped in radians
+ @param bound boundary of wrapping (usually 2*pi or pi)
+ */
 template<typename T>
 T wrapAngle(const T &angle, const T &bound)
 {
@@ -105,7 +76,20 @@ T wrapAngle(const T &angle, const T &bound)
 }
 
 
-// round to desired decimal place
+/** @brief Returns the sign of input value.
+ @param val a real number
+ */
+template<typename T>
+int sign(T val)
+{
+    return (T(0) <= val) - (val < T(0));
+}
+
+
+/** Round to a decimal place.
+ @param number number to round
+ @param decimal_place integer value of decimal place to round to
+ */
 template<typename T>
 T round2dec(const T &number, const int &decimal_place)
 {
@@ -114,7 +98,9 @@ T round2dec(const T &number, const int &decimal_place)
 }
 
 
-// skew symmetric matrix from vector
+/** Create skew symmetric matrix from a vector.
+ @param vec vector from which to create matrix
+ */
 template<typename T>
 Eigen::Matrix<typename T::Scalar,3,3> skew(const Eigen::MatrixBase<T>& vec)
 {
@@ -127,199 +113,38 @@ Eigen::Matrix<typename T::Scalar,3,3> skew(const Eigen::MatrixBase<T>& vec)
 }
 
 
-// vector from skew symmetric matrix
+/** @brief Creates a vector from a skew symmetric matrix.
+ @param mat skew symmetric matrix from which to create vector
+ */
 template<typename T>
 Eigen::Matrix<T,3,1> vex(const Eigen::Matrix<T,3,3>& mat)
 {
-  const Eigen::Matrix<T,3,1> v(mat(2,1), mat(0,2), mat(1,0));
-  return v;
+  return (Eigen::Matrix<T,3,1>() << mat(2,1), mat(0,2), mat(1,0)).finished();
 }
 
 
-// matrix exponential given skew symmetric delta
+/** @brief Angular difference between two vectors.
+ @param v1 first vector
+ @param v2 second vector
+ */
 template<typename T>
-Eigen::Matrix<T,3,3> expR(const Eigen::Matrix<T,3,3>& deltax)
+T angDiffBetweenVecs(const Eigen::Matrix<T,3,1>& v1, const Eigen::Matrix<T,3,1>& v2)
 {
-  const Eigen::Matrix<T,3,1> axis_angle = vex(deltax);
-  const T theta = axis_angle.norm();
-  if (theta > 1e-6)
-    return I_3x3.cast<T>() + sin(theta) / theta * deltax +
-           (T(1.0) - cos(theta)) / theta / theta * deltax * deltax;
+  T val = (v1.transpose() * v2)(0) / (v1.norm() * v2.norm());
+  if (val > 1)
+    return 0;
+  else if (val < -1)
+    return M_PI;
   else
-    return I_3x3.cast<T>();
+    return acos(val);
 }
 
 
-// rotation matrix logarithmic map
-template<typename T>
-Eigen::Matrix<T,3,3> logR(const Eigen::Matrix<T,3,3>& R)
-{
-  // rotation magnitude
-  const T theta = acos((R.trace()-1)/2.0);
-
-  // avoid numerical error with approximation
-  Eigen::Matrix<T,3,3> deltax;
-  if (theta > 1e-6)
-    deltax = theta/(2*sin(theta))*(R - R.transpose());
-  else
-    deltax = 0.5*(R - R.transpose());
-
-  return deltax;
-}
-
-
-// rotation from vehicle-2 to body frame
-template<typename T>
-Eigen::Matrix<T,3,3> R_v2_to_b(const T& phi)
-{
-  Eigen::Matrix<T,3,3> R_v22b;
-  R_v22b << 1,         0,        0,
-            0,  cos(phi), sin(phi),
-            0, -sin(phi), cos(phi);
-  return R_v22b;
-}
-
-// rotation from vehicle-1 to vehicle-2 frame
-template<typename T>
-Eigen::Matrix<T,3,3> R_v1_to_v2(const T& theta)
-{
-  Eigen::Matrix<T,3,3> R_v12v2;
-  R_v12v2 << cos(theta), 0, -sin(theta),
-                      0, 1,           0,
-             sin(theta), 0,  cos(theta);
-  return R_v12v2;
-}
-
-
-// rotation from vehicle to vehicle-1 frame
-template<typename T>
-Eigen::Matrix<T,3,3> R_v_to_v1(const T& psi)
-{
-  Eigen::Matrix<T,3,3> R_v2v1;
-  R_v2v1 <<  cos(psi), sin(psi), 0,
-            -sin(psi), cos(psi), 0,
-                    0,        0, 1;
-  return R_v2v1;
-}
-
-// rotation from vehicle to body frame (3-2-1 Euler)
-template<typename T>
-Eigen::Matrix<T,3,3> R_v_to_b(const T& phi, const T& theta, const T& psi)
-{
-  return R_v2_to_b(phi) * R_v1_to_v2(theta) * R_v_to_v1(psi);
-}
-
-
-// Loads scalar parameters from a .yaml file
-// Author: James Jackson
-template <typename T>
-bool get_yaml_node(const std::string key, const std::string filename, T& val, bool print_error = true)
-{
-  YAML::Node node = YAML::LoadFile(filename);
-  if (node[key])
-  {
-    val = node[key].as<T>();
-    return true;
-  }
-  else
-  {
-    if (print_error)
-    {
-      printf("Unable to load \"%s\" from %s\n", key.c_str(), filename.c_str());
-    }
-    return false;
-  }
-}
-
-
-// Loads array from a .yaml file into an Eigen-type matrix or vector.
-// Author: James Jackson
-template <typename T>
-bool get_yaml_eigen(const std::string key, const std::string filename, Eigen::MatrixBase<T>& val)
-{
-  YAML::Node node = YAML::LoadFile(filename);
-  std::vector<double> vec;
-  if (node[key])
-  {
-    vec = node[key].as<std::vector<double>>();
-    if (vec.size() == (val.rows() * val.cols()))
-    {
-      int k = 0;
-      for (int i = 0; i < val.rows(); i++)
-      {
-        for (int j = 0; j < val.cols(); j++)
-        {
-          val(i,j) = vec[k++];
-        }
-      }
-      return true;
-    }
-    else
-    {
-      printf("Eigen Matrix Size does not match parameter size for \"%s\" in %s\n", key.c_str(), filename.c_str());
-      return false;
-    }
-  }
-  else
-  {
-    printf("Unable to load \"%s\" from %s\n", key.c_str(), filename.c_str());
-    return false;
-  }
-}
-
-
-// Load array from a .yaml file into a diagonal Eigen-type matrix
-template <typename T>
-bool get_yaml_eigen_diag(const std::string key, const std::string filename, Eigen::MatrixBase<T>& val)
-{
-  Eigen::Matrix<typename T::Scalar, T::RowsAtCompileTime, 1> val2;
-  get_yaml_eigen(key, filename, val2);
-  val = val2.asDiagonal();
-  return true;
-}
-
-
-// Loads array from a binary file onto the heap (in case the file is large)
-// and returns the pointer to the beginning of the array
-template<typename T>
-T* load_binary(const std::string& filename, long& array_size)
-{
-  std::ifstream file(filename, std::ios::in|std::ios::binary|std::ios::ate);
-  if (file.is_open())
-  {
-    // File opened with ios::ate flag to position the get pointer at end of file
-    // then tellg() gets the file size
-    std::ifstream::pos_type size = file.tellg();
-    char* memblock = new char[size]; // Allocate memory on the heap for the file
-    file.seekg(0, std::ios::beg); // Set the get pointer to beginning of file
-    file.read(memblock, size); // Read entire file
-    file.close();
-    std::cout << "Loaded file: " << filename << std::endl;
-
-    // Return array as type T and its size
-    array_size = (long)size / sizeof(T);
-    return (T*)memblock;
-  }
-  else
-  {
-    std::cout << "Unable to open file: " << filename << std::endl;
-    exit(0);
-  }
-}
-
-// Load binary file directly into an Eigen array
-template<typename T>
-Eigen::Matrix<T,-1,-1> load_binary_to_matrix(const std::string& filename, const int& matrix_rows)
-{
-  long array_size;
-  T* ptr = load_binary<T>(filename, array_size);
-  Eigen::Matrix<T,-1,-1> m(matrix_rows, array_size/matrix_rows);
-  copy_ptr_to_eigen(ptr, m);
-  delete[] ptr;
-  return m;
-}
-
-// Saturates a scalar value.
+/** @brief Saturates a scalar value.
+ @param val number to be saturated
+ @param max maximum allowed value
+ @param min minimum allowed value
+ */
 template <typename T>
 T saturate(const T& val, const T& max, const T& min)
 {
@@ -354,47 +179,11 @@ void randomNormal(Eigen::DenseBase<T>& matrix,
 }
 
 
-// Perspective projection into an image
-template<typename T>
-void projToImg(Eigen::Matrix<T,2,1>& pix, const Eigen::Matrix<T,3,1> &lc, const Eigen::Matrix<T,3,3> &K)
-{
-  pix = K.topRows(2) * (lc / lc(2));
-}
-
-
-// Direction vector from pixel coordinate
-template<typename T>
-void dirFromPix(Eigen::Matrix<T,3,1> &dir, const Eigen::Matrix<T,2,1> &pix, const Eigen::Matrix<T,3,3> &K_inv)
-{
-  dir = K_inv * Eigen::Matrix<T,3,1>(pix(0), pix(1), 1);
-  dir /= dir.norm();
-}
-
-
-// Angular difference between two vectors
-template<typename T>
-T angDiffBetweenVecs(const Eigen::Matrix<T,3,1>& v1, const Eigen::Matrix<T,3,1>& v2)
-{
-  T val = (v1.transpose() * v2)(0) / (v1.norm() * v2.norm());
-  if (val > 1)
-    return 0;
-  else if (val < -1)
-    return M_PI;
-  else
-    return acos(val);
-}
-
-
-// Sign function
-template<typename T>
-int sign(T val)
-{
-    return (T(0) <= val) - (val < T(0));
-}
-
-
-// Relationship between body angular rates and euler angular rates
-// - rotates vector of euler angle rates (roll,pitch,yaw) to body angular rates
+/** @brief Returns rotation matrix rotating Euler angular rates to body angular rates.
+ @note This assumes 3-2-1 Euler angle order.
+ @param roll rotation about body x-axis
+ @param pitch rotation about body y-axis
+ */
 template<typename T>
 Eigen::Matrix<T,3,3> R_euler_rates(const T& roll, const T& pitch)
 {
@@ -408,7 +197,171 @@ Eigen::Matrix<T,3,3> R_euler_rates(const T& roll, const T& pitch)
 }
 
 
-// Generic PID controller class
+/** @brief Perspective projection of vector in camera coordinates into image coordinates.
+ @param pix output of pixel position in image
+ @param lc vector in camera coordinates
+ @param K camera intrinsic matrix
+ */
+template<typename T>
+void projToImg(Eigen::Matrix<T,2,1>& pix, const Eigen::Matrix<T,3,1> &lc, const Eigen::Matrix<T,3,3> &K)
+{
+  pix = K.topRows(2) * (lc / lc(2));
+}
+
+
+/** @brief Computes unit vector from pixel coordinates.
+ @param dir output of unit vector
+ @param pix pixel position in image coordinates
+ @param K_inv inverse of camera intrinsic matrix
+ */
+template<typename T>
+void dirFromPix(Eigen::Matrix<T,3,1> &dir, const Eigen::Matrix<T,2,1> &pix, const Eigen::Matrix<T,3,3> &K_inv)
+{
+  dir = K_inv * Eigen::Matrix<T,3,1>(pix(0), pix(1), 1);
+  dir /= dir.norm();
+}
+
+
+/** @brief Loads scalar parameters from a .yaml file.
+ @note Original author: James Jackson
+ @param key string of parameter name
+ @param filename name of .yaml file to load parameters from
+ @param val output value of loaded parameter
+ @param print_error error printing boolean - set to false to suppress error printing
+ */
+template <typename T>
+bool get_yaml_node(const std::string& key, const std::string& filename, T& val, const bool& print_error = true)
+{
+  YAML::Node node = YAML::LoadFile(filename);
+  if (node[key])
+  {
+    val = node[key].as<T>();
+    return true;
+  }
+  else
+  {
+    if (print_error)
+    {
+      printf("Unable to load \"%s\" from %s\n", key.c_str(), filename.c_str());
+    }
+    return false;
+  }
+}
+
+
+/** @brief Loads array from a .yaml file into an Eigen-type matrix or vector.
+ @note Original author: James Jackson
+ @param key string of parameter name
+ @param filename name of .yaml file to load parameters from
+ @param val output matrix or vector of loaded parameters
+ */
+template <typename T>
+bool get_yaml_eigen(const std::string key, const std::string filename, Eigen::MatrixBase<T>& val)
+{
+  YAML::Node node = YAML::LoadFile(filename);
+  std::vector<double> vec;
+  if (node[key])
+  {
+    vec = node[key].as<std::vector<double>>();
+    if (vec.size() == (val.rows() * val.cols()))
+    {
+      int k = 0;
+      for (int i = 0; i < val.rows(); i++)
+      {
+        for (int j = 0; j < val.cols(); j++)
+        {
+          val(i,j) = vec[k++];
+        }
+      }
+      return true;
+    }
+    else
+    {
+      printf("Eigen Matrix Size does not match parameter size for \"%s\" in %s\n", key.c_str(), filename.c_str());
+      return false;
+    }
+  }
+  else
+  {
+    printf("Unable to load \"%s\" from %s\n", key.c_str(), filename.c_str());
+    return false;
+  }
+}
+
+
+/** @brief Loads array from a .yaml file into an Eigen-type diagonal matrix.
+ @note Original author: James Jackson
+ @param key string of parameter name
+ @param filename name of .yaml file to load parameters from
+ @param val output matrix of loaded parameters
+ */
+template <typename T>
+bool get_yaml_eigen_diag(const std::string key, const std::string filename, Eigen::MatrixBase<T>& val)
+{
+  Eigen::Matrix<typename T::Scalar, T::RowsAtCompileTime, 1> val2;
+  get_yaml_eigen(key, filename, val2);
+  val = val2.asDiagonal();
+  return true;
+}
+
+
+/** @brief Loads array from a binary file and returns the pointer to the beginning of the array.
+ @param filename name of binary file to load parameters from
+ @param array_size size of array stored in binary file
+ */
+template<typename T>
+T* load_binary(const std::string& filename, long& array_size)
+{
+  std::ifstream file(filename, std::ios::in|std::ios::binary|std::ios::ate);
+  if (file.is_open())
+  {
+    // File opened with ios::ate flag to position the get pointer at end of file
+    // then tellg() gets the file size
+    std::ifstream::pos_type size = file.tellg();
+    char* memblock = new char[size]; // Allocate memory on the heap for the file
+    file.seekg(0, std::ios::beg); // Set the get pointer to beginning of file
+    file.read(memblock, size); // Read entire file
+    file.close();
+    std::cout << "Loaded file: " << filename << std::endl;
+
+    // Return array as type T and its size
+    array_size = (long)size / sizeof(T);
+    return (T*)memblock;
+  }
+  else
+  {
+    std::cout << "Unable to open file: " << filename << std::endl;
+    exit(0);
+  }
+}
+
+/** @brief Loads binary file directly into an Eigen-type matrix.
+ @param filename name of binary file to load parameters from
+ @param matrix_rows number of rows in output matrix
+ */
+template<typename T>
+Eigen::Matrix<T,-1,-1> load_binary_to_matrix(const std::string& filename, const int& matrix_rows)
+{
+  long array_size;
+  T* ptr = load_binary<T>(filename, array_size);
+  Eigen::Matrix<T,-1,-1> m(matrix_rows, array_size/matrix_rows);
+  copy_ptr_to_eigen(ptr, m);
+  delete[] ptr;
+  return m;
+}
+
+
+/** @brief A generic PID controller.
+ * @param kp proportional gain
+ * @param ki integral gain
+ * @param kd derivative gain
+ * @param max maximum limit on output
+ * @param min minimum limit on output
+ * @param integrator storage for integrated error
+ * @param differentiator storage for derivative in numerical derivative
+ * @param prev_x previous state
+ * @param tau time constant for numerical derivative
+ */
 template<typename T = double>
 struct PID
 {
@@ -437,13 +390,12 @@ struct PID
   T run(T dt, T x, T x_c, bool update_integrator)
   {
     T xdot;
-    if (dt > 1e-4)
+    if (dt > T(1e-8))
     {
-      // calculate D term (use dirty derivative if we don't have access to a measurement of the derivative)
-      // The dirty derivative is a sort of low-pass filtered version of the derivative.
-      //// (Include reference to Dr. Beard's notes here)
-      differentiator = (T(2) * tau - dt) / (T(2) * tau + dt) * differentiator
-          + T(2) / (T(2) * tau + dt) * (x - prev_x);
+      // Low pass filtered derivative
+      T tau_x_2 = T(2) * tau;
+      T tau_x_2_plus_dt = tau_x_2 + dt;
+      differentiator = (tau_x_2 - dt) / tau_x_2_plus_dt * differentiator + T(2) / tau_x_2_plus_dt * (x - prev_x);
       xdot = differentiator;
     }
     else
@@ -457,30 +409,22 @@ struct PID
 
   T run(T dt, T x, T x_c, bool update_integrator, T xdot)
   {
-    // Calculate Error
+    // Calculate error and initialize components
     T error = x_c - x;
-
-    // Initialize Terms
-    T p_term = error * kp;
+    T p_term = kp * error;
     T i_term = T(0);
     T d_term = T(0);
 
-    // If there is a derivative term
+    // Compute ID components and sum them for total output
     if (kd > T(0))
-    {
       d_term = kd * xdot;
-    }
 
-    //If there is an integrator term and we are updating integrators
-    if ((ki > T(0)) && update_integrator)
+    if (ki > T(0) && update_integrator)
     {
-      // integrate
       integrator += error * dt;
-      // calculate I term
       i_term = ki * integrator;
     }
 
-    // sum three terms
     T u = p_term - d_term + i_term;
 
     // Integrator anti-windup
@@ -488,7 +432,6 @@ struct PID
     if (u != u_sat && std::abs(i_term) > std::abs(u - p_term + d_term) && ki > T(0))
       integrator = (u_sat - p_term + d_term)/ki;
 
-    // Set output
     return u_sat;
   }
 
@@ -500,35 +443,42 @@ struct PID
 };
 
 
-// Solution to general cubic equation
-// https://en.wikipedia.org/wiki/Cubic_equation
-inline void solveCubic(const double& _a, const double& _b, const double& _c, const double& _d, std::vector<double>& real, std::vector<double>& imag)
+/** @brief Computes solution to the general cubic equation (see https://en.wikipedia.org/wiki/Cubic_equation).
+ * @param _a first coefficient of cubic equation
+ * @param _b second coefficient of cubic equation
+ * @param _c third coefficient of cubic equation
+ * @param _d fourth coefficient of cubic equation
+ * @param real output of real parts of solution
+ * @param imag output of complex parts of solution
+ */
+template<typename T = double>
+inline void solveCubic(const T& _a, const T& _b, const T& _c, const T& _d, std::vector<T>& real, std::vector<T>& imag)
 {
   // Make coefficients complex
-  std::complex<double> a(_a, 0.0);
-  std::complex<double> b(_b, 0.0);
-  std::complex<double> c(_c, 0.0);
-  std::complex<double> d(_d, 0.0);
+  std::complex<T> a(_a, T(0.0));
+  std::complex<T> b(_b, T(0.0));
+  std::complex<T> c(_c, T(0.0));
+  std::complex<T> d(_d, T(0.0));
 
   // Constant
-  static std::complex<double> xi = (-1.0 + sqrt(std::complex<double>(-3.0)))/2.0;
+  static std::complex<T> xi = (-T(1.0) + sqrt(std::complex<T>(-T(3.0))))/T(2.0);
 
   // Compute 3 possible solutions
-  std::complex<double> Delta_0 = b*b - 3.0*a*c;
-  std::complex<double> Delta_1 = 2.0*b*b*b - 9.0*a*b*c + 27.0*a*a*d;
+  std::complex<T> Delta_0 = b*b - T(3.0)*a*c;
+  std::complex<T> Delta_1 = T(2.0)*b*b*b - 9.0*a*b*c + T(27.0)*a*a*d;
 
-  std::complex<double> dd = sqrt(pow(Delta_1,2.0) - 4.0*pow(Delta_0,3.0));
-  std::complex<double> C = pow((Delta_1 + dd)/2.0, 1.0/3.0);
-  if (std::abs(C.real()) < 1e-6)
-    C = pow((Delta_1 - dd)/2.0, 1.0/3.0);
+  std::complex<T> dd = sqrt(pow(Delta_1,T(2.0)) - T(4.0)*pow(Delta_0,T(3.0)));
+  std::complex<T> C = pow((Delta_1 + dd)/T(2.0), T(1.0)/T(3.0));
+  if (std::abs(C.real()) < T(1e-8))
+    C = pow((Delta_1 - dd)/T(2.0), T(1.0)/T(3.0));
   
-  std::vector<std::complex<double> > solutions;
+  std::vector<std::complex<T> > solutions;
   for (int k = 0; k < 3; ++k)
-    solutions.push_back(-1.0/3.0*(b + pow(xi,double(k))*C + Delta_0/(pow(xi,double(k))*C)));
+    solutions.push_back(-T(1.0)/T(3.0)*(b + pow(xi,T(k))*C + Delta_0/(pow(xi,T(k))*C)));
   
   // Sort solutions in ascending order of real parts
   std::sort(solutions.begin(), solutions.end(),
-            [](const std::complex<double>& a, const std::complex<double>& b)
+            [](const std::complex<T>& a, const std::complex<T>& b)
             { return a.real() < b.real(); });
 
   // Pack output
@@ -539,6 +489,106 @@ inline void solveCubic(const double& _a, const double& _b, const double& _c, con
     real.push_back(s.real());
     imag.push_back(s.imag());
   }
+}
+
+
+/** @brief Rotation from camera body to camera coordinates (Front-Right-Down --> Right-Down-Front)
+ */
+static const Eigen::Matrix3d R_cb2c = (Eigen::Matrix3d() << 0, 1, 0, 0, 0, 1, 1, 0, 0).finished();
+
+
+/** @brief Returns rotation matrix for positive coordinate frame rotation about the x-axis.
+ @param roll rotation about x-axis
+ */
+template<typename T>
+Eigen::Matrix<T,3,3> Rx(const T& roll)
+{
+  return (Eigen::Matrix<T,3,3>() << 1,          0,         0,
+                                    0,  cos(roll), sin(roll),
+                                    0, -sin(roll), cos(roll)).finished();
+}
+
+/** @brief Returns rotation matrix for positive coordinate frame rotation about the y-axis.
+ @param pitch rotation about y-axis
+ */
+template<typename T>
+Eigen::Matrix<T,3,3> Ry(const T& pitch)
+{
+  return (Eigen::Matrix<T,3,3>() << cos(pitch), 0, -sin(pitch),
+                                             0, 1,           0,
+                                    sin(pitch), 0,  cos(pitch)).finished();
+}
+
+
+/** @brief Returns rotation matrix for positive coordinate frame rotation about the z-axis.
+ @param yaw rotation about z-axis
+ */
+template<typename T>
+Eigen::Matrix<T,3,3> Rz(const T& yaw)
+{
+  return (Eigen::Matrix<T,3,3>() <<  cos(yaw), sin(yaw), 0,
+                                    -sin(yaw), cos(yaw), 0,
+                                            0,        0, 1).finished();
+}
+
+
+/** @brief Returns rotation matrix for positive coordinate frame rotation about the x-y-z axes (Euler 3-2-1 or Z-Y-X).
+ @param roll rotation about x-axis
+ @param pitch rotation about y-axis
+ @param yaw rotation about z-axis
+ */
+template<typename T>
+Eigen::Matrix<T,3,3> Rzyx(const T& roll, const T& pitch, const T& yaw)
+{
+  return Rx(roll) * Ry(pitch) * Rz(yaw);
+}
+
+
+/** @brief Returns rotation matrix for positive coordinate frame rotation about the x-y-z axes (Euler 3-1-2 or Z-X-Y).
+ @param roll rotation about x-axis
+ @param pitch rotation about y-axis
+ @param yaw rotation about z-axis
+ */
+template<typename T>
+Eigen::Matrix<T,3,3> Rzxy(const T& roll, const T& pitch, const T& yaw)
+{
+  return Ry(pitch) * Rx(roll) * Rz(yaw);
+}
+
+
+/** @brief Computes matrix exponential for a given skew symmetric matrix.
+ @param deltax skew symmetric matrix input
+ */
+template<typename T>
+Eigen::Matrix<T,3,3> expR(const Eigen::Matrix<T,3,3>& deltax)
+{
+  const Eigen::Matrix<T,3,1> axis_angle = vex(deltax);
+  const T theta = axis_angle.norm();
+  if (theta > 1e-6)
+    return I_3x3.cast<T>() + sin(theta) / theta * deltax +
+           (T(1.0) - cos(theta)) / theta / theta * deltax * deltax;
+  else
+    return I_3x3.cast<T>();
+}
+
+
+/** @brief Computes the logarithmic map of a rotation matrix.
+ @param R rotation matrix input
+ */
+template<typename T>
+Eigen::Matrix<T,3,3> logR(const Eigen::Matrix<T,3,3>& R)
+{
+  // rotation magnitude
+  const T theta = acos((R.trace()-1)/2.0);
+
+  // avoid numerical error with approximation
+  Eigen::Matrix<T,3,3> deltax;
+  if (theta > 1e-6)
+    deltax = theta/(2*sin(theta))*(R - R.transpose());
+  else
+    deltax = 0.5*(R - R.transpose());
+
+  return deltax;
 }
 
 
