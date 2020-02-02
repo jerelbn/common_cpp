@@ -66,10 +66,10 @@ TEST(Quaternion, UnitVector)
   for (size_t iter = 0; iter < NUM_ITERS; ++iter)
   {
     Vector3d u1(0,0,1);
-    Quaterniond q1(u1);
+    Quaterniond q1 = common::Quaterniond::fromUnitVector(u1);
     Vector2d delta = M_PI / sqrt2 * Vector2d::Random();
     Quaterniond q2 = Quaterniond::exp(q1.proj()*delta) * q1;
-    Vector2d delta2 = Quaterniond::log_uvec(q2, q1);
+    Vector2d delta2 = Quaterniond::logUnitVector(q2, q1);
     EXPECT_MATRIX_CLOSE(delta, delta2, TOL);
   }
 }

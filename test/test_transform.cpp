@@ -71,8 +71,8 @@ TEST(Transform, TransformVector)
   for (size_t iter = 0; iter < NUM_ITERS; ++iter)
   {
     Transformd x1;
-    x1.setP(5.0*Vector3d::Random());
-    x1.setQ(Vector4d::Random().normalized());
+    x1.p(5.0*Vector3d::Random());
+    x1.q(Vector4d::Random().normalized());
     Vector3d v = 5.0*Vector3d::Random();
     Vector3d v2 = x1.transformp(v);
     Vector3d v3 = x1.transforma(v2);

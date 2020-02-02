@@ -91,7 +91,7 @@ int sign(T val)
  @param decimal_place integer value of decimal place to round to
  */
 template<typename T>
-T round2dec(const T &number, const int &decimal_place)
+T roundDecimal(const T &number, const int &decimal_place)
 {
   T val = pow(T(10),decimal_place);
   return round(number * val) / val;
@@ -128,7 +128,7 @@ Eigen::Matrix<T,3,1> vex(const Eigen::Matrix<T,3,3>& mat)
  @param v2 second vector
  */
 template<typename T>
-T angDiffBetweenVecs(const Eigen::Matrix<T,3,1>& v1, const Eigen::Matrix<T,3,1>& v2)
+T angleBetweenVectors(const Eigen::Matrix<T,3,1>& v1, const Eigen::Matrix<T,3,1>& v2)
 {
   T val = (v1.transpose() * v2)(0) / (v1.norm() * v2.norm());
   if (val > 1)
@@ -203,7 +203,7 @@ Eigen::Matrix<T,3,3> R_euler_rates(const T& roll, const T& pitch)
  @param K camera intrinsic matrix
  */
 template<typename T>
-void projToImg(Eigen::Matrix<T,2,1>& pix, const Eigen::Matrix<T,3,1> &lc, const Eigen::Matrix<T,3,3> &K)
+void projectToImage(Eigen::Matrix<T,2,1>& pix, const Eigen::Matrix<T,3,1> &lc, const Eigen::Matrix<T,3,3> &K)
 {
   pix = K.topRows(2) * (lc / lc(2));
 }
@@ -230,7 +230,7 @@ void dirFromPix(Eigen::Matrix<T,3,1> &dir, const Eigen::Matrix<T,2,1> &pix, cons
  @param print_error error printing boolean - set to false to suppress error printing
  */
 template <typename T>
-bool get_yaml_node(const std::string& key, const std::string& filename, T& val, const bool& print_error = true)
+bool getYamlNode(const std::string& key, const std::string& filename, T& val, const bool& print_error = true)
 {
   YAML::Node node = YAML::LoadFile(filename);
   if (node[key])
@@ -256,7 +256,7 @@ bool get_yaml_node(const std::string& key, const std::string& filename, T& val, 
  @param val output matrix or vector of loaded parameters
  */
 template <typename T>
-bool get_yaml_eigen(const std::string key, const std::string filename, Eigen::MatrixBase<T>& val)
+bool getYamlEigen(const std::string key, const std::string filename, Eigen::MatrixBase<T>& val)
 {
   YAML::Node node = YAML::LoadFile(filename);
   std::vector<double> vec;
@@ -296,10 +296,10 @@ bool get_yaml_eigen(const std::string key, const std::string filename, Eigen::Ma
  @param val output matrix of loaded parameters
  */
 template <typename T>
-bool get_yaml_eigen_diag(const std::string key, const std::string filename, Eigen::MatrixBase<T>& val)
+bool getYamlEigenDiag(const std::string key, const std::string filename, Eigen::MatrixBase<T>& val)
 {
   Eigen::Matrix<typename T::Scalar, T::RowsAtCompileTime, 1> val2;
-  get_yaml_eigen(key, filename, val2);
+  getYamlEigen(key, filename, val2);
   val = val2.asDiagonal();
   return true;
 }
@@ -310,7 +310,7 @@ bool get_yaml_eigen_diag(const std::string key, const std::string filename, Eige
  @param array_size size of array stored in binary file
  */
 template<typename T>
-T* load_binary(const std::string& filename, long& array_size)
+T* loadBinary(const std::string& filename, long& array_size)
 {
   std::ifstream file(filename, std::ios::in|std::ios::binary|std::ios::ate);
   if (file.is_open())
@@ -340,10 +340,10 @@ T* load_binary(const std::string& filename, long& array_size)
  @param matrix_rows number of rows in output matrix
  */
 template<typename T>
-Eigen::Matrix<T,-1,-1> load_binary_to_matrix(const std::string& filename, const int& matrix_rows)
+Eigen::Matrix<T,-1,-1> loadBinaryToMatrix(const std::string& filename, const int& matrix_rows)
 {
   long array_size;
-  T* ptr = load_binary<T>(filename, array_size);
+  T* ptr = loadBinary<T>(filename, array_size);
   Eigen::Matrix<T,-1,-1> m(matrix_rows, array_size/matrix_rows);
   copy_ptr_to_eigen(ptr, m);
   delete[] ptr;

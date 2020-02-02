@@ -17,7 +17,7 @@ include_directories(include
 add_library(common_cpp INTERFACE)
 
 add_executable(quaternion_test
-  test/quaternion.cpp
+  test/test_quaternion.cpp
 )
 target_link_libraries(quaternion_test
   common_cpp
@@ -28,7 +28,7 @@ target_link_libraries(quaternion_test
 )
 
 add_executable(transform_test
-  test/transform.cpp
+  test/test_transform.cpp
 )
 target_link_libraries(transform_test
   common_cpp
@@ -39,7 +39,7 @@ target_link_libraries(transform_test
 )
 
 add_executable(rotation_test
-  test/rotation.cpp
+  test/test_rotation.cpp
 )
 target_link_libraries(rotation_test
   common_cpp

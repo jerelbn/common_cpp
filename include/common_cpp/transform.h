@@ -43,42 +43,34 @@ public:
     arr(6) = ptr[6];
   }
 
-  Transform(const Eigen::Matrix<T,3,1>& p, const Quaternion<T>& q)
+  Transform(const Eigen::Matrix<T,3,1>& _p, const Quaternion<T>& _q)
   {
-    setP(p);
-    setQ(q);
+    p(_p);
+    q(_q);
   }
 
-  Transform(const Eigen::Matrix<T,3,1>& p, const Eigen::Matrix<T,4,1>& q)
+  Transform(const Eigen::Matrix<T,3,1>& _p, const Eigen::Matrix<T,4,1>& _q)
   {
-    setP(p);
-    setQ(q.normalized());
-  }
-
-  Transform(const T& x, const T& y, const T& z, const T& roll, const T& pitch, const T& yaw)
-  {
-    setPX(x);
-    setPY(y);
-    setPZ(z);
-    setQ(Quaternion<T>(roll, pitch, yaw));
+    p(_p);
+    q(_q.normalized());
   }
 
   Transform(const Transform<T>& T_)
   {
-    setP(T_.p());
-    setQ(T_.q());
+    p(T_.p());
+    q(T_.q());
   }
 
-  Transform(const Eigen::Matrix<T,T_SIZE,1>& t)
+  Transform(const Eigen::Matrix<T,T_SIZE,1>& _t)
   {
-    setT(t);
+    t(_t);
   }
 
   Transform<T> operator*(const Transform<T>& t2) const
   {
     Transform<T> t;
-    t.setP(p() + q().inverse().rotp(t2.p()));
-    t.setQ(q() * t2.q());
+    t.p(p() + q().inverse().rotp(t2.p()));
+    t.q(q() * t2.q());
     return t;
   }
 
@@ -127,11 +119,11 @@ public:
     T theta = delta_q.norm();
 
     Transform<T> t;
-    if (theta < T(1e-6)) // avoid numerical error with approximation
+    if (theta < T(1e-8)) // avoid numerical error with approximation
     {
       Eigen::Matrix<T,3,1> delta_q_2 = delta_q / T(2.0);
-      t.setP(delta_t);
-      t.setQ(Eigen::Matrix<T,4,1>(T(1.0), delta_q_2(0), delta_q_2(1), delta_q_2(2)));
+      t.p(delta_t);
+      t.q(Eigen::Matrix<T,4,1>(T(1.0), delta_q_2(0), delta_q_2(1), delta_q_2(2)));
     }
     else
     {
@@ -141,8 +133,8 @@ public:
       Eigen::Matrix<T,3,3> delta_q_skew2 = delta_q_skew * delta_q_skew;
       Eigen::Matrix<T,3,3> V = I_3x3.cast<T>() + (T(1.0) - cos(theta))/theta2 *
                                delta_q_skew + (theta - sin(theta))/theta3 * delta_q_skew2;
-      t.setP(V * delta_t);
-      t.setQ(Quaternion<T>::exp(delta_q));
+      t.p(V * delta_t);
+      t.q(Quaternion<T>::exp(delta_q));
     }
 
     return t;
@@ -155,7 +147,7 @@ public:
 
     // avoid numerical error with approximation
     Eigen::Matrix<T,DT_SIZE,1> delta;
-    if (theta < T(1e-6))
+    if (theta < T(1e-8))
     {
       delta.template segment<3>(PX) = t.p();
     }
@@ -173,17 +165,17 @@ public:
     return delta;
   }
 
-  void setT(const Eigen::Matrix<T,T_SIZE,1> t) { arr = t; }
-  void setP(const Eigen::Matrix<T,3,1> p) { arr.template segment<3>(PX) = p; }
-  void setQ(const Quaternion<T> q) { arr.template segment<4>(QW) = q.toEigen(); }
-  void setQ(const Eigen::Matrix<T,4,1> q) { arr.template segment<4>(QW) = q; }
-  void setPX(const T& x) { arr(PX) = x; }
-  void setPY(const T& y) { arr(PY) = y; }
-  void setPZ(const T& z) { arr(PZ) = z; }
-  void setQW(const T& w) { arr(QW) = w; }
-  void setQX(const T& x) { arr(QX) = x; }
-  void setQY(const T& y) { arr(QY) = y; }
-  void setQZ(const T& z) { arr(QZ) = z; }
+  void t(const Eigen::Matrix<T,T_SIZE,1> t) { arr = t; }
+  void p(const Eigen::Matrix<T,3,1> p) { arr.template segment<3>(PX) = p; }
+  void q(const Quaternion<T> q) { arr.template segment<4>(QW) = q.toEigen(); }
+  void q(const Eigen::Matrix<T,4,1> q) { arr.template segment<4>(QW) = q; }
+  void px(const T& x) { arr(PX) = x; }
+  void py(const T& y) { arr(PY) = y; }
+  void pz(const T& z) { arr(PZ) = z; }
+  void qw(const T& w) { arr(QW) = w; }
+  void qx(const T& x) { arr(QX) = x; }
+  void qy(const T& y) { arr(QY) = y; }
+  void qz(const T& z) { arr(QZ) = z; }
 
   const Eigen::Matrix<T,3,1> p() const { return arr.template segment<3>(PX); }
   const Quaternion<T> q() const { return Quaternion<T>(arr(QW), arr(QX), arr(QY), arr(QZ)); }

@@ -72,8 +72,8 @@ public:
   Mocap()
     : id(-1), type(MOCAP), t(NAN)
   {
-    transform.setP(Eigen::Matrix<T,3,1>::Constant(NAN));
-    transform.setQ(Eigen::Matrix<T,4,1>::Constant(NAN));
+    transform.p(Eigen::Matrix<T,3,1>::Constant(NAN));
+    transform.q(Eigen::Matrix<T,4,1>::Constant(NAN));
   }
 
   Mocap(const int& _id, const T& _t, const common::Transform<T>& _transform)
