@@ -117,32 +117,6 @@ public:
     arr(3) *= s;
   }
 
-  T roll() const
-  {
-    return atan2(T(2.0) * (w()*x() + y()*z()), T(1.0) - T(2.0) * (x()*x() + y()*y()));
-  }
-
-  T pitch() const
-  {
-    const T val = T(2.0) * (w()*y() - x()*z());
-
-    // hold at 90 degrees if invalid
-    if (fabs(val) > T(1.0))
-      return copysign(T(1.0), val) * T(M_PI) / T(2.0);
-    else
-      return asin(val);
-  }
-
-  T yaw() const
-  {
-    return atan2(T(2.0) * (w()*z() + x()*y()), T(1.0) - T(2.0) * (y()*y() + z()*z()));
-  }
-
-  Eigen::Matrix<T,3,1> euler() const
-  {
-    return Eigen::Matrix<T,3,1>(roll(),pitch(),yaw());
-  }
-
   Eigen::Matrix<T,3,1> bar() const
   {
     return Eigen::Matrix<T,3,1>(x(),y(),z());
@@ -151,31 +125,6 @@ public:
   Quaternion<T> inverse() const
   {
     return Quaternion<T>(w(), -x(), -y(), -z());
-  }
-
-  Eigen::Matrix<T,3,3> R() const
-  {
-    // Pre-calculations
-    T ww = w() * w();
-    T wx = w() * x();
-    T wy = w() * y();
-    T wz = w() * z();
-    T xy = x() * y();
-    T xz = x() * z();
-    T yz = y() * z();
-
-    // Output
-    Eigen::Matrix<T,3,3> R;
-    R(0,0) = T(2.0) * (ww + x() * x()) - T(1.0);
-    R(0,1) = T(2.0) * (wz + xy);
-    R(0,2) = T(2.0) * (xz - wy);
-    R(1,0) = T(2.0) * (xy - wz);
-    R(1,1) = T(2.0) * (ww + y() * y()) - T(1.0);
-    R(1,2) = T(2.0) * (wx + yz);
-    R(2,0) = T(2.0) * (wy + xz);
-    R(2,1) = T(2.0) * (yz - wx);
-    R(2,2) = T(2.0) * (ww + z() * z()) - T(1.0);
-    return R;
   }
 
   Eigen::Matrix<T,3,1> rotSlow(const Eigen::Matrix<T,3,1>& v) const
@@ -209,43 +158,168 @@ public:
     return inverse().R() * I_2x3.cast<T>().transpose();
   }
 
+  
+  /** @brief Returns x-axis rotation for 1-2-3 Euler angles.
+   */
+  T roll123() const
+  {
+    return atan2(T(2.0) * (w()*x() + y()*z()), T(1.0) - T(2.0) * (x()*x() + y()*y()));
+  }
+
+  
+  /** @brief Returns x-axis rotation for 2-1-3 Euler angles.
+   */
+  T roll213() const
+  {
+    // Hold at 90 degrees if invalid
+    const T val = T(2.0) * (w()*x() + y()*z());
+    if (std::abs(val) > T(1.0))
+      return copysign(T(1.0), val) * T(M_PI) / T(2.0);
+    else
+      return asin(val);
+  }
+
+
+  /** @brief Returns y-axis rotation for 1-2-3 Euler angles.
+   */
+  T pitch123() const
+  {
+    // Hold at 90 degrees if invalid
+    const T val = T(2.0) * (w()*y() - x()*z());
+    if (std::abs(val) > T(1.0))
+      return copysign(T(1.0), val) * T(M_PI) / T(2.0);
+    else
+      return asin(val);
+  }
+
+
+  /** @brief Returns y-axis rotation for 2-1-3 Euler angles.
+   */
+  T pitch213() const
+  {
+    return atan2(T(2.0) * (w()*y() - x()*z()), T(2.0) * (w()*w() + z()*z()) - T(1.0));
+  }
+
+
+  /** @brief Returns z-axis rotation for 1-2-3 Euler angles.
+   */
+  T yaw123() const
+  {
+    return atan2(T(2.0) * (w()*z() + x()*y()), T(1.0) - T(2.0) * (y()*y() + z()*z()));
+  }
+
+
+  /** @brief Returns z-axis rotation for 2-1-3 Euler angles.
+   */
+  T yaw213() const
+  {
+    return atan2(T(2.0) * (w()*z() - x()*y()), T(2.0) * (w()*w() + y()*y()) - T(1.0));
+  }
+
+
+  /** @brief Returns vector of 1-2-3 Euler angles.
+   */
+  Eigen::Matrix<T,3,1> eulerVector123() const
+  {
+    return Eigen::Matrix<T,3,1>(roll123(),pitch123(),yaw123());
+  }
+
+
+  /** @brief Returns vector of 2-1-3 Euler angles.
+   */
+  Eigen::Matrix<T,3,1> eulerVector213() const
+  {
+    return Eigen::Matrix<T,3,1>(roll213(),pitch213(),yaw213());
+  }
+
+
+  /** @brief Returns rotation matrix from unit quaternion.
+   */
+  Eigen::Matrix<T,3,3> R() const
+  {
+    // Pre-calculations
+    T ww = w() * w();
+    T wx = w() * x();
+    T wy = w() * y();
+    T wz = w() * z();
+    T xy = x() * y();
+    T xz = x() * z();
+    T yz = y() * z();
+
+    // Output
+    Eigen::Matrix<T,3,3> R;
+    R(0,0) = T(2.0) * (ww + x() * x()) - T(1.0);
+    R(0,1) = T(2.0) * (wz + xy);
+    R(0,2) = T(2.0) * (xz - wy);
+    R(1,0) = T(2.0) * (xy - wz);
+    R(1,1) = T(2.0) * (ww + y() * y()) - T(1.0);
+    R(1,2) = T(2.0) * (wx + yz);
+    R(2,0) = T(2.0) * (wy + xz);
+    R(2,1) = T(2.0) * (yz - wx);
+    R(2,2) = T(2.0) * (ww + z() * z()) - T(1.0);
+    return R;
+  }
+
   static Quaternion<T> fromEigen(const Eigen::Matrix<T,4,1>& q)
   {
     return Quaternion<T>(q);
   }
 
-  static Quaternion<T> exp(const Eigen::Matrix<T,3,1>& delta)
+
+  /** @brief Creates quaternion from a rotation angle about the x-axis.
+   @param roll rotation about x-axis
+   */
+  static Quaternion<T> fromRoll(const T& roll)
   {
-    T delta_norm = delta.norm();
+    // Pre-calculations
+    T r_2 = roll / T(2.0);
 
-    Quaternion<T> q;
-    if (delta_norm < T(1e-8)) // avoid numerical error with approximation
-    {
-      q.w(T(1.0));
-      q.x(delta(0) / T(2.0));
-      q.y(delta(1) / T(2.0));
-      q.z(delta(2) / T(2.0));
-    }
-    else
-    {
-      const T delta_norm_2 = delta_norm / T(2.0);
-      const T sn = sin(delta_norm_2) / delta_norm;
-      q.w(cos(delta_norm_2));
-      q.x(sn * delta(0));
-      q.y(sn * delta(1));
-      q.z(sn * delta(2));
-    }
-
-    return q;
+    // Output
+    return Quaternion<T>(cos(r_2),
+                         sin(r_2),
+                         0,
+                         0);
   }
 
 
-  /** @brief Creates quaternion from 3-2-1 or Z-Y-X Euler angles.
+  /** @brief Creates quaternion from a rotation angle about the y-axis.
+   @param pitch rotation about x-axis
+   */
+  static Quaternion<T> fromPitch(const T& pitch)
+  {
+    // Pre-calculations
+    T p_2 = pitch / T(2.0);
+
+    // Output
+    return Quaternion<T>(cos(p_2),
+                         0,
+                         sin(p_2),
+                         0);
+  }
+
+
+  /** @brief Creates quaternion from a rotation angle about the z-axis.
+   @param yaw rotation about x-axis
+   */
+  static Quaternion<T> fromYaw(const T& yaw)
+  {
+    // Pre-calculations
+    T y_2 = yaw / T(2.0);
+
+    // Output
+    return Quaternion<T>(cos(y_2),
+                         0,
+                         0,
+                         sin(y_2));
+  }
+
+
+  /** @brief Creates quaternion from 1-2-3 Euler angles.
    @param roll rotation about x-axis
    @param pitch rotation about y-axis
    @param yaw rotation about z-axis
    */
-  static Quaternion<T> fromEulerZYX(const T& roll, const T& pitch, const T& yaw)
+  static Quaternion<T> fromEuler123(const T& roll, const T& pitch, const T& yaw)
   {
     // Pre-calculations
     T r_2 = roll / T(2.0);
@@ -263,6 +337,32 @@ public:
                          sr*cp*cy - cr*sp*sy,
                          cr*sp*cy + sr*cp*sy,
                          cr*cp*sy - sr*sp*cy);
+  }
+
+
+  /** @brief Creates quaternion from 2-1-3 Euler angles.
+   @param roll rotation about x-axis
+   @param pitch rotation about y-axis
+   @param yaw rotation about z-axis
+   */
+  static Quaternion<T> fromEuler213(const T& roll, const T& pitch, const T& yaw)
+  {
+    // Pre-calculations
+    T r_2 = roll / T(2.0);
+    T p_2 = pitch / T(2.0);
+    T y_2 = yaw / T(2.0);
+    T sr = sin(r_2);
+    T sp = sin(p_2);
+    T sy = sin(y_2);
+    T cr = cos(r_2);
+    T cp = cos(p_2);
+    T cy = cos(y_2);
+
+    // Output
+    return Quaternion<T>(cr*cp*cy - sr*sp*sy,
+                         sr*cp*cy - cr*sp*sy,
+                         cr*sp*cy + sr*cp*sy,
+                         cr*cp*sy + sr*sp*cy);
   }
 
 
@@ -301,6 +401,31 @@ public:
       q.x(qbar(0));
       q.y(qbar(1));
       q.z(qbar(2));
+    }
+
+    return q;
+  }
+
+  static Quaternion<T> exp(const Eigen::Matrix<T,3,1>& delta)
+  {
+    T delta_norm = delta.norm();
+
+    Quaternion<T> q;
+    if (delta_norm < T(1e-8)) // avoid numerical error with approximation
+    {
+      q.w(T(1.0));
+      q.x(delta(0) / T(2.0));
+      q.y(delta(1) / T(2.0));
+      q.z(delta(2) / T(2.0));
+    }
+    else
+    {
+      const T delta_norm_2 = delta_norm / T(2.0);
+      const T sn = sin(delta_norm_2) / delta_norm;
+      q.w(cos(delta_norm_2));
+      q.x(sn * delta(0));
+      q.y(sn * delta(1));
+      q.z(sn * delta(2));
     }
 
     return q;

@@ -75,4 +75,32 @@ TEST(Quaternion, UnitVector)
 }
 
 
+TEST(Quaternion, Euler123)
+{
+  srand(seed);
+  for (size_t iter = 0; iter < NUM_ITERS; ++iter)
+  {
+    Vector3d xyz1 = M_PI / 2 * Vector3d::Random();
+    Quaterniond q1 = common::Quaterniond::fromEuler123(xyz1(0), xyz1(1), xyz1(2));
+    Quaterniond q2 = Quaterniond::fromYaw(xyz1(2)) * Quaterniond::fromPitch(xyz1(1)) * Quaterniond::fromRoll(xyz1(0));
+    Vector3d xyz2(q2.roll123(), q2.pitch123(), q2.yaw123());
+    EXPECT_MATRIX_CLOSE(xyz1, xyz2, TOL);
+  }
+}
+
+
+TEST(Quaternion, Euler213)
+{
+  srand(seed);
+  for (size_t iter = 0; iter < NUM_ITERS; ++iter)
+  {
+    Vector3d xyz1 = M_PI / 2 * Vector3d::Random();
+    Quaterniond q1 = common::Quaterniond::fromEuler213(xyz1(0), xyz1(1), xyz1(2));
+    Quaterniond q2 = Quaterniond::fromYaw(xyz1(2)) * Quaterniond::fromRoll(xyz1(0)) * Quaterniond::fromPitch(xyz1(1));
+    Vector3d xyz2(q2.roll213(), q2.pitch213(), q2.yaw213());
+    EXPECT_MATRIX_CLOSE(xyz1, xyz2, TOL);
+  }
+}
+
+
 } // namespace common
