@@ -23,12 +23,30 @@ public:
     arr(3) = T(0.0);
   }
 
+  Quaternion(const int& order)
+  {
+    arr(0) = T(1.0);
+    arr(1) = T(0.0);
+    arr(2) = T(0.0);
+    arr(3) = T(0.0);
+    eulerOrder(order);
+  }
+
   Quaternion(const T* ptr)
   {
     arr(0) = ptr[0] < T(0) ? -ptr[0] : ptr[0];
     arr(1) = ptr[1];
     arr(2) = ptr[2];
     arr(3) = ptr[3];
+  }
+
+  Quaternion(const T* ptr, const int& order)
+  {
+    arr(0) = ptr[0] < T(0) ? -ptr[0] : ptr[0];
+    arr(1) = ptr[1];
+    arr(2) = ptr[2];
+    arr(3) = ptr[3];
+    eulerOrder(order);
   }
 
   Quaternion(const T& _w, const T& _x, const T& _y, const T& _z)
@@ -39,6 +57,15 @@ public:
     arr(3) = _z;
   }
 
+  Quaternion(const T& _w, const T& _x, const T& _y, const T& _z, const int& order)
+  {
+    arr(0) = _w < T(0) ? -_w : _w;
+    arr(1) = _x;
+    arr(2) = _y;
+    arr(3) = _z;
+    eulerOrder(order);
+  }
+
   Quaternion(const Eigen::Matrix<T,4,1>& v)
   {
     arr(0) = v(0) < T(0) ? -v(0) : v(0);
@@ -47,13 +74,30 @@ public:
     arr(3) = v(3);
   }
 
+  Quaternion(const Eigen::Matrix<T,4,1>& v, const int& order)
+  {
+    arr(0) = v(0) < T(0) ? -v(0) : v(0);
+    arr(1) = v(1);
+    arr(2) = v(2);
+    arr(3) = v(3);
+    eulerOrder(order);
+  }
+
+  void operator=(const Quaternion<T> &q2)
+  {
+    arr = q2.toEigen();
+    eulerOrder(q2.eulerOrder());
+  }
+
   Quaternion<T> operator*(const Quaternion<T> &q2) const
   {
-    const T qw = w()*q2.w() - x()*q2.x() - y()*q2.y() - z()*q2.z();
-    const T qx = w()*q2.x() + x()*q2.w() + y()*q2.z() - z()*q2.y();
-    const T qy = w()*q2.y() - x()*q2.z() + y()*q2.w() + z()*q2.x();
-    const T qz = w()*q2.z() + x()*q2.y() - y()*q2.x() + z()*q2.w();
-    return Quaternion<T>(qw, qx, qy, qz);
+    if (eulerOrder() != q2.eulerOrder())
+      std::cout << "\n\n\nWARNING: Multiplying quaterions with non-matching Euler angle rotation orders!\n\n\n";
+    return Quaternion<T>(w()*q2.w() - x()*q2.x() - y()*q2.y() - z()*q2.z(),
+                         w()*q2.x() + x()*q2.w() + y()*q2.z() - z()*q2.y(),
+                         w()*q2.y() - x()*q2.z() + y()*q2.w() + z()*q2.x(),
+                         w()*q2.z() + x()*q2.y() - y()*q2.x() + z()*q2.w(),
+                         eulerOrder());
   }
 
   void operator*=(const Quaternion<T> &q)
@@ -159,77 +203,66 @@ public:
   }
 
   
-  /** @brief Returns x-axis rotation for 1-2-3 Euler angles.
+  /** @brief Returns x-axis rotation for 3-2-1 or 3-1-2 Euler angles.
    */
-  T roll123() const
+  T roll() const
   {
-    return atan2(T(2.0) * (w()*x() + y()*z()), T(1.0) - T(2.0) * (x()*x() + y()*y()));
-  }
-
-  
-  /** @brief Returns x-axis rotation for 2-1-3 Euler angles.
-   */
-  T roll213() const
-  {
-    // Hold at 90 degrees if invalid
-    const T val = T(2.0) * (w()*x() + y()*z());
-    if (std::abs(val) > T(1.0))
-      return copysign(T(1.0), val) * T(M_PI) / T(2.0);
-    else
-      return asin(val);
-  }
-
-
-  /** @brief Returns y-axis rotation for 1-2-3 Euler angles.
-   */
-  T pitch123() const
-  {
-    // Hold at 90 degrees if invalid
-    const T val = T(2.0) * (w()*y() - x()*z());
-    if (std::abs(val) > T(1.0))
-      return copysign(T(1.0), val) * T(M_PI) / T(2.0);
-    else
-      return asin(val);
+    if (eulerOrder() == 321)
+    {
+      return atan2(T(2.0) * (w()*x() + y()*z()), T(1.0) - T(2.0) * (x()*x() + y()*y()));
+    }
+    else if (eulerOrder() == 312)
+    {
+      // Hold at 90 degrees if invalid
+      T val = T(2.0) * (w()*x() + y()*z());
+      if (std::abs(val) > T(1.0))
+        return copysign(T(1.0), val) * T(M_PI) / T(2.0);
+      else
+        return asin(val);
+    }
   }
 
 
-  /** @brief Returns y-axis rotation for 2-1-3 Euler angles.
+  /** @brief Returns y-axis rotation for 3-2-1 or 3-1-2 Euler angles.
    */
-  T pitch213() const
+  T pitch() const
   {
-    return atan2(T(2.0) * (w()*y() - x()*z()), T(2.0) * (w()*w() + z()*z()) - T(1.0));
+    if (eulerOrder() == 321)
+    {
+      // Hold at 90 degrees if invalid
+      const T val = T(2.0) * (w()*y() - x()*z());
+      if (std::abs(val) > T(1.0))
+        return copysign(T(1.0), val) * T(M_PI) / T(2.0);
+      else
+        return asin(val);
+    }
+    else if (eulerOrder() == 312)
+    {
+      return atan2(T(2.0) * (w()*y() - x()*z()), T(2.0) * (w()*w() + z()*z()) - T(1.0));
+    }
   }
 
 
-  /** @brief Returns z-axis rotation for 1-2-3 Euler angles.
+  /** @brief Returns z-axis rotation for 3-2-1 or 3-1-2 Euler angles.
    */
-  T yaw123() const
+  T yaw() const
   {
-    return atan2(T(2.0) * (w()*z() + x()*y()), T(1.0) - T(2.0) * (y()*y() + z()*z()));
+    if (eulerOrder() == 321)
+    {
+      return atan2(T(2.0) * (w()*z() + x()*y()), T(1.0) - T(2.0) * (y()*y() + z()*z()));
+    }
+    else if (eulerOrder() == 312)
+    {
+      return atan2(T(2.0) * (w()*z() - x()*y()), T(2.0) * (w()*w() + y()*y()) - T(1.0));
+    }
   }
 
 
-  /** @brief Returns z-axis rotation for 2-1-3 Euler angles.
+  /** @brief Returns vector of Euler angles.
    */
-  T yaw213() const
+  Eigen::Matrix<T,3,1> eulerVector() const
   {
-    return atan2(T(2.0) * (w()*z() - x()*y()), T(2.0) * (w()*w() + y()*y()) - T(1.0));
-  }
-
-
-  /** @brief Returns vector of 1-2-3 Euler angles.
-   */
-  Eigen::Matrix<T,3,1> eulerVector123() const
-  {
-    return Eigen::Matrix<T,3,1>(roll123(),pitch123(),yaw123());
-  }
-
-
-  /** @brief Returns vector of 2-1-3 Euler angles.
-   */
-  Eigen::Matrix<T,3,1> eulerVector213() const
-  {
-    return Eigen::Matrix<T,3,1>(roll213(),pitch213(),yaw213());
+    return Eigen::Matrix<T,3,1>(roll(), pitch(), yaw());
   }
 
 
@@ -314,12 +347,16 @@ public:
   }
 
 
-  /** @brief Creates quaternion from 1-2-3 Euler angles.
+  /** @brief Creates quaternion from Euler angles.
+   @note Currently supports 321 and 312 rotation orders. 
+   The order refers to the sequence of rotations about each axis. 
+   E.g. 321 rotates the fixed coordinate frame by yaw, pitch, then roll to arrive at the body frame.
    @param roll rotation about x-axis
    @param pitch rotation about y-axis
    @param yaw rotation about z-axis
+   @param order Euler angle order of rotation
    */
-  static Quaternion<T> fromEuler123(const T& roll, const T& pitch, const T& yaw)
+  static Quaternion<T> fromEuler(const T& roll, const T& pitch, const T& yaw, const int& order)
   {
     // Pre-calculations
     T r_2 = roll / T(2.0);
@@ -333,36 +370,35 @@ public:
     T cy = cos(y_2);
 
     // Output
-    return Quaternion<T>(cr*cp*cy + sr*sp*sy,
-                         sr*cp*cy - cr*sp*sy,
-                         cr*sp*cy + sr*cp*sy,
-                         cr*cp*sy - sr*sp*cy);
+    if (order == 321)
+    {
+      return Quaternion<T>(cr*cp*cy + sr*sp*sy,
+                           sr*cp*cy - cr*sp*sy,
+                           cr*sp*cy + sr*cp*sy,
+                           cr*cp*sy - sr*sp*cy);
+    }
+    else if (order == 312)
+    {
+      return Quaternion<T>(cr*cp*cy - sr*sp*sy,
+                           sr*cp*cy - cr*sp*sy,
+                           cr*sp*cy + sr*cp*sy,
+                           cr*cp*sy + sr*sp*cy);
+    }
+    else
+    {
+      return Quaternion<T>(order); // Throws runtime error because invalid order was supplied.
+    }
   }
 
 
-  /** @brief Creates quaternion from 2-1-3 Euler angles.
+  /** @brief Creates quaternion from 321 Euler angles.
    @param roll rotation about x-axis
    @param pitch rotation about y-axis
    @param yaw rotation about z-axis
    */
-  static Quaternion<T> fromEuler213(const T& roll, const T& pitch, const T& yaw)
+  static Quaternion<T> fromEuler(const T& roll, const T& pitch, const T& yaw)
   {
-    // Pre-calculations
-    T r_2 = roll / T(2.0);
-    T p_2 = pitch / T(2.0);
-    T y_2 = yaw / T(2.0);
-    T sr = sin(r_2);
-    T sp = sin(p_2);
-    T sy = sin(y_2);
-    T cr = cos(r_2);
-    T cp = cos(p_2);
-    T cy = cos(y_2);
-
-    // Output
-    return Quaternion<T>(cr*cp*cy - sr*sp*sy,
-                         sr*cp*cy - cr*sp*sy,
-                         cr*sp*cy + sr*cp*sy,
-                         cr*cp*sy + sr*sp*cy);
+    return fromEuler(roll, pitch, yaw, 321);
   }
 
 
@@ -506,16 +542,32 @@ public:
   const T& x() const { return arr(1); }
   const T& y() const { return arr(2); }
   const T& z() const { return arr(3); }
+  const int& eulerOrder() const { return euler_order; }
   const Eigen::Matrix<T,4,1> toEigen() const { return arr; }
   void w(const T& _w) { arr(0) = _w; }
   void x(const T& _x) { arr(1) = _x; }
   void y(const T& _y) { arr(2) = _y; }
   void z(const T& _z) { arr(3) = _z; }
+  void eulerOrder(const int& order)
+  {
+    if (order == 321 || order == 312)
+    {
+      euler_order = order;
+    }
+    else
+    {
+      std::stringstream ss;
+      ss << "Invalid Euler angle order in " << __FILE__ \
+         << " line " << __LINE__ << ": " << "Choose 321 or 312." << std::endl;
+      throw std::runtime_error(ss.str());
+    }
+  }
   T* data() { return arr.data(); }
 
 private:
 
   Eigen::Matrix<T,4,1> arr;
+  int euler_order = 321;
 
 };
 

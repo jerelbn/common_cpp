@@ -75,29 +75,30 @@ TEST(Quaternion, UnitVector)
 }
 
 
-TEST(Quaternion, Euler123)
+TEST(Quaternion, Euler321)
 {
   srand(seed);
   for (size_t iter = 0; iter < NUM_ITERS; ++iter)
   {
     Vector3d xyz1 = M_PI / 2 * Vector3d::Random();
-    Quaterniond q1 = common::Quaterniond::fromEuler123(xyz1(0), xyz1(1), xyz1(2));
+    Quaterniond q1 = common::Quaterniond::fromEuler(xyz1(0), xyz1(1), xyz1(2));
     Quaterniond q2 = Quaterniond::fromYaw(xyz1(2)) * Quaterniond::fromPitch(xyz1(1)) * Quaterniond::fromRoll(xyz1(0));
-    Vector3d xyz2(q2.roll123(), q2.pitch123(), q2.yaw123());
+    Vector3d xyz2(q2.roll(), q2.pitch(), q2.yaw());
     EXPECT_MATRIX_CLOSE(xyz1, xyz2, TOL);
   }
 }
 
 
-TEST(Quaternion, Euler213)
+TEST(Quaternion, Euler312)
 {
   srand(seed);
   for (size_t iter = 0; iter < NUM_ITERS; ++iter)
   {
     Vector3d xyz1 = M_PI / 2 * Vector3d::Random();
-    Quaterniond q1 = common::Quaterniond::fromEuler213(xyz1(0), xyz1(1), xyz1(2));
+    Quaterniond q1 = common::Quaterniond::fromEuler(xyz1(0), xyz1(1), xyz1(2), 312);
     Quaterniond q2 = Quaterniond::fromYaw(xyz1(2)) * Quaterniond::fromRoll(xyz1(0)) * Quaterniond::fromPitch(xyz1(1));
-    Vector3d xyz2(q2.roll213(), q2.pitch213(), q2.yaw213());
+    q2.eulerOrder(312);
+    Vector3d xyz2(q2.roll(), q2.pitch(), q2.yaw());
     EXPECT_MATRIX_CLOSE(xyz1, xyz2, TOL);
   }
 }
