@@ -83,6 +83,17 @@ public:
     eulerOrder(order);
   }
 
+  Quaternion(const Quaternion<T>& q)
+  {
+    arr = q.toEigen();
+  }
+
+  Quaternion(const Quaternion<T>& q, const int& order)
+  {
+    arr = q.toEigen();
+    eulerOrder(order);
+  }
+
   void operator=(const Quaternion<T> &q2)
   {
     arr = q2.toEigen();

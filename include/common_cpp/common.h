@@ -179,24 +179,6 @@ void randomNormal(Eigen::DenseBase<T>& matrix,
 }
 
 
-/** @brief Returns rotation matrix rotating Euler angular rates to body angular rates.
- @note This assumes 3-2-1 Euler angle order.
- @param roll rotation about body x-axis
- @param pitch rotation about body y-axis
- */
-template<typename T>
-Eigen::Matrix<T,3,3> R_euler_rates(const T& roll, const T& pitch)
-{
-  Eigen::Matrix<T,3,3> R = Eigen::Matrix<T,3,3>::Identity();
-  R(0,2) = -sin(pitch);
-  R(1,1) = cos(roll);
-  R(1,2) = sin(roll) * cos(pitch);
-  R(2,1) = -sin(roll);
-  R(2,2) = cos(roll) * cos(pitch);
-  return R;
-}
-
-
 /** @brief Perspective projection of vector in camera coordinates into image coordinates.
  @param pix output of pixel position in image
  @param lc vector in camera coordinates
@@ -589,6 +571,51 @@ Eigen::Matrix<T,3,3> logR(const Eigen::Matrix<T,3,3>& R)
     deltax = 0.5*(R - R.transpose());
 
   return deltax;
+}
+
+
+/** @brief Returns rotation matrix rotating Euler angular rates to body angular rates.
+ @note This supports 3-2-1 and 3-1-2 Euler angle orders.
+ @param roll rotation about body x-axis
+ @param pitch rotation about body y-axis
+ @param order euler angle rotation order
+ */
+template<typename T>
+Eigen::Matrix<T,3,3> R_euler_rate_to_body_rate(const T& roll, const T& pitch, const int& order)
+{
+  // Pre-calcs
+  double sr = sin(roll);
+  double cr = cos(roll);
+  double sp = sin(pitch);
+  double cp = cos(pitch);
+
+  // Populate matrix for different orders
+  Eigen::Matrix<T,3,3> R = Eigen::Matrix<T,3,3>::Identity();
+  if (order == 321)
+  {
+    R(0,2) = -sp;
+    R(1,1) = cr;
+    R(1,2) = sr * cp;
+    R(2,1) = -sr;
+    R(2,2) = cr * cp;
+  }
+  else if (order == 312)
+  {
+    R(0,0) = cp;
+    R(0,2) = -cr * sp;
+    R(1,2) = sr;
+    R(2,0) = sp;
+    R(2,2) = cr * cp;
+  }
+  else
+  {
+    std::stringstream ss;
+    ss << "Invalid Euler angle order in " << __FILE__ \
+        << " line " << __LINE__ << ": " << "Choose 321 or 312." << std::endl;
+    throw std::runtime_error(ss.str());
+  }
+
+  return R;
 }
 
 
