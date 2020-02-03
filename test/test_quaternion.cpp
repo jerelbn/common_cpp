@@ -10,8 +10,13 @@ using namespace Eigen;
 namespace common
 {
 
-#define NUM_ITERS 10000
-#define TOL 1e-6
+
+static const unsigned NUM_ITERS = 100000;
+static const double TOL = 1e-6;
+static const unsigned seed = 0;//time(NULL);
+static const double sqrt2 = sqrt(2.0);
+static const double sqrt3 = sqrt(3.0);
+
 
 #define EXPECT_MATRIX_CLOSE(m1, m2, tol)\
 {\
@@ -25,11 +30,6 @@ namespace common
     }\
   }\
 }
-
-
-static const unsigned seed = time(NULL);
-static const double sqrt2 = sqrt(2.0);
-static const double sqrt3 = sqrt(3.0);
 
 
 TEST(Quaternion, BoxPlus)
@@ -84,7 +84,9 @@ TEST(Quaternion, Euler321)
     Quaterniond q1 = common::Quaterniond::fromEuler(xyz1(0), xyz1(1), xyz1(2));
     Quaterniond q2 = Quaterniond::fromYaw(xyz1(2)) * Quaterniond::fromPitch(xyz1(1)) * Quaterniond::fromRoll(xyz1(0));
     Vector3d xyz2(q2.roll(), q2.pitch(), q2.yaw());
+    Vector3d xyz3(q1.roll(), q1.pitch(), q1.yaw());
     EXPECT_MATRIX_CLOSE(xyz1, xyz2, TOL);
+    EXPECT_MATRIX_CLOSE(xyz1, xyz3, TOL);
   }
 }
 
@@ -99,7 +101,9 @@ TEST(Quaternion, Euler312)
     Quaterniond q2 = Quaterniond::fromYaw(xyz1(2)) * Quaterniond::fromRoll(xyz1(0)) * Quaterniond::fromPitch(xyz1(1));
     q2.eulerOrder(312);
     Vector3d xyz2(q2.roll(), q2.pitch(), q2.yaw());
+    Vector3d xyz3(q1.roll(), q1.pitch(), q1.yaw());
     EXPECT_MATRIX_CLOSE(xyz1, xyz2, TOL);
+    EXPECT_MATRIX_CLOSE(xyz1, xyz3, TOL);
   }
 }
 

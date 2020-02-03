@@ -386,14 +386,16 @@ public:
       return Quaternion<T>(cr*cp*cy + sr*sp*sy,
                            sr*cp*cy - cr*sp*sy,
                            cr*sp*cy + sr*cp*sy,
-                           cr*cp*sy - sr*sp*cy);
+                           cr*cp*sy - sr*sp*cy,
+                           order);
     }
     else if (order == 312)
     {
       return Quaternion<T>(cr*cp*cy - sr*sp*sy,
                            sr*cp*cy - cr*sp*sy,
                            cr*sp*cy + sr*cp*sy,
-                           cr*cp*sy + sr*sp*cy);
+                           cr*cp*sy + sr*sp*cy,
+                           order);
     }
     else
     {
