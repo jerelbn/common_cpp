@@ -102,8 +102,8 @@ public:
 
   Quaternion<T> operator*(const Quaternion<T> &q2) const
   {
-    if (eulerOrder() != q2.eulerOrder())
-      std::cout << "\n\n\nWARNING: Multiplying quaterions with non-matching Euler angle rotation orders!\n\n\n";
+    // if (eulerOrder() != q2.eulerOrder())
+    //   std::cout << "\n\n\nWARNING: Multiplying quaterions with non-matching Euler angle rotation orders!\n\n\n";
     return Quaternion<T>(w()*q2.w() - x()*q2.x() - y()*q2.y() - z()*q2.z(),
                          w()*q2.x() + x()*q2.w() + y()*q2.z() - z()*q2.y(),
                          w()*q2.y() - x()*q2.z() + y()*q2.w() + z()*q2.x(),
