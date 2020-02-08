@@ -108,4 +108,16 @@ TEST(Quaternion, Euler312)
 }
 
 
+TEST(Quaternion, QuaternionFromRotationMatrix)
+{
+  srand(seed);
+  for (size_t iter = 0; iter < NUM_ITERS; ++iter)
+  {
+    Quaterniond q1(Vector4d::Random().normalized());
+    Quaterniond q2 = common::Quaterniond::fromRotationMatrix(q1.R());
+    EXPECT_MATRIX_CLOSE(q1.toEigen(), q2.toEigen(), TOL);
+  }
+}
+
+
 } // namespace common

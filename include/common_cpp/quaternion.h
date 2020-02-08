@@ -26,40 +26,45 @@ public:
 
   Quaternion(const T* ptr, const int& order=321)
   {
-    arr(0) = ptr[0] < T(0) ? -ptr[0] : ptr[0];
+    arr(0) = ptr[0];
     arr(1) = ptr[1];
     arr(2) = ptr[2];
     arr(3) = ptr[3];
+    if (arr(0) < 0) arr *= -1;
     eulerOrder(order);
   }
 
   Quaternion(const T& _w, const T& _x, const T& _y, const T& _z, const int& order=321)
   {
-    arr(0) = _w < T(0) ? -_w : _w;
+    arr(0) = _w;
     arr(1) = _x;
     arr(2) = _y;
     arr(3) = _z;
+    if (arr(0) < 0) arr *= -1;
     eulerOrder(order);
   }
 
   Quaternion(const Eigen::Matrix<T,4,1>& v, const int& order=321)
   {
-    arr(0) = v(0) < T(0) ? -v(0) : v(0);
+    arr(0) = v(0);
     arr(1) = v(1);
     arr(2) = v(2);
     arr(3) = v(3);
+    if (arr(0) < 0) arr *= -1;
     eulerOrder(order);
   }
 
   Quaternion(const Quaternion<T>& q, const int& order=321)
   {
     arr = q.toEigen();
+    if (arr(0) < 0) arr *= -1;
     eulerOrder(order);
   }
 
   void operator=(const Quaternion<T> &q2)
   {
     arr = q2.toEigen();
+    if (arr(0) < 0) arr *= -1;
     eulerOrder(q2.eulerOrder());
   }
 
@@ -82,7 +87,6 @@ public:
   Quaternion<T> operator+(const Eigen::Matrix<T,3,1>& delta) const
   {
     Quaternion<T> q = *this * exp(delta);
-    if (q.w() < T(0)) q.w(-q.w());
     return q;
   }
 
@@ -500,6 +504,55 @@ public:
       return I_3x3 - (T(1.0) - cos(dmag)) / dmag2 * delta_x +
              (dmag - sin(dmag)) / (dmag2 * dmag) * delta_x * delta_x;
     }
+  }
+
+  static Quaternion<T> fromRotationMatrix(const Eigen::Matrix<T,3,3>& R)
+  {
+    // To improve numerical accuracy, choose solution with largest value in the root
+    T root_w = T(1.0) + R(0,0) + R(1,1) + R(2,2);
+    T root_x = T(1.0) + R(0,0) - R(1,1) - R(2,2);
+    T root_y = T(1.0) - R(0,0) + R(1,1) - R(2,2);
+    T root_z = T(1.0) - R(0,0) - R(1,1) + R(2,2);
+
+    T w, x, y, z;
+    if (root_w >= root_x &&
+        root_w >= root_y &&
+        root_w >= root_z)
+    {
+      w = T(0.5) * sqrt(root_w);
+      x = T(0.25) * (R(1,2) - R(2,1)) / w;
+      y = T(0.25) * (R(2,0) - R(0,2)) / w;
+      z = T(0.25) * (R(0,1) - R(1,0)) / w;
+    }
+    if (root_x >= root_w &&
+        root_x >= root_y &&
+        root_x >= root_z)
+    {
+      x = T(0.5) * sqrt(root_x);
+      w = T(0.25) * (R(1,2) - R(2,1)) / x;
+      y = T(0.25) * (R(0,1) + R(1,0)) / x;
+      z = T(0.25) * (R(0,2) + R(2,0)) / x;
+    }
+    if (root_y >= root_w &&
+        root_y >= root_x &&
+        root_y >= root_z)
+    {
+      y = T(0.5) * sqrt(root_y);
+      w = T(0.25) * (R(2,0) - R(0,2)) / y;
+      x = T(0.25) * (R(1,0) + R(0,1)) / y;
+      z = T(0.25) * (R(1,2) + R(2,1)) / y;
+    }
+    if (root_z >= root_w &&
+        root_z >= root_x &&
+        root_z >= root_y)
+    {
+      z = T(0.5) * sqrt(root_z);
+      w = T(0.25) * (R(0,1) - R(1,0)) / z;
+      x = T(0.25) * (R(2,0) + R(0,2)) / z;
+      y = T(0.25) * (R(2,1) + R(1,2)) / z;
+    }
+
+    return Quaternion<T>(w,x,y,z);
   }
 
 
