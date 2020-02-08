@@ -15,15 +15,7 @@ class Quaternion
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-  Quaternion()
-  {
-    arr(0) = T(1.0);
-    arr(1) = T(0.0);
-    arr(2) = T(0.0);
-    arr(3) = T(0.0);
-  }
-
-  Quaternion(const int& order)
+  Quaternion(const int& order=321)
   {
     arr(0) = T(1.0);
     arr(1) = T(0.0);
@@ -32,15 +24,7 @@ public:
     eulerOrder(order);
   }
 
-  Quaternion(const T* ptr)
-  {
-    arr(0) = ptr[0] < T(0) ? -ptr[0] : ptr[0];
-    arr(1) = ptr[1];
-    arr(2) = ptr[2];
-    arr(3) = ptr[3];
-  }
-
-  Quaternion(const T* ptr, const int& order)
+  Quaternion(const T* ptr, const int& order=321)
   {
     arr(0) = ptr[0] < T(0) ? -ptr[0] : ptr[0];
     arr(1) = ptr[1];
@@ -49,15 +33,7 @@ public:
     eulerOrder(order);
   }
 
-  Quaternion(const T& _w, const T& _x, const T& _y, const T& _z)
-  {
-    arr(0) = _w < T(0) ? -_w : _w;
-    arr(1) = _x;
-    arr(2) = _y;
-    arr(3) = _z;
-  }
-
-  Quaternion(const T& _w, const T& _x, const T& _y, const T& _z, const int& order)
+  Quaternion(const T& _w, const T& _x, const T& _y, const T& _z, const int& order=321)
   {
     arr(0) = _w < T(0) ? -_w : _w;
     arr(1) = _x;
@@ -66,15 +42,7 @@ public:
     eulerOrder(order);
   }
 
-  Quaternion(const Eigen::Matrix<T,4,1>& v)
-  {
-    arr(0) = v(0) < T(0) ? -v(0) : v(0);
-    arr(1) = v(1);
-    arr(2) = v(2);
-    arr(3) = v(3);
-  }
-
-  Quaternion(const Eigen::Matrix<T,4,1>& v, const int& order)
+  Quaternion(const Eigen::Matrix<T,4,1>& v, const int& order=321)
   {
     arr(0) = v(0) < T(0) ? -v(0) : v(0);
     arr(1) = v(1);
@@ -83,12 +51,7 @@ public:
     eulerOrder(order);
   }
 
-  Quaternion(const Quaternion<T>& q)
-  {
-    arr = q.toEigen();
-  }
-
-  Quaternion(const Quaternion<T>& q, const int& order)
+  Quaternion(const Quaternion<T>& q, const int& order=321)
   {
     arr = q.toEigen();
     eulerOrder(order);
@@ -367,7 +330,7 @@ public:
    @param yaw rotation about z-axis
    @param order Euler angle order of rotation
    */
-  static Quaternion<T> fromEuler(const T& roll, const T& pitch, const T& yaw, const int& order)
+  static Quaternion<T> fromEuler(const T& roll, const T& pitch, const T& yaw, const int& order=321)
   {
     // Pre-calculations
     T r_2 = roll / T(2.0);
@@ -404,17 +367,6 @@ public:
   }
 
 
-  /** @brief Creates quaternion from 321 Euler angles.
-   @param roll rotation about x-axis
-   @param pitch rotation about y-axis
-   @param yaw rotation about z-axis
-   */
-  static Quaternion<T> fromEuler(const T& roll, const T& pitch, const T& yaw)
-  {
-    return fromEuler(roll, pitch, yaw, 321);
-  }
-
-
   /** @brief Creates quaternion from an axis of rotation and angular magnitude.
    @param axis axis of rotation
    @param angle magnitude of rotation in radians
@@ -428,11 +380,11 @@ public:
   /** @brief Creates a unit quaternion representing rotation the z-axis to a unit vector.
    @param v unit vector input
    */
-  static Quaternion<T> fromUnitVector(Eigen::Matrix<T,3,1>& v)
+  static Quaternion<T> fromUnitVector(const Eigen::Matrix<T,3,1>& v)
   {
     Quaternion<T> q;
-    v.normalize(); // enforce unit length
-    T angle = acos(e3.cast<T>().dot(v));
+    Eigen::Matrix<T,3,1> ev = v.normalized(); // enforce unit length
+    T angle = acos(e3.cast<T>().dot(ev));
     if (angle < T(1e-8))
     {
       q.w(T(1.0));
@@ -442,7 +394,7 @@ public:
     }
     else
     {
-      Eigen::Matrix<T,3,1> axis = (e3.cast<T>().cross(v)).normalized();
+      Eigen::Matrix<T,3,1> axis = (e3.cast<T>().cross(ev)).normalized();
       T half_angle = angle / T(2.0);
       Eigen::Matrix<T,3,1> qbar = axis * sin(half_angle);
 
