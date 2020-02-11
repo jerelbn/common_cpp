@@ -349,6 +349,10 @@ public:
     : type(_type), t(_t), wvane(_wvane)
   {}
 
+  Measurement(const int& _type, const T& _t, const Mag<T>& _mag)
+    : type(_type), t(_t), mag(_mag)
+  {}
+
   bool operator< (const Measurement<T>& other) const
   {
     return t < other.t;
