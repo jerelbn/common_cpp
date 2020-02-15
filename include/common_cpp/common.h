@@ -425,8 +425,8 @@ struct PID
 
     // Integrator anti-windup
     T u_sat = (u > max) ? max : (u < min) ? min : u;
-    if (u != u_sat && std::abs(i_term) > std::abs(u - p_term + d_term) && ki > T(0))
-      integrator = (u_sat - p_term + d_term)/ki;
+    if (u != u_sat && ki > T(0))
+      integrator = dt/ki*(u_sat - u);
 
     return u_sat;
   }
