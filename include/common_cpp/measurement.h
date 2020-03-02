@@ -20,7 +20,8 @@ enum
   MAG = 5,
   PITOT = 6,
   WVANE = 7,
-  ROTENC = 8
+  ROTENC = 8,
+  LRF = 9
 };
 
 
@@ -292,6 +293,31 @@ public:
 };
 typedef RotEnc<float> RotEncf;
 typedef RotEnc<double> RotEncd;
+
+
+template<typename T>
+class Lrf
+{
+public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+  int id;
+  int type;
+  T t;
+  T range; // range (meters)
+
+  Lrf()
+    : id(-1), type(LRF), t(NAN)
+  {
+    range = NAN;
+  }
+
+  Lrf(const int& _id, const T& _t, const T& _range)
+    : id(_id), type(LRF), t(_t), range(_range)
+  {}
+};
+typedef Lrf<float> Lrff;
+typedef Lrf<double> Lrfd;
 
 
 template<typename T>
