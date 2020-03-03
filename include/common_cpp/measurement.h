@@ -21,7 +21,8 @@ enum
   PITOT = 6,
   WVANE = 7,
   ROTENC = 8,
-  LRF = 9
+  LRF = 9,
+  LST = 10
 };
 
 
@@ -318,6 +319,35 @@ public:
 };
 typedef Lrf<float> Lrff;
 typedef Lrf<double> Lrfd;
+
+
+template<typename T>
+class Lst
+{
+public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+  int id;
+  int type;
+  T t;
+  T az; // azimuth (radians)
+  T el; // elevation (radians)
+  bool valid; // invalid when spot is outside of the FOV
+
+  Lst()
+    : id(-1), type(LST), t(NAN)
+  {
+    az = NAN;
+    el = NAN;
+    valid = false;
+  }
+
+  Lst(const int& _id, const T& _t, const T& _az, const T& _el, const bool& _valid)
+    : id(_id), type(LST), t(_t), az(_az), el(_el), valid(_valid)
+  {}
+};
+typedef Lst<float> Lstf;
+typedef Lst<double> Lstd;
 
 
 template<typename T>
