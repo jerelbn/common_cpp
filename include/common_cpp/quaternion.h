@@ -30,7 +30,7 @@ public:
     arr(1) = ptr[1];
     arr(2) = ptr[2];
     arr(3) = ptr[3];
-    if (arr(0) < 0) arr *= -1;
+    if (arr(0) < T(0)) arr *= T(-1);
     eulerOrder(order);
   }
 
@@ -40,7 +40,7 @@ public:
     arr(1) = _x;
     arr(2) = _y;
     arr(3) = _z;
-    if (arr(0) < 0) arr *= -1;
+    if (arr(0) < T(0)) arr *= T(-1);
     eulerOrder(order);
   }
 
@@ -50,21 +50,21 @@ public:
     arr(1) = v(1);
     arr(2) = v(2);
     arr(3) = v(3);
-    if (arr(0) < 0) arr *= -1;
+    if (arr(0) < T(0)) arr *= T(-1);
     eulerOrder(order);
   }
 
   Quaternion(const Quaternion<T>& q, const int& order=321)
   {
     arr = q.toEigen();
-    if (arr(0) < 0) arr *= -1;
+    if (arr(0) < T(0)) arr *= T(-1);
     eulerOrder(order);
   }
 
   void operator=(const Quaternion<T> &q2)
   {
     arr = q2.toEigen();
-    if (arr(0) < 0) arr *= -1;
+    if (arr(0) < T(0)) arr *= T(-1);
     eulerOrder(q2.eulerOrder());
   }
 
