@@ -193,6 +193,21 @@ void randomNormal(Eigen::DenseBase<T>& matrix,
 }
 
 
+/** @brief Create unit vector from camera image pixel coordinates and intrinsic camera matrix.
+ @param uvec output unit vector in camera coordinates
+ @param pix pixel position in image
+ @param K camera intrinsic matrix
+ */
+template<typename T>
+void unitVectorFromPixelPosition(Eigen::Matrix<T,3,1>& uvec, const Eigen::Matrix<T,2,1> &pix, const Eigen::Matrix<T,3,3> &K)
+{
+  uvec(0) = (pix(0) - K(0,2))/K(0,0);
+  uvec(1) = (pix(1) - K(1,2))/K(1,1);
+  uvec(2) = T(1.0);
+  uvec.normalize();
+}
+
+
 /** @brief Perspective projection of vector in camera coordinates into image coordinates.
  @param pix output of pixel position in image
  @param lc vector in camera coordinates
