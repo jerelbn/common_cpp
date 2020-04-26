@@ -649,10 +649,11 @@ Eigen::Matrix<T,3,3> R_euler_rate_to_body_rate(const T& roll, const T& pitch, co
 
 
 /** @brief 4th order integrator for arbitrary size vectors of Eigen::Matrix type
- @note This supports 3-2-1 and 3-1-2 Euler angle orders.
- @param roll rotation about body x-axis
- @param pitch rotation about body y-axis
- @param order euler angle rotation order
+ @param f function containing equations of motion
+ @param dt time step of integration
+ @param x state of XSIZE
+ @param u input of USIZE
+ @param dx change in state of XSIZE
  */
 template<typename T, int XSIZE, int USIZE>
 void rk4(std::function<void(const Eigen::Matrix<T,XSIZE,1>&, const Eigen::Matrix<T,USIZE,1>&, Eigen::Matrix<T,XSIZE,1>&)> f,
