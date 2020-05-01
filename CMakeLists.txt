@@ -48,3 +48,14 @@ target_link_libraries(rotation_test
   pthread
   ${GTEST_LIBRARIES}
 )
+
+add_executable(matrix_test
+  test/test_matrix.cpp
+)
+target_link_libraries(matrix_test
+  common_cpp
+  gtest
+  gtest_main
+  pthread
+  ${GTEST_LIBRARIES}
+)
