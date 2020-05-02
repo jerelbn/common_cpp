@@ -10,7 +10,7 @@ namespace common
 {
 
 
-static const unsigned NUM_ITERS = 10;
+static const unsigned NUM_ITERS = 1;
 static const double TOL = 1e-6;
 static const unsigned seed = time(NULL);
 static const double sqrt2 = sqrt(2.0);
@@ -57,6 +57,21 @@ TEST(Matrix, Multiplication)
     Matrix<double,3,5> m3 = m1 * m2;
     Matrix<double,3,5> m4(m4_);
     EXPECT_MATRIX_CLOSE(m3, m4, TOL);
+  }
+}
+
+
+TEST(Matrix, Block)
+{
+  srand(seed);
+  for (size_t iter = 0; iter < NUM_ITERS; ++iter)
+  {
+    double m1_[] = {13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32};
+    double m3_[] = {20,21,22,25,26,27};
+    Matrix<double,4,5> m1(m1_);
+    Matrix<double,2,3> m2 = m1.block<2,3>(1,2);
+    Matrix<double,2,3> m3(m3_);
+    EXPECT_MATRIX_CLOSE(m2, m3, TOL);
   }
 }
 

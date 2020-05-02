@@ -8,10 +8,7 @@ class Matrix
 {
 
 public:
-    Matrix()
-    {
-        memset(arr, T(0.0), sizeof(arr));
-    }
+    Matrix() {}
     ~Matrix() {}
 
     Matrix(T *ptr)
@@ -39,6 +36,7 @@ public:
     Matrix<T, R, C2, RowMajor> operator*(Matrix<T, C, C2, RowMajor> &m2)
     {
         Matrix<T, R, C2, RowMajor> m;
+        m.setZero();
         for (int i = 0; i < R; ++i)
         {
             for (int j = 0; j < C2; ++j)
@@ -65,6 +63,25 @@ public:
         return os;
     }
 
+    template <int R2, int C2>
+    Matrix<T, R2, C2, RowMajor> block(int row, int col)
+    {
+        Matrix<T, R2, C2, RowMajor> m;
+        for (int i = 0; i < R2; ++i)
+        {
+            for (int j = 0; j < C2; ++j)
+            {
+                m(i, j) = (*this)(row + i, col + j);
+            }
+        }
+        return m;
+    }
+
+    void setZero()
+    {
+        memset(arr, T(0.0), sizeof(arr));
+    }
+
     void setRandom(T scalar = T(1.0))
     {
         for (int i = 0; i < R; ++i)
@@ -74,6 +91,13 @@ public:
                 arr(i, j) = scalar * T(2.0) * T(rand()) / RAND_MAX - T(1.0);
             }
         }
+    }
+
+    static Matrix<T, R, C, RowMajor> zeros()
+    {
+        Matrix<T, R, C, RowMajor> m;
+        memset(m.data(), T(0.0), m.size());
+        return m;
     }
 
     static Matrix<T, R, C, RowMajor> random(T scalar = T(1.0))
@@ -91,6 +115,7 @@ public:
 
     const int rows() const { return R; }
     const int cols() const { return C; }
+    const int size() const { return sizeof(arr); }
     T *const data() { return arr; }
 
 private:
@@ -116,5 +141,25 @@ typedef Matrix<double, 6, 6> Matrix6d;
 typedef Matrix<double, 7, 7> Matrix7d;
 typedef Matrix<double, 8, 8> Matrix8d;
 typedef Matrix<double, 9, 9> Matrix9d;
+
+typedef Matrix<float, 1, 1> Vector1f;
+typedef Matrix<float, 2, 1> Vector2f;
+typedef Matrix<float, 3, 1> Vector3f;
+typedef Matrix<float, 4, 1> Vector4f;
+typedef Matrix<float, 5, 1> Vector5f;
+typedef Matrix<float, 6, 1> Vector6f;
+typedef Matrix<float, 7, 1> Vector7f;
+typedef Matrix<float, 8, 1> Vector8f;
+typedef Matrix<float, 9, 1> Vector9f;
+
+typedef Matrix<double, 1, 1> Vector1d;
+typedef Matrix<double, 2, 1> Vector2d;
+typedef Matrix<double, 3, 1> Vector3d;
+typedef Matrix<double, 4, 1> Vector4d;
+typedef Matrix<double, 5, 1> Vector5d;
+typedef Matrix<double, 6, 1> Vector6d;
+typedef Matrix<double, 7, 1> Vector7d;
+typedef Matrix<double, 8, 1> Vector8d;
+typedef Matrix<double, 9, 1> Vector9d;
 
 } // namespace common
