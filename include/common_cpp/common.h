@@ -381,20 +381,23 @@ struct PID
     kp = T(0);
     ki = T(0);
     kd = T(0);
-    max = T(0);
+    umax = T(0);
+    umin = T(0);
     integrator = T(0);
     differentiator = T(0);
     prev_x = T(0);
     tau = T(0);
   }
 
-  void init(T _kp, T _ki, T _kd, T _max, T _min, T _tau)
+  void init(T _kp, T _ki, T _kd, T _umax, T _umin, T _emax, T _emin, T _tau)
   {
     kp = _kp;
     ki = _ki;
     kd = _kd;
-    max = _max;
-    min = _min;
+    umax = _umax;
+    umin = _umin;
+    emax = _emax;
+    emin = _emin;
     tau = _tau;
   }
 
@@ -421,7 +424,7 @@ struct PID
   T run(T dt, T x, T x_c, bool update_integrator, T xdot)
   {
     // Calculate error and initialize components
-    T error = x_c - x;
+    T error = saturate(x_c - x, emax, emin);
     T p_term = kp * error;
     T i_term = T(0);
     T d_term = T(0);
@@ -439,7 +442,7 @@ struct PID
     T u = p_term - d_term + i_term;
 
     // Integrator anti-windup
-    T u_sat = (u > max) ? max : (u < min) ? min : u;
+    T u_sat = saturate(u, umax, umin);
     if (u != u_sat && ki > T(0))
       integrator = dt/ki*(u_sat - u);
 
@@ -447,7 +450,8 @@ struct PID
   }
 
   T kp, ki, kd;
-  T max, min;
+  T umax, umin;
+  T emax, emin;
   T integrator, differentiator;
   T prev_x;
   T tau;
