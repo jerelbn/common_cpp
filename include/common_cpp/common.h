@@ -666,18 +666,20 @@ void rk4(std::function<void(const T[XSIZE], const T[USIZE], T[XSIZE])> f,
                             const T u[USIZE],
                             T dx[XSIZE])
 {
+  int i;
   T k1[XSIZE], k2[XSIZE], k3[XSIZE], k4[XSIZE];
   T x1[XSIZE], x2[XSIZE], x3[XSIZE];
-  for (int i = 0; i < XSIZE; ++i) {
-    x1[i] = x[i] + k1[i] * dt / T(2.0);
-    x2[i] = x[i] + k2[i] * dt / T(2.0);
-    x3[i] = x[i] + k3[i] * dt;
-  }
   f(x,  u, k1);
+  for (i = 0; i < XSIZE; ++i)
+    x1[i] = x[i] + k1[i] * dt / T(2.0);
   f(x1, u, k2);
+  for (i = 0; i < XSIZE; ++i)
+    x2[i] = x[i] + k2[i] * dt / T(2.0);
   f(x2, u, k3);
+  for (i = 0; i < XSIZE; ++i)
+    x3[i] = x[i] + k3[i] * dt;
   f(x3, u, k4);
-  for (int i = 0; i < XSIZE; ++i) {
+  for (i = 0; i < XSIZE; ++i) {
     dx[i] = (k1[i] + T(2.0) * k2[i] + T(2.0) * k3[i] + k4[i]) * dt / T(6.0);
   }
 }
