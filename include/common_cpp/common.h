@@ -652,6 +652,37 @@ Eigen::Matrix<T,3,3> R_euler_rate_to_body_rate(const T& roll, const T& pitch, co
 }
 
 
+/** @brief 4th order integrator for arbitrary size arrays
+ @param f function containing equations of motion
+ @param dt time step of integration
+ @param x state of XSIZE
+ @param u input of USIZE
+ @param dx change in state of XSIZE
+ */
+template<typename T, int XSIZE, int USIZE>
+void rk4(std::function<void(const T[XSIZE], const T[USIZE], T[XSIZE])> f,
+                            const T& dt,
+                            const T x[XSIZE],
+                            const T u[USIZE],
+                            T dx[XSIZE])
+{
+  T k1[XSIZE], k2[XSIZE], k3[XSIZE], k4[XSIZE];
+  T x1[XSIZE], x2[XSIZE], x3[XSIZE];
+  for (int i = 0; i < XSIZE; ++i) {
+    x1[i] = x[i] + k1[i] * dt / T(2.0);
+    x2[i] = x[i] + k2[i] * dt / T(2.0);
+    x3[i] = x[i] + k3[i] * dt;
+  }
+  f(x,  u, k1);
+  f(x1, u, k2);
+  f(x2, u, k3);
+  f(x3, u, k4);
+  for (int i = 0; i < XSIZE; ++i) {
+    dx[i] = (k1[i] + T(2.0) * k2[i] + T(2.0) * k3[i] + k4[i]) * dt / T(6.0);
+  }
+}
+
+
 /** @brief 4th order integrator for arbitrary size vectors of Eigen::Matrix type
  @param f function containing equations of motion
  @param dt time step of integration
@@ -668,10 +699,10 @@ void rk4(std::function<void(const Eigen::Matrix<T,XSIZE,1>&, const Eigen::Matrix
 {
   Eigen::Matrix<T,XSIZE,1> k1, k2, k3, k4;
   f(x, u, k1);
-  f(x + k1 * dt / 2, u, k2);
-  f(x + k2 * dt / 2, u, k3);
+  f(x + k1 * dt / T(2.0), u, k2);
+  f(x + k2 * dt / T(2.0), u, k3);
   f(x + k3 * dt, u, k4);
-  dx = (k1 + 2 * k2 + 2 * k3 + k4) * dt / 6.0;
+  dx = (k1 + T(2.0) * k2 + T(2.0) * k3 + k4) * dt / T(6.0);
 }
 
 

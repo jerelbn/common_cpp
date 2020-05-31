@@ -31,13 +31,13 @@ public:
     }
 
     template <typename... T>
-    void log(T... data)
+    void log(const T... data)
     {
         int dummy[sizeof...(data)] = { (file_.write((char*)&data, sizeof(T)), 1)... };
     }
 
     template <typename... T>
-    void logMatrix(T... data)
+    void logMatrix(const T... data)
     {
         int dummy[sizeof...(data)] = { (file_.write((char*)data.data(), sizeof(typename T::Scalar)*data.rows()*data.cols()), 1)... };
     }
