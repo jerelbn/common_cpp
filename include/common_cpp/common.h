@@ -424,8 +424,9 @@ struct PID
   T run(T dt, T x, T x_c, bool update_integrator, T xdot)
   {
     // Calculate error and initialize components
-    T error = saturate(x_c - x, emax, emin);
-    T p_term = kp * error;
+    T error = x_c - x;
+    T error_sat = saturate(error, emax, emin);
+    T p_term = kp * error_sat;
     T i_term = T(0);
     T d_term = T(0);
 
@@ -443,7 +444,7 @@ struct PID
 
     // Integrator anti-windup
     T u_sat = saturate(u, umax, umin);
-    if (u != u_sat && ki > T(0))
+    if (ki > T(0) && (u != u_sat || error != error_sat))
       integrator = dt/ki*(u_sat - u);
 
     return u_sat;
