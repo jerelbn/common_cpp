@@ -455,7 +455,7 @@ public:
     {
       // Quaternions have double cover issues so wrap the axis-angle magnitude
       // to ensure the shortest rotation.
-      T delta_mag = wrapAngle(T(2.0) * atan2(qbar_mag, q.w()), T(M_PI));
+      T delta_mag = wrapAngle(T(2.0) * (T)atan2(qbar_mag, q.w()), T(M_PI));
       delta = delta_mag * qbar / qbar_mag;
     }
 

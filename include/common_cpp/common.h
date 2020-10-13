@@ -27,6 +27,20 @@ typedef Eigen::Matrix<double, 7, 7> Matrix7d;
 typedef Eigen::Matrix<double, 8, 8> Matrix8d;
 typedef Eigen::Matrix<double, 9, 9> Matrix9d;
 
+typedef Eigen::Matrix<float, 1, 1> Vector1f;
+typedef Eigen::Matrix<float, 5, 1> Vector5f;
+typedef Eigen::Matrix<float, 6, 1> Vector6f;
+typedef Eigen::Matrix<float, 7, 1> Vector7f;
+typedef Eigen::Matrix<float, 8, 1> Vector8f;
+typedef Eigen::Matrix<float, 9, 1> Vector9f;
+
+typedef Eigen::Matrix<float, 1, 1> Matrix1f;
+typedef Eigen::Matrix<float, 5, 5> Matrix5f;
+typedef Eigen::Matrix<float, 6, 6> Matrix6f;
+typedef Eigen::Matrix<float, 7, 7> Matrix7f;
+typedef Eigen::Matrix<float, 8, 8> Matrix8f;
+typedef Eigen::Matrix<float, 9, 9> Matrix9f;
+
 namespace common
 {
 
