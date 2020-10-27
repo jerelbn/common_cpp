@@ -34,19 +34,19 @@ public:
 
   int id;
   int type;
-  T t;
+  uint32_t t_ms;
   Eigen::Matrix<T,3,1> accel;
   Eigen::Matrix<T,3,1> gyro;
 
   Imu()
-    : id(-1), type(IMU), t(NAN)
+    : id(-1), type(IMU), t_ms(0)
   {
     accel.setConstant(NAN);
     gyro.setConstant(NAN);
   }
 
-  Imu(const int& _id, const T& _t, const Eigen::Matrix<T,3,1>& _accel, const Eigen::Matrix<T,3,1>& _gyro)
-     : id(_id), type(IMU), accel(_accel), gyro(_gyro)
+  Imu(int _id, uint32_t _t_ms, const Eigen::Matrix<T,3,1>& _accel, const Eigen::Matrix<T,3,1>& _gyro)
+     : id(_id), t_ms(_t_ms), type(IMU), accel(_accel), gyro(_gyro)
   {}
 
   Eigen::Matrix<T,6,1> vec() const
@@ -68,18 +68,18 @@ public:
 
   int id;
   int type;
-  T t;
+  uint32_t t_ms;
   common::Transform<T> transform; // transform containing position and attitude
 
   Mocap()
-    : id(-1), type(MOCAP), t(NAN)
+    : id(-1), type(MOCAP), t_ms(0)
   {
     transform.p(Eigen::Matrix<T,3,1>::Constant(NAN));
     transform.q(Eigen::Matrix<T,4,1>::Constant(NAN));
   }
 
-  Mocap(const int& _id, const T& _t, const common::Transform<T>& _transform)
-    : id(_id), type(MOCAP), t(_t)
+  Mocap(int _id, uint32_t _t_ms, const common::Transform<T>& _transform)
+    : id(_id), type(MOCAP), t_ms(_t_ms)
   {
     transform = _transform;
   }
@@ -96,19 +96,19 @@ public:
 
   int id;
   int type;
-  T t;
+  uint32_t t_ms;
   Eigen::Matrix<T,3,1> pos; // position
   Eigen::Matrix<T,3,1> vel; // velocity
 
   Gps()
-    : id(-1), type(GPS), t(NAN)
+    : id(-1), type(GPS), t_ms(0)
   {
     pos.setConstant(NAN);
     vel.setConstant(NAN);
   }
 
-  Gps(const int& _id, const T& _t, const Eigen::Matrix<T,3,1>& _pos, const Eigen::Matrix<T,3,1>& _vel)
-    : id(_id), type(GPS), t(_t), pos(_pos), vel(_vel)
+  Gps(int _id, uint32_t _t_ms, const Eigen::Matrix<T,3,1>& _pos, const Eigen::Matrix<T,3,1>& _vel)
+    : id(_id), type(GPS), t_ms(_t_ms), pos(_pos), vel(_vel)
   {}
 
   Eigen::Matrix<T,6,1> vec() const
@@ -141,7 +141,7 @@ public:
     pos.setConstant(NAN);
   }
 
-  Feat(const int& _id, const Eigen::Matrix<T,2,1>& _pix, const Eigen::Matrix<T,3,1>& _pos)
+  Feat(int _id, const Eigen::Matrix<T,2,1>& _pix, const Eigen::Matrix<T,3,1>& _pos)
     : id(_id), pix(_pix), pos(_pos)
   {
     rho = T(1.0) / pos(2);
@@ -164,15 +164,15 @@ public:
 
   int id;
   int type;
-  T t;
+  uint32_t t_ms;
   FeatVec<T> feats; // tracked features in the image
 
   Image()
-    : id(-1), type(IMAGE), t(NAN)
+    : id(-1), type(IMAGE), t_ms(0)
   {}
 
-  Image(const int& _id, const T& _t, const FeatVec<T>& _feats)
-    : id(_id), type(IMAGE), t(_t), feats(_feats)
+  Image(int _id, uint32_t _t_ms, const FeatVec<T>& _feats)
+    : id(_id), type(IMAGE), t_ms(_t_ms), feats(_feats)
   {}
 };
 typedef Image<float> Imagef;
@@ -187,15 +187,15 @@ public:
 
   int id;
   int type;
-  T t;
+  uint32_t t_ms;
   T pres; // absolute pressure (Pa)
 
   Baro()
-    : id(-1), type(BARO), t(NAN), pres(NAN)
+    : id(-1), type(BARO), t_ms(0), pres(NAN)
   {}
 
-  Baro(const int& _id, const T& _t, const T& _pres)
-    : id(_id), type(BARO), t(_t), pres(_pres)
+  Baro(int _id, uint32_t _t_ms, const T& _pres)
+    : id(_id), type(BARO), t_ms(_t_ms), pres(_pres)
   {}
 };
 typedef Baro<float> Barof;
@@ -210,17 +210,17 @@ public:
 
   int id;
   int type;
-  T t;
+  uint32_t t_ms;
   Eigen::Matrix<T,3,1> field; // magnetic field (nanotesla)
 
   Mag()
-    : id(-1), type(MAG), t(NAN)
+    : id(-1), type(MAG), t_ms(0)
   {
     field.setConstant(NAN);
   }
 
-  Mag(const int& _id, const T& _t, const Eigen::Matrix<T,3,1>& _field)
-    : id(_id), type(MAG), t(_t), field(_field)
+  Mag(int _id, uint32_t _t_ms, const Eigen::Matrix<T,3,1>& _field)
+    : id(_id), type(MAG), t_ms(_t_ms), field(_field)
   {}
 };
 typedef Mag<float> Magf;
@@ -235,15 +235,15 @@ public:
 
   int id;
   int type;
-  T t;
+  uint32_t t_ms;
   T pres; // differential pressure (Pa)
 
   Pitot()
-    : id(-1), type(PITOT), t(NAN), pres(NAN)
+    : id(-1), type(PITOT), t_ms(0), pres(NAN)
   {}
 
-  Pitot(const int& _id, const T& _t, const T& _pres)
-    : id(_id), type(PITOT), t(_t), pres(_pres)
+  Pitot(int _id, uint32_t _t_ms, const T& _pres)
+    : id(_id), type(PITOT), t_ms(_t_ms), pres(_pres)
   {}
 };
 typedef Pitot<float> Pitotf;
@@ -258,15 +258,15 @@ public:
 
   int id;
   int type;
-  T t;
+  uint32_t t_ms;
   T angle; // angle (rad)
 
   Wvane()
-    : id(-1), type(WVANE), t(NAN), angle(NAN)
+    : id(-1), type(WVANE), t_ms(0), angle(NAN)
   {}
 
-  Wvane(const int& _id, const T& _t, const T& _angle)
-    : id(_id), type(WVANE), t(_t), angle(_angle)
+  Wvane(int _id, uint32_t _t_ms, const T& _angle)
+    : id(_id), type(WVANE), t_ms(_t_ms), angle(_angle)
   {}
 };
 typedef Wvane<float> Wvanef;
@@ -281,15 +281,15 @@ public:
 
   int id;
   int type;
-  T t;
+  uint32_t t_ms;
   T angle; // angle (rad)
 
   RotEnc()
-    : id(-1), type(ROTENC), t(NAN), angle(NAN)
+    : id(-1), type(ROTENC), t_ms(0), angle(NAN)
   {}
 
-  RotEnc(const int& _id, const T& _t, const T& _angle)
-    : id(_id), type(ROTENC), t(_t), angle(_angle)
+  RotEnc(int _id, uint32_t _t_ms, const T& _angle)
+    : id(_id), type(ROTENC), t_ms(_t_ms), angle(_angle)
   {}
 };
 typedef RotEnc<float> RotEncf;
@@ -304,17 +304,17 @@ public:
 
   int id;
   int type;
-  T t;
+  uint32_t t_ms;
   T range; // range (meters)
 
   Lrf()
-    : id(-1), type(LRF), t(NAN)
+    : id(-1), type(LRF), t_ms(0)
   {
     range = NAN;
   }
 
-  Lrf(const int& _id, const T& _t, const T& _range)
-    : id(_id), type(LRF), t(_t), range(_range)
+  Lrf(int _id, uint32_t _t_ms, const T& _range)
+    : id(_id), type(LRF), t_ms(_t_ms), range(_range)
   {}
 };
 typedef Lrf<float> Lrff;
@@ -329,21 +329,21 @@ public:
 
   int id;
   int type;
-  T t;
+  uint32_t t_ms;
   T az; // azimuth (radians)
   T el; // elevation (radians)
   bool valid; // invalid when spot is outside of the FOV
 
   Lst()
-    : id(-1), type(LST), t(NAN)
+    : id(-1), type(LST), t_ms(0)
   {
     az = NAN;
     el = NAN;
     valid = false;
   }
 
-  Lst(const int& _id, const T& _t, const T& _az, const T& _el, const bool& _valid)
-    : id(_id), type(LST), t(_t), az(_az), el(_el), valid(_valid)
+  Lst(int _id, uint32_t _t_ms, const T& _az, const T& _el, const bool& _valid)
+    : id(_id), type(LST), t_ms(_t_ms), az(_az), el(_el), valid(_valid)
   {}
 };
 typedef Lst<float> Lstf;
@@ -366,7 +366,7 @@ class Measurement
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-  T t;
+  uint32_t t_ms;
   int type;
   Imu<T> imu;
   Mocap<T> mocap;
@@ -377,41 +377,41 @@ public:
   Pitot<T> pitot;
   Wvane<T> wvane;
 
-  Measurement(const int& _type, const T& _t, const Imu<T>& _imu)
-    : type(_type), t(_t), imu(_imu)
+  Measurement(const int& _type, uint32_t _t_ms, const Imu<T>& _imu)
+    : type(_type), t_ms(_t_ms), imu(_imu)
   {}
 
-  Measurement(const int& _type, const T& _t, const Mocap<T>& _mocap)
-    : type(_type), t(_t), mocap(_mocap)
+  Measurement(const int& _type, uint32_t _t_ms, const Mocap<T>& _mocap)
+    : type(_type), t_ms(_t_ms), mocap(_mocap)
   {}
 
-  Measurement(const int& _type, const T& _t, const Gps<T>& _gps)
-    : type(_type), t(_t), gps(_gps)
+  Measurement(const int& _type, uint32_t _t_ms, const Gps<T>& _gps)
+    : type(_type), t_ms(_t_ms), gps(_gps)
   {}
 
-  Measurement(const int& _type, const T& _t, const Image<T>& _image)
-    : type(_type), t(_t), image(_image)
+  Measurement(const int& _type, uint32_t _t_ms, const Image<T>& _image)
+    : type(_type), t_ms(_t_ms), image(_image)
   {}
 
-  Measurement(const int& _type, const T& _t, const Baro<T>& _baro)
-    : type(_type), t(_t), baro(_baro)
+  Measurement(const int& _type, uint32_t _t_ms, const Baro<T>& _baro)
+    : type(_type), t_ms(_t_ms), baro(_baro)
   {}
 
-  Measurement(const int& _type, const T& _t, const Pitot<T>& _pitot)
-    : type(_type), t(_t), pitot(_pitot)
+  Measurement(const int& _type, uint32_t _t_ms, const Pitot<T>& _pitot)
+    : type(_type), t_ms(_t_ms), pitot(_pitot)
   {}
 
-  Measurement(const int& _type, const T& _t, const Wvane<T>& _wvane)
-    : type(_type), t(_t), wvane(_wvane)
+  Measurement(const int& _type, uint32_t _t_ms, const Wvane<T>& _wvane)
+    : type(_type), t_ms(_t_ms), wvane(_wvane)
   {}
 
-  Measurement(const int& _type, const T& _t, const Mag<T>& _mag)
-    : type(_type), t(_t), mag(_mag)
+  Measurement(const int& _type, uint32_t _t_ms, const Mag<T>& _mag)
+    : type(_type), t_ms(_t_ms), mag(_mag)
   {}
 
   bool operator< (const Measurement<T>& other) const
   {
-    return t < other.t;
+    return t_ms < other.t_ms;
   }
 };
 typedef Measurement<float> Measurementf;
