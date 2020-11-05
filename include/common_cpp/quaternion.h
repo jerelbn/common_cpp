@@ -106,6 +106,14 @@ public:
     return os;
   }
 
+  void setIdentity()
+  {
+    arr(0) = T(1.0);
+    arr(1) = T(0.0);
+    arr(2) = T(0.0);
+    arr(3) = T(0.0);
+  }
+
   T mag() const
   {
     return sqrt(w()*w() + x()*x() + y()*y() + z()*z());
