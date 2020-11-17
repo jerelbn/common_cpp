@@ -723,6 +723,79 @@ void rk4(std::function<void(const Eigen::Matrix<T,XSIZE,1>&, const Eigen::Matrix
 }
 
 
+/** @brief A templated circular buffer
+ @param buf Data buffer
+ @param max_size Size of array when full
+ @param head Index to beginning of the array
+ @param tail Index to the end of the array
+ @param full Indicator for when the array is full
+ */
+template<typename T, size_t MAX_SIZE>
+class CircularBuffer
+{
+public:
+    CircularBuffer() : max_size(MAX_SIZE), head(0), tail(0), full(false) {}
+
+    CircularBuffer(const CircularBuffer& other)
+    {
+        buf =  other.buf;
+        head = other.head;
+        tail = other.tail;
+        full = other.full;
+        max_size = other.max_size;
+    }
+
+    CircularBuffer& operator=(const CircularBuffer& other)
+    {
+        CircularBuffer buf(other);
+        return buf;
+    }
+
+    T& operator[](const size_t& idx)
+    {
+        if (idx < max_size)
+            return buf[(head + idx) % max_size];
+        else
+            throw std::runtime_error("CircularBuffer: index > max_size");
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const CircularBuffer& cbuf)
+    {
+        os << "ptr: " << cbuf.buf << ", max_size: " << cbuf.max_size << ", size: " << cbuf.size();
+        return os;
+    }
+
+    const T& front() const { return buf[head]; }
+    const T& back() const { return buf[(tail - 1 + max_size) % max_size]; }
+    const T& get(const size_t& idx) const { return buf[(head+idx) % max_size]; }
+    const size_t size() const { return full ? max_size : (tail+max_size) % max_size; }
+
+    void print() const
+    {
+        for (size_t i = 0; i < max_size; ++i)
+            std::cout << get(i) << " ";
+        std::cout << std::endl;
+    }
+
+    void push_back(const T& value)
+    {
+        if (full && head == tail)
+            head = ++head % max_size;
+        buf[tail] = value;
+        tail = ++tail % max_size;
+        if (!full && head == tail)
+            full = true;
+    }
+
+private:
+    T buf[MAX_SIZE];        // Main data buffer
+    const size_t max_size;  // Size of array when full
+    size_t head;            // Index to beginning of the array
+    size_t tail;            // Index to the end of the array
+    bool full;              // Indicator for when the array is full
+};
+
+
 } // namespace common
 
 #endif // COMMON_H
