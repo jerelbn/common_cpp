@@ -736,21 +736,6 @@ class CircularBuffer
 public:
     CircularBuffer() : max_size(MAX_SIZE), head(0), tail(0), full(false) {}
 
-    CircularBuffer(const CircularBuffer& other)
-    {
-        buf =  other.buf;
-        head = other.head;
-        tail = other.tail;
-        full = other.full;
-        max_size = other.max_size;
-    }
-
-    CircularBuffer& operator=(const CircularBuffer& other)
-    {
-        CircularBuffer buf(other);
-        return buf;
-    }
-
     T& operator[](const size_t& idx)
     {
         if (idx < max_size)
@@ -785,6 +770,17 @@ public:
         tail = ++tail % max_size;
         if (!full && head == tail)
             full = true;
+    }
+
+    void clear()
+    {
+        full = false;
+        head = 0;
+        tail = 0;
+    }
+
+    bool isfull() {
+      return full;
     }
 
 private:
