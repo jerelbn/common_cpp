@@ -750,8 +750,8 @@ public:
         return os;
     }
 
-    const T& front() const { return buf[head]; }
-    const T& back() const { return buf[(tail - 1 + max_size) % max_size]; }
+    T& front() { return buf[head]; }
+    T& back() { return buf[(tail - 1 + max_size) % max_size]; }
     const T& get(const size_t& idx) const { return buf[(head+idx) % max_size]; }
     const size_t size() const { return full ? max_size : (tail+max_size) % max_size; }
 
