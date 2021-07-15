@@ -206,6 +206,7 @@ public:
       else
         return asin(val);
     }
+    return T(0);
   }
 
 
@@ -226,6 +227,7 @@ public:
     {
       return atan2(T(2.0) * (w()*y() - x()*z()), T(2.0) * (w()*w() + z()*z()) - T(1.0));
     }
+    return T(0);
   }
 
 
@@ -241,6 +243,7 @@ public:
     {
       return atan2(T(2.0) * (w()*z() - x()*y()), T(2.0) * (w()*w() + y()*y()) - T(1.0));
     }
+    return T(0);
   }
 
 
