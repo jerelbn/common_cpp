@@ -360,6 +360,7 @@ T* loadBinary(const std::string& filename, long& array_size)
   }
 }
 
+
 /** @brief Loads binary file directly into an Eigen-type matrix.
  @param filename name of binary file to load parameters from
  @param matrix_rows number of rows in output matrix
@@ -373,6 +374,22 @@ Eigen::Matrix<T,-1,-1> loadBinaryToMatrix(const std::string& filename, const int
   copy_ptr_to_eigen(ptr, m);
   delete[] ptr;
   return m;
+}
+
+
+/** @brief Loads binary file directly into a standard vector
+ @param filename name of binary file to load parameters from
+ */
+template<typename T>
+std::vector<T> loadBinaryToVector(const std::string& filename)
+{
+  long array_size;
+  T* ptr = loadBinary<T>(filename, array_size);
+  std::vector<T> v(array_size, T(0));
+  for (int i = 0; i < v.size(); ++i)
+    v[i] = *(ptr+i);
+  delete[] ptr;
+  return v;
 }
 
 
