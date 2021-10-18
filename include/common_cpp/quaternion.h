@@ -13,8 +13,6 @@ class Quaternion
 {
 
 public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
   Quaternion(const int& order=321)
   {
     arr(0) = T(1.0);

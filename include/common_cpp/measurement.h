@@ -30,8 +30,6 @@ template<typename T>
 class Imu
 {
 public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
   int id;
   int type;
   uint32_t t_ms;
@@ -64,8 +62,6 @@ template<typename T>
 class Mocap
 {
 public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
   int id;
   int type;
   uint32_t t_ms;
@@ -92,8 +88,6 @@ template<typename T>
 class Gps
 {
 public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
   int id;
   int type;
   uint32_t t_ms;
@@ -126,8 +120,6 @@ template<typename T>
 class Feat
 {
 public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
   int id; // feature id or label
   Eigen::Matrix<T,2,1> pix; // pixel position in image
   Eigen::Matrix<T,3,1> pos; // vector from camera to landmark in camera frame
@@ -160,8 +152,6 @@ template<typename T>
 class Image
 {
 public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
   int id;
   int type;
   uint32_t t_ms;
@@ -183,8 +173,6 @@ template<typename T>
 class Baro
 {
 public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
   int id;
   int type;
   uint32_t t_ms;
@@ -206,8 +194,6 @@ template<typename T>
 class Mag
 {
 public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
   int id;
   int type;
   uint32_t t_ms;
@@ -231,8 +217,6 @@ template<typename T>
 class Pitot
 {
 public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
   int id;
   int type;
   uint32_t t_ms;
@@ -254,8 +238,6 @@ template<typename T>
 class Wvane
 {
 public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
   int id;
   int type;
   uint32_t t_ms;
@@ -277,8 +259,6 @@ template<typename T>
 class RotEnc
 {
 public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
   int id;
   int type;
   uint32_t t_ms;
@@ -300,8 +280,6 @@ template<typename T>
 class Lrf
 {
 public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
   int id;
   int type;
   uint32_t t_ms;
@@ -325,8 +303,6 @@ template<typename T>
 class Lst
 {
 public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
   int id;
   int type;
   uint32_t t_ms;
@@ -364,8 +340,6 @@ template<typename T>
 class Measurement
 {
 public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
   uint32_t t_ms;
   int type;
   Imu<T> imu;
