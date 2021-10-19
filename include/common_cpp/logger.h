@@ -2,14 +2,9 @@
 
 #include <fstream>
 
-
 namespace common
 {
 
-
-// I swiped this class from James's salsa code...
-// This class opens a file and can write data to it with any number of
-// inputs because it uses variadic templates.
 class Logger
 {
 public:
@@ -31,15 +26,9 @@ public:
     }
 
     template <typename... T>
-    void log(const T... data)
+    void log(const T&... data)
     {
-        int dummy[sizeof...(data)] = { (file_.write((char*)&data, sizeof(T)), 1)... };
-    }
-
-    template <typename... T>
-    void logMatrix(const T... data)
-    {
-        int dummy[sizeof...(data)] = { (file_.write((char*)data.data(), sizeof(typename T::Scalar)*data.rows()*data.cols()), 1)... };
+        (file_.write(reinterpret_cast<const char*>(&data), sizeof(T)), ...);
     }
 
 private:
